@@ -1,0 +1,3 @@
+{"file":"docs/security/security-policy.md","reason":"Defines secret handling, third-party code isolation, and stop conditions for automatic integration."}
+{"file":"docs/skill-research/SOP.md","reason":"Defines required intake, raw asset preservation, static analysis, and output locations for candidate skills."}
+{"file":"README.md","reason":"Describes InvestKit's current role as a governance workspace for finance-related skills."}

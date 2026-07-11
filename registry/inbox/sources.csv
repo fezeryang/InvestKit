@@ -1,0 +1,38 @@
+source_id,source_url,user_note,batch,status,added_at
+EXAMPLE-DO-NOT-REVIEW,example://replace-with-real-source,"Example row only; replace with a real candidate source.",batch-001,new,YYYY-MM-DD
+EASTMONEY-001,https://github.com/meission/eastmoney,"东方财富 skill candidate; static review required before adoption",batch-001,new,2026-07-11
+CICCWM-001,https://cdnweb.ciccwm.com/zzt/static/skills/ciccwm-market-analysis.zip,"中金财富行情数据 skill archive; API key required but not stored",batch-001,new,2026-07-11
+CICCWM-002,https://cdnweb.ciccwm.com/zzt/static/skills/ciccwm-stock-finance-analysis.zip,"中金财富财务数据 skill archive; API key required but not stored",batch-001,new,2026-07-11
+CICCWM-003,https://cdnweb.ciccwm.com/zzt/static/skills/ciccwm-hot-news-analysis.zip,"中金财富热榜资讯 skill archive; API key required but not stored",batch-001,new,2026-07-11
+CICCWM-004,https://cdnweb.ciccwm.com/zzt/static/skills/ciccwm-etf-ranking-analysis.zip,"中金财富 ETF 热榜 skill archive; API key required but not stored",batch-001,new,2026-07-11
+CICCWM-005,https://cdnweb.ciccwm.com/zzt/static/skills/ciccwm-tiger-list-analysis.zip,"中金财富龙虎榜 skill archive; API key required but not stored",batch-001,new,2026-07-11
+CICCWM-006,https://cdnweb.ciccwm.com/zzt/static/skills/ciccwm-fund-product-info.zip,"中金财富基金产品信息 skill archive; API key required but not stored",batch-001,new,2026-07-11
+SKILLHUB-001,https://skillhub.cn/install/skillhub.md,"国泰海通证券灵犀智能选股 install instructions for lingxi-smartstockselection-skill",batch-001,new,2026-07-11
+GUOSEN-001,https://www.guosen.com.cn/gs/xxskills/gs-stock-market-query.zip,"国信证券行情数据 skill archive; API key required but not stored",batch-001,new,2026-07-11
+GUOSEN-002,https://www.guosen.com.cn/gs/xxskills/gs-stock-financial-query.zip,"国信证券财务数据 skill archive; API key required but not stored",batch-001,new,2026-07-11
+GUOSEN-003,https://www.guosen.com.cn/gs/xxskills/gs-economy-query.zip,"国信证券宏观经济数据 skill archive; API key required but not stored",batch-001,new,2026-07-11
+GUOSEN-004,https://www.guosen.com.cn/gs/xxskills/gs-smart-stock-picking.zip,"国信证券智能选股 skill archive; API key required but not stored",batch-001,new,2026-07-11
+GUOSEN-005,https://www.guosen.com.cn/gs/xxskills/gs-fund-compare.zip,"国信证券基金对比 skill archive; API key required but not stored",batch-001,new,2026-07-11
+GUOSEN-006,https://www.guosen.com.cn/gs/xxskills/gs-etf-filter.zip,"国信证券 ETF 筛选器 skill archive; API key required but not stored",batch-001,new,2026-07-11
+GF-001,https://mcp-api.gf.com.cn/gf-skills/skills/mcp/call,"广发证券龙虎榜个股列表 API wrapper source; use GF_SKILLS_APIKEY env var",batch-001,adapted,2026-07-11
+GF-002,https://mcp-api.gf.com.cn/gf-skills/skills/mcp/call,"广发证券股票 F10 基础信息 API wrapper source; use GF_SKILLS_APIKEY env var",batch-001,adapted,2026-07-11
+GF-003,https://mcp-api.gf.com.cn/gf-skills/skills/mcp/call,"广发证券股票市值估值与财务对比 API wrapper source; use GF_SKILLS_APIKEY env var",batch-001,adapted,2026-07-11
+GF-004,https://mcp-api.gf.com.cn/gf-skills/skills/mcp/call,"广发证券 ETF 榜单 API wrapper source; use GF_SKILLS_APIKEY env var",batch-001,adapted,2026-07-11
+GF-005,https://mcp-api.gf.com.cn/gf-skills/skills/mcp/call,"广发证券 ETF 多维筛选 API wrapper source; use GF_SKILLS_APIKEY env var",batch-001,adapted,2026-07-11
+GF-006,https://mcp-api.gf.com.cn/gf-skills/skills/mcp/call,"广发证券 ETF 超级资金异动 API wrapper source; use GF_SKILLS_APIKEY env var",batch-001,adapted,2026-07-11
+GF-007,https://mcp-api.gf.com.cn/gf-skills/skills/mcp/call,"广发证券基金详情 API wrapper source; use GF_SKILLS_APIKEY env var",batch-001,adapted,2026-07-11
+GF-008,https://mcp-api.gf.com.cn/gf-skills/skills/mcp/call,"广发证券基金定投计算器 API wrapper source; use GF_SKILLS_APIKEY env var",batch-001,adapted,2026-07-11
+BATCH-001-001,https://github.com/anthropics/financial-services,"Collected finance skill repository candidate",batch-001,new,2026-07-11
+BATCH-001-002,https://github.com/himself65/finance-skills,"Collected finance skill repository candidate",batch-001,new,2026-07-11
+BATCH-001-003,https://github.com/ginlix-ai/LangAlpha,"Collected finance skill repository candidate",batch-001,new,2026-07-11
+BATCH-001-004,https://github.com/tradermonty/claude-trading-skills,"Collected finance skill repository candidate",batch-001,new,2026-07-11
+BATCH-001-005,https://github.com/OctagonAI/skills,"Collected finance skill repository candidate",batch-001,new,2026-07-11
+BATCH-001-006,https://github.com/joansongjr/investor-harness,"Collected finance skill repository candidate",batch-001,new,2026-07-11
+BATCH-001-007,https://github.com/yennanliu/InvestSkill,"Collected finance skill repository candidate",batch-001,new,2026-07-11
+BATCH-001-008,https://github.com/spikeHongg/china-stock-research-skills,"Collected finance skill repository candidate",batch-001,new,2026-07-11
+BATCH-001-009,https://github.com/HHFinAi/claude-equity-research-skills,"Collected finance skill repository candidate",batch-001,new,2026-07-11
+BATCH-001-010,https://github.com/longbridge/skills,"Collected finance skill repository candidate",batch-001,new,2026-07-11
+BATCH-001-011,https://github.com/anthropics/claude-cookbooks/tree/main/creating-financial-models,"Collected finance modeling cookbook candidate",batch-001,new,2026-07-11
+BATCH-001-012,https://github.com/NousResearch/hermes-agent/tree/main/comps-analysis,"Collected comps-analysis skill candidate",batch-001,new,2026-07-11
+BATCH-001-013,https://github.com/Weizhena/Deep-Research-skills,"Collected deep research skill repository candidate",batch-001,new,2026-07-11
+BATCH-001-014,https://github.com/HKUDS/Vibe-Trading,"Collected trading skill repository candidate",batch-001,new,2026-07-11
