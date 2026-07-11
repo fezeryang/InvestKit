@@ -1,0 +1,37 @@
+source_id,scope_route,review_status,disposition,approval_status,research_permission,execution_install_policy,rationale
+EASTMONEY-001,defer_to_later_batch,intake_verified,unknown,not_requested,deferred_static_review_only,never_execute_or_install_candidate,Mixed repository scope requires later static classification
+CICCWM-001,blocked,static_risk_identified,unknown,not_requested,blocked,never_execute_or_install_candidate,Market data is out of scope and package has telemetry home access and weak TLS behavior
+CICCWM-002,blocked,static_risk_identified,unknown,not_requested,blocked,never_execute_or_install_candidate,Financial capability is relevant but telemetry credential handling and home access block further work
+CICCWM-003,blocked,static_risk_identified,unknown,not_requested,blocked,never_execute_or_install_candidate,News capability is out of scope and package has known security warnings
+CICCWM-004,blocked,static_risk_identified,unknown,not_requested,blocked,never_execute_or_install_candidate,ETF ranking is out of scope and package has known security warnings
+CICCWM-005,blocked,static_risk_identified,unknown,not_requested,blocked,never_execute_or_install_candidate,Abnormal trading data is out of scope and package has known security warnings
+CICCWM-006,blocked,static_risk_identified,unknown,not_requested,blocked,never_execute_or_install_candidate,Fund data is out of scope and package has known security warnings
+SKILLHUB-001,reference_only,reference_snapshot,reference,not_requested,reference_use_only,never_execute_or_install_candidate,Installation instructions are untrusted reference content only
+GUOSEN-001,blocked,acquisition_blocked,unknown,not_requested,blocked,never_execute_or_install_candidate,Market data is out of scope and no valid package was acquired
+GUOSEN-002,blocked,acquisition_blocked,unknown,not_requested,blocked,never_execute_or_install_candidate,Potential financial capability cannot be assessed because no valid package was acquired
+GUOSEN-003,blocked,acquisition_blocked,unknown,not_requested,blocked,never_execute_or_install_candidate,No package was acquired and macro data is outside Batch 001 scope
+GUOSEN-004,blocked,acquisition_blocked,unknown,not_requested,blocked,never_execute_or_install_candidate,No package was acquired and stock picking is outside Batch 001 scope
+GUOSEN-005,blocked,acquisition_blocked,unknown,not_requested,blocked,never_execute_or_install_candidate,No package was acquired and fund comparison is outside Batch 001 scope
+GUOSEN-006,blocked,acquisition_blocked,unknown,not_requested,blocked,never_execute_or_install_candidate,No package was acquired and ETF filtering is outside Batch 001 scope
+GF-001,defer_to_later_batch,draft,unknown,not_requested,deferred_static_review_only,never_execute_or_install_candidate,Abnormal trading list is outside Batch 001 scope
+GF-002,include_in_batch_001,draft,unknown,not_requested,static_review_allowed,never_execute_or_install_candidate,F10 company facts align with company fundamentals research
+GF-003,include_in_batch_001,draft,unknown,not_requested,static_review_allowed,never_execute_or_install_candidate,Valuation and financial comparison align with Batch 001 scope
+GF-004,defer_to_later_batch,draft,unknown,not_requested,deferred_static_review_only,never_execute_or_install_candidate,ETF ranking is outside Batch 001 scope
+GF-005,defer_to_later_batch,draft,unknown,not_requested,deferred_static_review_only,never_execute_or_install_candidate,ETF screening is outside Batch 001 scope
+GF-006,defer_to_later_batch,draft,unknown,not_requested,deferred_static_review_only,never_execute_or_install_candidate,ETF fund flow is outside Batch 001 scope
+GF-007,defer_to_later_batch,draft,unknown,not_requested,deferred_static_review_only,never_execute_or_install_candidate,Fund product detail is outside Batch 001 scope
+GF-008,defer_to_later_batch,draft,unknown,not_requested,deferred_static_review_only,never_execute_or_install_candidate,Fund investment simulation is outside Batch 001 scope
+BATCH-001-001,defer_to_later_batch,not_started,unknown,not_requested,deferred_static_review_only,never_execute_or_install_candidate,Broad financial services repository needs later static classification
+BATCH-001-002,defer_to_later_batch,not_started,unknown,not_requested,deferred_static_review_only,never_execute_or_install_candidate,Broad finance skills repository needs later static classification
+BATCH-001-003,defer_to_later_batch,not_started,unknown,not_requested,deferred_static_review_only,never_execute_or_install_candidate,Broad agent repository has insufficient current evidence
+BATCH-001-004,defer_to_later_batch,not_started,unknown,not_requested,deferred_static_review_only,never_execute_or_install_candidate,Trading skills are outside Batch 001 scope
+BATCH-001-005,defer_to_later_batch,not_started,unknown,not_requested,deferred_static_review_only,never_execute_or_install_candidate,Broad skills repository has insufficient current evidence
+BATCH-001-006,defer_to_later_batch,not_started,unknown,not_requested,deferred_static_review_only,never_execute_or_install_candidate,Investor harness scope is broader than Batch 001
+BATCH-001-007,defer_to_later_batch,not_started,unknown,not_requested,deferred_static_review_only,never_execute_or_install_candidate,Repository capability is insufficiently known for Batch 001 inclusion
+BATCH-001-008,defer_to_later_batch,not_started,unknown,not_requested,deferred_static_review_only,never_execute_or_install_candidate,Research repository needs later static classification before inclusion
+BATCH-001-009,include_in_batch_001,not_started,unknown,not_requested,static_review_allowed,never_execute_or_install_candidate,Equity research focus preliminarily aligns with company research scope
+BATCH-001-010,defer_to_later_batch,not_started,unknown,not_requested,deferred_static_review_only,never_execute_or_install_candidate,Broker associated skills need later safety and scope classification
+BATCH-001-011,reference_only,not_started,reference,not_requested,reference_use_only,never_execute_or_install_candidate,Financial modeling cookbook is reference material rather than an approved Skill
+BATCH-001-012,include_in_batch_001,not_started,unknown,not_requested,static_review_allowed,never_execute_or_install_candidate,Comparable company analysis preliminarily aligns with basic valuation
+BATCH-001-013,reference_only,not_started,reference,not_requested,reference_use_only,never_execute_or_install_candidate,Generic deep research material is reference only for this batch
+BATCH-001-014,blocked,not_started,unknown,not_requested,blocked,never_execute_or_install_candidate,Trading agent scope conflicts with the product and Batch 001 boundaries

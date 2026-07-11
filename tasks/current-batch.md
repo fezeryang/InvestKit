@@ -8,6 +8,8 @@ Company fundamentals, financial statements, and valuation-related candidate Skil
 
 `sources_collected_review_not_started`
 
+Readiness: `ready_with_conditions`
+
 ## Current Inputs
 
 The registry contains 36 real candidate sources. Seven non-empty ZIP archives and one installation-instruction snapshot are present as untrusted raw evidence. Two zero-byte Guosen files are failed download placeholders; four additional Guosen sources have no local file.
@@ -46,4 +48,6 @@ Batch 001 should focus on assets related to:
 
 ## Operator Notes
 
-Review has not started. Before review, confirm whether Batch 001 excludes ETF, news, and trading-oriented candidates, and resolve the manual acquisition path for Guosen sources. Add links to `registry/inbox/sources.csv`; place local files or archives under `third_party/raw/batch-001/`. Do not execute third-party scripts or weaken TLS verification.
+Review has not started. Add links to `registry/inbox/sources.csv`; place local files or archives under `third_party/raw/batch-001/`. Do not execute third-party scripts or weaken TLS verification. Guosen remains blocked pending an approved manual acquisition path.
+
+The scope is now locked to company fundamentals, financial statements, basic valuation, and source verification. The preliminary routing includes four candidates and is recorded in `registry/governance/batch-001-candidate-governance.csv`. Product development may begin with first-party code only; candidate execution, installation, API calls, and promotion remain prohibited.

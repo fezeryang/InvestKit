@@ -42,11 +42,16 @@ InvestKit is not a trading robot. It does not connect to real brokerages, place 
 - `docs/security/security-policy.md` defines safety boundaries.
 - `registry/inbox/sources.csv` is where candidate sources are registered.
 - `registry/schema/skill-record.schema.json` defines structured research records.
+- `registry/governance/` records candidate routing, state, and acquisition evidence.
+- `docs/governance/minimum-governance.md` defines the minimum owner-approval and release rules.
 - `third_party/raw/` stores untrusted original assets.
 - `adapted/` is a draft/adaptation workspace; files there are not approved or formally installed.
+- `skills/` is the governed first-party release-source directory; installation is always a later explicit action.
 - `reports/` stores single-asset and batch reports.
 - `tasks/current-batch.md` describes the active batch.
 
 ## Current Batch
 
-Batch 001 status is `sources_collected_review_not_started`: sources and raw evidence exist, but governed candidate review has not begun. The intended scope is company fundamentals, financial statements, valuation, and source verification; out-of-scope ETF, news, and trading-oriented candidates require a scope decision before review.
+Batch 001 status is `sources_collected_review_not_started`: sources and raw evidence exist, but governed candidate review has not begun. Scope is locked to company fundamentals, financial statements, basic valuation, and source verification; out-of-scope candidates are deferred, blocked, or reference-only in the governance routing table.
+
+Readiness is `ready_with_conditions`: first-party product development may begin, but no current candidate may be executed, installed, called, or promoted. See `reports/batches/batch-001-readiness.md`.

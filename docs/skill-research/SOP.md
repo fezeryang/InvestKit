@@ -59,4 +59,10 @@ The processing `decision` and the operational review `status` are independent di
 - A `draft` status is not an `adapt` decision. An `adapt` decision is not approval.
 - No candidate is approved merely because files exist under `adapted/skills/`.
 
-`adapted/skills/` is currently a draft workspace. The formal directory for approved, installable Skills, the promotion mechanism, and the responsible approver remain human decisions. Until those are documented, nothing in `adapted/` may be described as production-ready or formally installed.
+`adapted/skills/` is currently a draft workspace. Nothing in `adapted/` may be described as production-ready or formally installed; the release and approval boundary is defined below.
+
+## Minimum Release Boundary
+
+The project owner is the only approver. `skills/` is the governed first-party release-source directory. `.agents/skills/`, `.claude/skills/`, `.cursor/`, and comparable harness paths are installation targets. Moving a Skill from release source to an installation target requires a later explicit owner-authorized action naming both paths.
+
+Never auto-install from `third_party/raw/` or `adapted/skills/`. Candidate route, review status, disposition, approval status, and acquisition evidence follow `docs/governance/minimum-governance.md`.

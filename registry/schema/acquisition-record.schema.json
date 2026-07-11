@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investkit.local/schema/acquisition-record.schema.json",
+  "title": "InvestKit Acquisition Record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "source_id",
+    "source_url",
+    "local_filename",
+    "file_size_bytes",
+    "sha256",
+    "acquired_at",
+    "acquisition_status",
+    "license_status",
+    "security_warnings"
+  ],
+  "properties": {
+    "source_id": { "type": "string", "minLength": 1 },
+    "source_url": { "type": "string", "minLength": 1 },
+    "local_filename": { "type": ["string", "null"] },
+    "file_size_bytes": { "type": ["integer", "null"], "minimum": 0 },
+    "sha256": {
+      "oneOf": [
+        { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        { "type": "null" }
+      ]
+    },
+    "acquired_at": {
+      "oneOf": [
+        { "type": "string", "format": "date-time" },
+        { "type": "null" }
+      ]
+    },
+    "acquisition_status": {
+      "type": "string",
+      "enum": [
+        "saved_unreviewed",
+        "instruction_snapshot_saved_unreviewed",
+        "failed_placeholder",
+        "failed_no_file",
+        "not_acquired"
+      ]
+    },
+    "license_status": {
+      "type": "string",
+      "enum": ["identified", "missing", "conflicting", "unknown"]
+    },
+    "security_warnings": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    }
+  }
+}
