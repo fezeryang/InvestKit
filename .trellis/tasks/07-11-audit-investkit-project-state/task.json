@@ -1,7 +1,7 @@
 {
-  "id": "install-financial-skills",
-  "name": "install-financial-skills",
-  "title": "Install financial skills and track Trellis",
+  "id": "audit-investkit-project-state",
+  "name": "audit-investkit-project-state",
+  "title": "Audit InvestKit project state",
   "description": "",
   "status": "in_progress",
   "dev_type": null,
@@ -21,6 +21,6 @@
   "children": [],
   "parent": null,
   "relatedFiles": [],
-  "notes": "Paused at user request on 2026-07-11; status intentionally remains in_progress while the independent project-state audit runs.",
+  "notes": "Audit implementation and verification completed locally on 2026-07-11; work remains uncommitted pending the previously presented commit confirmation. Current-session pointer moved to the next governance task at the user's request.",
   "meta": {}
 }
