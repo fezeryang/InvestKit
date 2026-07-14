@@ -2,20 +2,22 @@
 
 Status: proposed; no third-party execution or acquisition authorized by this plan
 
+Role: supporting third-party asset research track. This is not the InvestKit product roadmap and does not block the first-party Harness vertical slice. Product milestones are defined in `plans/product-development-roadmap.md`.
+
 ## Objective
 
 Turn the 36-source intake into a scoped, traceable, static-review batch without treating every asset as a Skill and without promoting any candidate before human approval.
 
-## Entry Decisions
+## Entry Conditions
 
-The project owner first decides:
+The minimum governance record now controls entry:
 
-1. whether Batch 001 is limited to fundamentals, financial statements, valuation, and source verification;
-2. whether CICCWM is admitted to isolated static review despite its security findings;
-3. the approved Guosen manual-acquisition channel;
-4. whether Guangfa terms authorize wrapper development;
-5. the formal approved-Skill directory, promotion mechanism, and approver;
-6. whether the governance baseline is committed as one reproducible unit.
+1. Batch 001 is limited to fundamentals, financial statements, basic valuation, and source verification.
+2. Only candidates routed `include_in_batch_001` may proceed to later static research.
+3. CICCWM and Guosen candidates remain blocked under their recorded security or acquisition conditions.
+4. Guangfa authorization and license evidence remain required before any wrapper can move beyond draft.
+5. `skills/` is the authoritative first-party Skill source; the project owner is the only candidate-promotion and first-party-release approver. End users install released capabilities through explicit InvestKit CLI actions.
+6. This research track must not block the first-party product milestones in `plans/product-development-roadmap.md`.
 
 ## Work Sequence
 
@@ -37,6 +39,7 @@ The project owner first decides:
 
 - List archive entries without installing or importing code.
 - Inspect `SKILL.md`, manifests, scripts, dependencies, network endpoints, filesystem access, shell/subprocess use, telemetry, credential flow, and prompt instructions.
+- For authoritative broker or financial-institution assets, statically document authentication, signing, endpoints, parameters, response fields, pagination, limits, retries, errors, market-code conversion, and data-cleaning logic without executing the original scripts.
 - Stop automatic integration on policy triggers while still completing an evidence-backed report where safe.
 - Classify target form using the full taxonomy: Agent Skill, MCP/tool, data provider, quant module, agent, workflow, template, reference, or reject.
 
@@ -52,12 +55,14 @@ The project owner first decides:
 - Compare capabilities, inputs, outputs, dependencies, permissions, provider endpoints, data rights, and method assumptions.
 - Distinguish duplicate capability from different data-provider coverage.
 - Prefer extraction/reference when an asset is useful knowledge but unsuitable as an installable Skill.
+- Distinguish methodology reference, API-integration candidacy, controlled code-reuse candidacy, and blocked execution without replacing the existing review, disposition, and approval dimensions.
 
 ### 6. Adaptation and test recommendations
 
 - Specify the smallest safe target form and the behavior to remove or isolate.
 - Require formal input/output schemas, deterministic offline fixtures, error cases, secret-redaction tests, network-denial tests, and financial-method checks.
 - For data providers, document timeout/rate-limit/caching/provenance behavior.
+- Route any approved financial API through an InvestKit-owned Provider Adapter and unified data model; first-party Skills must not bind directly to vendor credentials, URLs, or response formats.
 - For backtests or simulations, require bias, cost, calendar, and assumption tests.
 
 ### 7. Human approval and promotion
