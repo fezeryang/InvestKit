@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0",
+  "skill": "investment-thesis",
+  "cases": [
+    {"id": "falsifiable-thesis", "question": "Build a falsifiable investment thesis from the completed company, financial, valuation, and earnings artifacts.", "expected_skills": ["investment-thesis"], "excluded_skills": []},
+    {"id": "thesis-pillars", "question": "Define thesis pillars, variant perception, confirming and disconfirming evidence, KPIs, and observable falsifiers.", "expected_skills": ["investment-thesis"], "excluded_skills": []},
+    {"id": "not-neutral-dossier", "question": "Create a neutral company dossier covering history, segments, management, capital allocation, and competition.", "expected_skills": ["company-deep-research"], "excluded_skills": ["investment-thesis"]},
+    {"id": "not-source-audit", "question": "Audit factual claims for provenance, freshness, quality, and unresolved source conflicts.", "expected_skills": ["source-verification"], "excluded_skills": ["investment-thesis"]}
+  ]
+}

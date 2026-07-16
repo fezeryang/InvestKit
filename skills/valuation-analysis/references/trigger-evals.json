@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0",
+  "skill": "valuation-analysis",
+  "cases": [
+    {"id": "scenario-dcf", "question": "Build a base, bull, and bear DCF with WACC, terminal growth, EV-to-equity bridge, and sensitivity analysis.", "expected_skills": ["valuation-analysis"], "excluded_skills": []},
+    {"id": "valuation-reconciliation", "question": "Analyze intrinsic value, historical valuation context, scenarios, sensitivity, and reconcile the available valuation methods.", "expected_skills": ["valuation-analysis"], "excluded_skills": []},
+    {"id": "not-peer-selection", "question": "Select defensible peers and calculate comparable-company trading multiples and medians.", "expected_skills": ["comps-analysis"], "excluded_skills": ["valuation-analysis"]},
+    {"id": "not-business-model", "question": "Explain the payer, value proposition, pricing, recurrence, and order-to-cash business model.", "expected_skills": ["business-model-analysis"], "excluded_skills": ["valuation-analysis"]}
+  ]
+}

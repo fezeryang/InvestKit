@@ -1,0 +1,4 @@
+interface:
+  display_name: "Earnings Quality Analysis"
+  short_description: "Assess cash backing and accounting quality"
+  default_prompt: "Use $earnings-quality-analysis to assess whether reported earnings are cash-backed and repeatable."

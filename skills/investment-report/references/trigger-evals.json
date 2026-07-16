@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0",
+  "skill": "investment-report",
+  "cases": [
+    {"id": "final-research-report", "question": "Assemble the validated capability artifacts into the final sourced investment report with explicit gaps and disclosures.", "expected_skills": ["investment-report"], "excluded_skills": []},
+    {"id": "ic-memo", "question": "Create an IC memo from frozen research artifacts, including the thesis, independent bear case, catalysts, risks, unknowns, and source ledger.", "expected_skills": ["investment-report"], "excluded_skills": []},
+    {"id": "not-missing-dcf", "question": "Calculate a scenario DCF, EV-to-equity bridge, and sensitivity grid from the forecast inputs.", "expected_skills": ["valuation-analysis"], "excluded_skills": ["investment-report"]},
+    {"id": "not-source-gate", "question": "Audit unresolved claims for source identity, freshness, quality, accessibility, and conflict status.", "expected_skills": ["source-verification"], "excluded_skills": ["investment-report"]}
+  ]
+}

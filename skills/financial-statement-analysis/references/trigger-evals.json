@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0",
+  "skill": "financial-statement-analysis",
+  "cases": [
+    {"id": "three-statement-trends", "question": "Normalize three annual income, balance-sheet, and cash-flow statements and analyze margins, growth, leverage, liquidity, and linkages.", "expected_skills": ["financial-statement-analysis"], "excluded_skills": []},
+    {"id": "restatement-analysis", "question": "Analyze comparable financial statements while preserving a restatement, changed units, and the retained-earnings bridge.", "expected_skills": ["financial-statement-analysis"], "excluded_skills": []},
+    {"id": "not-earnings-quality", "question": "Assess whether reported profits are cash-backed, recurring, and supported by defensible accounting policies.", "expected_skills": ["earnings-quality-analysis"], "excluded_skills": ["financial-statement-analysis"]},
+    {"id": "not-earnings-event", "question": "Compare quarterly actual EPS and revenue with pre-release consensus and prior management guidance.", "expected_skills": ["earnings-analysis"], "excluded_skills": ["financial-statement-analysis"]}
+  ]
+}

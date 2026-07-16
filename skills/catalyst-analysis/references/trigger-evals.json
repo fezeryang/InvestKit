@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0",
+  "skill": "catalyst-analysis",
+  "cases": [
+    {"id": "regulatory-event", "question": "Analyze the dated regulatory decision as a catalyst with evidence, timing confidence, materiality, dependencies, and downside path.", "expected_skills": ["catalyst-analysis"], "excluded_skills": []},
+    {"id": "catalyst-calendar", "question": "Build a catalyst calendar of monitorable events tied to named earnings, cash-flow, valuation, and thesis variables.", "expected_skills": ["catalyst-analysis"], "excluded_skills": []},
+    {"id": "not-generic-news", "question": "Summarize the latest company headlines even when they have no dated event or identifiable impact mechanism.", "expected_skills": [], "excluded_skills": ["catalyst-analysis"]},
+    {"id": "not-risk-register", "question": "List the long-term business, accounting, leverage, and regulatory risks disclosed in the filing.", "expected_skills": [], "excluded_skills": ["catalyst-analysis"]}
+  ]
+}

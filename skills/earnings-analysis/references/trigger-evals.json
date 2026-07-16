@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0",
+  "skill": "earnings-analysis",
+  "cases": [
+    {"id": "earnings-review", "question": "Review the reported quarter against pre-release consensus, prior management guidance, operating drivers, and the earnings transcript.", "expected_skills": ["earnings-analysis"], "excluded_skills": []},
+    {"id": "earnings-preview", "question": "Prepare an earnings preview with dated expectations, guidance, historical surprise, and key watch items.", "expected_skills": ["earnings-analysis"], "excluded_skills": []},
+    {"id": "not-statement-trends", "question": "Analyze three years of financial statements, margins, leverage, liquidity, and cash flow.", "expected_skills": ["financial-statement-analysis"], "excluded_skills": ["earnings-analysis"]},
+    {"id": "not-accounting-quality", "question": "Assess cash conversion, accruals, one-off items, and whether earnings are repeatable.", "expected_skills": ["earnings-quality-analysis"], "excluded_skills": ["earnings-analysis"]}
+  ]
+}

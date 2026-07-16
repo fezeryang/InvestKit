@@ -1,0 +1,4 @@
+interface:
+  display_name: "Source Verification"
+  short_description: "Audit claims, sources, freshness, and conflicts"
+  default_prompt: "Use $source-verification to audit claim-to-source links, freshness, quality, and conflicts."

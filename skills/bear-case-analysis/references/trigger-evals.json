@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0",
+  "skill": "bear-case-analysis",
+  "cases": [
+    {"id": "independent-bear-case", "question": "Build an independent bear case against this frozen investment thesis using counterevidence and adverse causal mechanisms.", "expected_skills": ["bear-case-analysis"], "excluded_skills": []},
+    {"id": "red-team-thesis", "question": "Red team the thesis, identify fragile assumptions, earliest failure signals, and evidence that would kill the counter-thesis.", "expected_skills": ["bear-case-analysis"], "excluded_skills": []},
+    {"id": "not-risk-list", "question": "Extract and categorize the disclosed risk factors from the annual filing without constructing a counter-thesis.", "expected_skills": [], "excluded_skills": ["bear-case-analysis"]},
+    {"id": "not-dcf-sensitivity", "question": "Calculate an odd WACC and terminal-growth sensitivity grid around the base intrinsic value.", "expected_skills": ["valuation-analysis"], "excluded_skills": ["bear-case-analysis"]}
+  ]
+}

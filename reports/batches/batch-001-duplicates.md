@@ -1,5 +1,5 @@
 # Batch 001 Duplicates
 
-Status: `sources_collected_review_not_started`
+Formal single-asset SOP status: `sources_collected_review_not_started`
 
-No formal duplicate analysis has been performed. Intake-level overlap observations are non-final and must be confirmed during single-asset review.
+No formal single-asset duplicate analysis has been performed. Capability-synthesis lineage observations are non-final for candidate governance and must be confirmed during formal single-asset review.

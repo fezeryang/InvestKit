@@ -1,0 +1,4 @@
+interface:
+  display_name: "Company Deep Research"
+  short_description: "Build a sourced company research dossier"
+  default_prompt: "Use $company-deep-research to build a source-linked company dossier with explicit gaps."

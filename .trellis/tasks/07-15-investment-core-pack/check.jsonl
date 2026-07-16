@@ -1,0 +1,12 @@
+{"file": ".trellis/spec/backend/investkit-runtime-contract.md", "reason": "Regression-check every v0.1 Runtime and security guarantee."}
+{"file": ".trellis/spec/backend/investment-core-contract.md", "reason": "Verify exact v0.2 contracts, negative cases, and behavioral tests."}
+{"file": ".trellis/spec/backend/error-handling.md", "reason": "Audit safe failures and secret-safe diagnostics."}
+{"file": ".trellis/spec/backend/quality-guidelines.md", "reason": "Audit code quality and forbidden patterns."}
+{"file": ".trellis/spec/guides/code-reuse-thinking-guide.md", "reason": "Audit provenance, independent implementation, and no raw execution/copy."}
+{"file": ".trellis/spec/guides/cross-layer-thinking-guide.md", "reason": "Audit end-to-end alignment across all Runtime layers."}
+{"file": ".trellis/tasks/07-15-investment-core-pack/research/acceptance-matrix.md", "reason": "Check every release, method, workflow, persistence, security, packaging, and documentation acceptance row."}
+{"file": ".trellis/tasks/07-15-investment-core-pack/research/candidate-corpus.md", "reason": "Verify bounded corpus claims and license/security honesty."}
+{"file": ".trellis/tasks/07-15-investment-core-pack/research/fundamental-financial-candidate-study.md", "reason": "Validate the first four Skills against their synthesis and boundaries."}
+{"file": ".trellis/tasks/07-15-investment-core-pack/research/valuation-earnings-candidate-study.md", "reason": "Validate valuation/event behavior and Evals."}
+{"file": ".trellis/tasks/07-15-investment-core-pack/research/thesis-risk-reporting-candidate-study.md", "reason": "Validate thesis/red-team/source/report composition and resume."}
+{"file": ".trellis/tasks/07-15-investment-core-pack/research/runtime-migration-design.md", "reason": "Verify the migration preserves init/doctor/task/resume and wheel behavior."}

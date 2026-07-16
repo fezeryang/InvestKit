@@ -6,6 +6,8 @@ Result: `ready_with_conditions`
 
 Batch 001 is ready to enter product development under the conditions below. It is not ready for third-party execution, installation, API calls, or promotion.
 
+Scope clarification: the later owner-authorized v0.2 capability-first static synthesis searched the bounded registered corpus to design first-party methods. It did not supersede this document's formal single-asset SOP review, routing, disposition, approval, or promotion state.
+
 ## Routing Summary
 
 | Route | Count | Source IDs |
@@ -44,7 +46,7 @@ The routing source of truth is `registry/governance/batch-001-candidate-governan
 - Batch 001 candidates: GF-002, GF-003, BATCH-001-009, and BATCH-001-012.
 - Deferred, blocked, and reference-only candidates: listed in the routing summary and machine-readable CSV.
 - Current state per candidate: recorded separately in `review_status`, `disposition`, and `approval_status` columns.
-- Assets allowed further research: the four included candidates for static review; deferred candidates only in a later batch; reference-only assets only as untrusted reading material.
+- Assets allowed formal single-asset processing under this readiness decision: the four included candidates for static review; deferred candidates only in a later batch; reference-only assets only as untrusted reading material. This historical routing did not prohibit the separately authorized bounded v0.2 capability-level static synthesis described above.
 - Assets that must not execute or install: all 36 original candidate assets. CICCWM, SkillHub instructions, Guosen placeholders/missing packages, and Vibe-Trading are additionally blocked or reference-only.
 - First-party Skill source: `skills/`.
 - Installation timing: only after owner approval and only through a later explicit source-to-target action.

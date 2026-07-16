@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0",
+  "skill": "source-verification",
+  "cases": [
+    {"id": "claim-source-gate", "question": "Run source verification across all capability facts, estimates, claim IDs, and persisted source IDs before reporting.", "expected_skills": ["source-verification"], "excluded_skills": []},
+    {"id": "citation-audit", "question": "Perform a citation audit for provenance, freshness, evidence quality, accessibility, and conflicting authoritative sources.", "expected_skills": ["source-verification"], "excluded_skills": []},
+    {"id": "not-report-writing", "question": "Assemble the validated research artifacts into the final balanced Markdown research report.", "expected_skills": ["investment-report"], "excluded_skills": ["source-verification"]},
+    {"id": "not-business-model", "question": "Analyze customers, value proposition, pricing, recurrence, unit economics, moat, and fragility.", "expected_skills": ["business-model-analysis"], "excluded_skills": ["source-verification"]}
+  ]
+}

@@ -6,7 +6,9 @@ Company fundamentals, financial statements, and valuation-related candidate Skil
 
 ## Status
 
-`sources_collected_review_not_started`
+Formal single-asset SOP status: `sources_collected_review_not_started`
+
+The owner-authorized v0.2 capability-first study is a separate static synthesis: it searched the bounded registered corpus and produced first-party capability reports without changing any candidate's formal review, disposition, approval, or promotion state.
 
 Readiness: `ready_with_conditions`
 
@@ -48,6 +50,6 @@ Batch 001 should focus on assets related to:
 
 ## Operator Notes
 
-Review has not started. Add links to `registry/inbox/sources.csv`; place local files or archives under `third_party/raw/batch-001/`. Do not execute third-party scripts or weaken TLS verification. Guosen remains blocked pending an approved manual acquisition path.
+Formal single-asset SOP review has not started. The separate capability-first static synthesis does not count as candidate review or approval. Add links to `registry/inbox/sources.csv`; place local files or archives under `third_party/raw/batch-001/`. Do not execute third-party scripts or weaken TLS verification. Guosen remains blocked pending an approved manual acquisition path.
 
 The scope is now locked to company fundamentals, financial statements, basic valuation, and source verification. The preliminary routing includes four candidates and is recorded in `registry/governance/batch-001-candidate-governance.csv`. Product development may begin with first-party code only; candidate execution, installation, API calls, and promotion remain prohibited.

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Bear-Case Analysis"
+  short_description: "Challenge a thesis with an independent bear case"
+  default_prompt: "Use $bear-case-analysis to red-team a frozen thesis with an independent, evidence-linked counter-case."

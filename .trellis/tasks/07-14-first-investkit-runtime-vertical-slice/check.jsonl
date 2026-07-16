@@ -1,0 +1,7 @@
+{"file":".trellis/spec/backend/index.md","reason":"Verify backend conventions and English technical documentation."}
+{"file":".trellis/spec/backend/error-handling.md","reason":"Review actionable failures, exit codes, and secret-safe messages."}
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"Review tests, maintainability, and forbidden patterns."}
+{"file":".trellis/spec/backend/logging-guidelines.md","reason":"Review structured run logs and sensitive-data boundaries."}
+{"file":".trellis/spec/guides/code-reuse-thinking-guide.md","reason":"Check for duplicated cross-command validation and persistence logic."}
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"Verify round-trip contracts across init, Provider, task, resume, report, and doctor."}
+{"file":".trellis/tasks/07-14-first-investkit-runtime-vertical-slice/research/repository-and-scope.md","reason":"Verify implementation remains within the recorded M1 and supply-chain boundaries."}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Catalyst Analysis"
+  short_description: "Map sourced catalysts and uncertainty"
+  default_prompt: "Use $catalyst-analysis to map sourced events, uncertainty, dependencies, and impact paths."

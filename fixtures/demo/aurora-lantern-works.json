@@ -1,0 +1,314 @@
+{
+  "as_of_date": "2025-12-31",
+  "currency": "USD",
+  "financial_statements": {
+    "accounting_basis": "Fictional Demo Accounting Basis",
+    "period_type": "annual",
+    "periods": [
+      {
+        "accounts_payable": 13.0,
+        "accounts_receivable": 21.0,
+        "capital_expenditure": -7.0,
+        "cash_and_equivalents": 24.0,
+        "cash_from_operations": 19.0,
+        "current_assets": 73.0,
+        "current_liabilities": 38.0,
+        "fiscal_year": 2023,
+        "gross_profit": 52.0,
+        "inventory": 18.0,
+        "net_debt": 18.0,
+        "net_income": 12.0,
+        "operating_income": 18.0,
+        "revenue": 128.0,
+        "total_assets": 174.0,
+        "total_debt": 42.0,
+        "total_equity": 91.0
+      },
+      {
+        "accounts_payable": 15.0,
+        "accounts_receivable": 24.0,
+        "capital_expenditure": -8.0,
+        "cash_and_equivalents": 27.0,
+        "cash_from_operations": 21.0,
+        "current_assets": 82.0,
+        "current_liabilities": 43.0,
+        "fiscal_year": 2024,
+        "gross_profit": 61.0,
+        "inventory": 20.0,
+        "net_debt": 19.0,
+        "net_income": 15.0,
+        "operating_income": 22.0,
+        "revenue": 145.0,
+        "total_assets": 191.0,
+        "total_debt": 46.0,
+        "total_equity": 101.0
+      },
+      {
+        "accounts_payable": 17.0,
+        "accounts_receivable": 27.0,
+        "capital_expenditure": -9.0,
+        "cash_and_equivalents": 31.0,
+        "cash_from_operations": 25.0,
+        "current_assets": 91.0,
+        "current_liabilities": 48.0,
+        "fiscal_year": 2025,
+        "gross_profit": 69.0,
+        "inventory": 23.0,
+        "net_debt": 20.0,
+        "net_income": 16.0,
+        "operating_income": 24.0,
+        "revenue": 162.0,
+        "total_assets": 208.0,
+        "total_debt": 51.0,
+        "total_equity": 110.0
+      }
+    ],
+    "units": "USD millions"
+  },
+  "fixture_version": "2.0.0",
+  "identity": {
+    "aliases": ["demo", "aurora lantern", "alw"],
+    "exchange": "FDE",
+    "legal_name": "Aurora Lantern Works plc (Fictional)",
+    "security_id": "FDE:ALW-DEMO",
+    "ticker": "ALW-DEMO"
+  },
+  "is_demo": true,
+  "market": "Fictional Demo Exchange",
+  "earnings_history": {
+    "events": [
+      {
+        "actual": {
+          "eps": 1.5,
+          "eps_definition": "Fictional diluted EPS",
+          "revenue": 145.0,
+          "revenue_definition": "Fictional annual reported revenue"
+        },
+        "drivers": [
+          "Civic-lantern delivery timing",
+          "Battery component costs"
+        ],
+        "estimate_revisions": [
+          "The next-period fictional revenue baseline was held unchanged."
+        ],
+        "expectation": {
+          "eps": 1.44,
+          "eps_definition": "Fictional diluted EPS",
+          "observation_time": "2024-12-15T12:00:00Z",
+          "revenue": 143.0,
+          "revenue_definition": "Fictional annual reported revenue",
+          "vintage_rationale": "The observation predates the fictional FY2024 release."
+        },
+        "guidance": {
+          "period": "FY2024",
+          "revenue_range": [140.0, 146.0],
+          "source_ids": ["investkit-demo-aurora-lantern-works-v2"]
+        },
+        "period": "FY2024",
+        "transcript_available": false
+      },
+      {
+        "actual": {
+          "eps": 1.6,
+          "eps_definition": "Fictional diluted EPS",
+          "revenue": 162.0,
+          "revenue_definition": "Fictional annual reported revenue"
+        },
+        "drivers": [
+          "Higher civic-lantern deliveries",
+          "Outdoor distributor expansion",
+          "Battery component cost pressure"
+        ],
+        "estimate_revisions": [
+          "The fictional base case now assumes measured tender conversion rather than acceleration."
+        ],
+        "expectation": {
+          "eps": 1.52,
+          "eps_definition": "Fictional diluted EPS",
+          "observation_time": "2025-12-15T12:00:00Z",
+          "revenue": 158.0,
+          "revenue_definition": "Fictional annual reported revenue",
+          "vintage_rationale": "The observation predates the fictional FY2025 release."
+        },
+        "guidance": {
+          "period": "FY2025",
+          "revenue_range": [155.0, 160.0],
+          "source_ids": ["investkit-demo-aurora-lantern-works-v2"]
+        },
+        "period": "FY2025",
+        "transcript_available": false
+      }
+    ],
+    "units": "USD millions except per-share values"
+  },
+  "catalyst_events": {
+    "events": [
+      {
+        "date": "2026-03-31",
+        "dependencies": [
+          "Tender award timing",
+          "Fictional municipal budget approval"
+        ],
+        "downside_path": "The tender may be delayed, reduced, or awarded to another fictional supplier.",
+        "event_id": "fictional-civic-tender-decision",
+        "materiality": "High for the civic-lantern backlog",
+        "source_ids": ["investkit-demo-aurora-lantern-works-v2"],
+        "uncertainty": "High; no outcome probability is supplied"
+      },
+      {
+        "dependencies": [
+          "Supplier qualification",
+          "Battery input-cost negotiations"
+        ],
+        "downside_path": "Negotiations may fail to reduce costs or may require higher purchase commitments.",
+        "event_id": "fictional-battery-supply-renewal",
+        "materiality": "Medium to operating-margin assumptions",
+        "source_ids": ["investkit-demo-aurora-lantern-works-v2"],
+        "uncertainty": "Medium; commercial terms are not yet available",
+        "window": "Fictional first half of 2026"
+      }
+    ]
+  },
+  "peer_comparables": {
+    "currency_conversion": "Not required; every fictional peer record uses USD.",
+    "peers": [
+      {
+        "enterprise_value": 310.0,
+        "market_capitalization": 282.0,
+        "name": "Beacon Field Lights Ltd (Fictional)",
+        "net_income": 18.0,
+        "operating_income": 27.0,
+        "status": "included",
+        "total_equity": 120.0
+      },
+      {
+        "enterprise_value": 225.0,
+        "market_capitalization": 198.0,
+        "name": "North Ridge Illumination plc (Fictional)",
+        "net_income": 14.0,
+        "operating_income": 20.0,
+        "status": "included",
+        "total_equity": 94.0
+      },
+      {
+        "enterprise_value": 190.0,
+        "market_capitalization": 170.0,
+        "name": "Ember Trail Devices Inc (Fictional)",
+        "net_income": 8.0,
+        "operating_income": -4.0,
+        "status": "included",
+        "total_equity": 75.0
+      },
+      {
+        "enterprise_value": null,
+        "market_capitalization": null,
+        "name": "Solar Grid Towers SA (Fictional)",
+        "net_income": null,
+        "operating_income": null,
+        "reason": "Not comparable because utility-scale infrastructure has a different revenue model and capital intensity.",
+        "status": "excluded",
+        "total_equity": null
+      }
+    ],
+    "period_alignment": "All included observations use the fictional FY2025 period.",
+    "units": "USD millions"
+  },
+  "price_history": {
+    "frequency": "year-end demo observations",
+    "observations": [
+      {"close": 18.0, "date": "2023-12-29", "volume": 104000},
+      {"close": 21.5, "date": "2024-12-31", "volume": 117000},
+      {"close": 24.0, "date": "2025-12-31", "volume": null}
+    ]
+  },
+  "profile": {
+    "business_model": "Designs rechargeable lanterns for fictional municipal and outdoor customers.",
+    "capital_allocation": {
+      "summary": "The fictional policy prioritizes battery-platform investment, working capital, and measured debt reduction before discretionary distributions."
+    },
+    "competitive_context": {
+      "summary": "Product durability and municipal tender qualifications support differentiation, while price competition and battery sourcing remain material constraints."
+    },
+    "country": "North Meridian (Fictional)",
+    "customer_concentration_percent": null,
+    "customer_retention": null,
+    "customers": "Fictional distributors and municipal procurement programs",
+    "employees": null,
+    "industry": "Portable illumination equipment",
+    "management": {
+      "summary": "A fictional operating team oversees product design, tender execution, and battery sourcing.",
+      "tenure": "The fictional chief executive has served since 2021."
+    },
+    "name": "Aurora Lantern Works plc (Fictional)",
+    "order_to_cash": {
+      "backlog": "Awarded tenders and accepted distributor orders remain backlog until delivery.",
+      "billing": "Customers are billed after documented delivery milestones.",
+      "cash_collection": "Cash is recorded only after fictional customer payment.",
+      "delivery": "Completed lanterns are delivered against accepted orders.",
+      "order": "Municipal tenders and distributor purchase orders initiate the process."
+    },
+    "payer": "Fictional municipal agencies and outdoor-equipment distributors",
+    "revenue_components": {
+      "civic_lanterns_share": 0.62,
+      "outdoor_lanterns_share": 0.38
+    },
+    "revenue_model": "Hybrid tender and distributor product revenue",
+    "risks": [
+      "Revenue is concentrated in a small set of fictional public tenders.",
+      "Battery component costs may compress margins.",
+      "The fixture omits segment and customer concentration percentages."
+    ],
+    "segments": ["Civic lanterns", "Outdoor lanterns"],
+    "value_proposition": "Rechargeable, durable illumination for fictional public-service and outdoor use cases."
+  },
+  "source": "InvestKit first-party fictional demo fixture",
+  "source_metadata": {
+    "license": "InvestKit first-party project asset",
+    "source_id": "investkit-demo-aurora-lantern-works-v2",
+    "title": "Aurora Lantern Works fictional offline dataset",
+    "type": "fictional_fixture"
+  },
+  "valuation_inputs": {
+    "cash": 31.0,
+    "current_price": 24.0,
+    "diluted_shares": 10.0,
+    "enterprise_value": 260.0,
+    "forecast_unlevered_free_cash_flow": [17.0, 19.0, 21.0, 23.0, 25.0],
+    "market_capitalization": 240.0,
+    "peer_ev_to_operating_income": null,
+    "scenario_assumptions": {
+      "base": {
+        "cash_flow_multiplier": 1.0,
+        "rationale": "The base case uses the supplied fictional cash-flow path without adjustment.",
+        "terminal_growth": 0.025,
+        "wacc": 0.1
+      },
+      "bear": {
+        "cash_flow_multiplier": 0.85,
+        "rationale": "The bear case applies weaker conversion and a higher discount rate.",
+        "terminal_growth": 0.015,
+        "wacc": 0.12
+      },
+      "bull": {
+        "cash_flow_multiplier": 1.15,
+        "rationale": "The bull case applies stronger conversion with a lower discount rate.",
+        "terminal_growth": 0.03,
+        "wacc": 0.09
+      }
+    },
+    "sensitivity_terminal_growth_values": [0.015, 0.025, 0.035],
+    "sensitivity_wacc_values": [0.09, 0.1, 0.11],
+    "terminal_growth": 0.025,
+    "total_debt": 51.0,
+    "units": "USD millions except per-share values",
+    "wacc": 0.1
+  },
+  "warnings": [
+    "This dataset is wholly fictional demo data and is not live or real-time.",
+    "Employee count is unavailable and must remain an explicit unknown.",
+    "The final price observation has missing volume.",
+    "Customer retention and concentration percentages are unavailable and must not be inferred.",
+    "No earnings transcript is available; management tone and Q&A remain unknown.",
+    "Historical valuation observations are unavailable; no historical percentile may be inferred."
+  ]
+}

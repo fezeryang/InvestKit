@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0",
+  "skill": "company-deep-research",
+  "cases": [
+    {"id": "deep-dossier", "question": "Build a deep company research dossier from the annual filing, issuer profile, governance record, and competitor evidence.", "expected_skills": ["company-deep-research"], "excluded_skills": []},
+    {"id": "refresh-company-facts", "question": "Refresh the company history, segments, management, capital allocation, competitive context, and unresolved research gaps.", "expected_skills": ["company-deep-research"], "excluded_skills": []},
+    {"id": "not-dcf", "question": "Calculate intrinsic value using a scenario DCF and sensitivity grid.", "expected_skills": ["valuation-analysis"], "excluded_skills": ["company-deep-research"]},
+    {"id": "not-business-economics", "question": "Analyze who pays, pricing, retention, unit economics, and the order-to-cash model.", "expected_skills": ["business-model-analysis"], "excluded_skills": ["company-deep-research"]}
+  ]
+}

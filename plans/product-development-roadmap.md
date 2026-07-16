@@ -1,113 +1,121 @@
 # InvestKit Product Development Roadmap
 
-InvestKit is an installable investment-research AI Agent Harness for Codex, Claude, Cursor, and similar environments. It combines persistent investment standards, first-party Skills and Agents, data tools, deterministic research workflows, structured tasks, and a durable research workspace to turn general AI into a traceable, reproducible, and extensible investment-research workbench.
+InvestKit develops investment capability before live-data infrastructure. A capability first defines its research method, evidence contract, missing-data behavior, and persistence needs; an optional Provider is added later only when a named capability requires data the offline path cannot supply.
 
-This is the product roadmap. Third-party asset research is a separate supporting track and must not block the first-party product slice.
+Third-party asset research is a separate supporting track. It does not set product priorities or authorize installation, execution, copying, or live integration.
 
 ## M0 — Product Definition Baseline
 
-Status: documentation phase
+Status: documented.
 
-- Fix the two-layer product definition.
-- Define authoritative source and host-platform installation boundaries.
-- Separate current `.trellis/` development tooling from the future InvestKit runtime.
-- Define the first vertical slice and its deterministic acceptance criteria.
+- Define InvestKit as both an investment-capability layer and an Agent Harness framework.
+- Define authoritative first-party source and generated host-platform targets.
+- Separate `.trellis/` development tooling from the InvestKit Runtime.
+- Establish security, provenance, persistence, and non-trading boundaries.
 
-M0 does not implement product code.
+## M1 — v0.1 First Offline Harness Vertical Slice
 
-## M1 — First Offline Harness Vertical Slice
+Status: implemented locally as the baseline; this status does not claim a current release or whole-suite verification result.
 
-M1 is the next development milestone. It proves one complete user path with one supported host-platform adapter and local fixtures.
-
-### User path
+The v0.1 slice established one Codex-only, dependency-free, offline path:
 
 ```text
-documented local install
-→ investkit init
-→ workspace/configuration and install manifest
-→ core first-party Skill installed from skills/ and discovered
-→ applicable specs/ loaded
-→ investkit demo research
-→ structured task and observable lifecycle
-→ offline company fundamentals/financial/basic valuation/source workflow
-→ risk and counter-case review
-→ sourced report plus inputs/data/assumptions/run records
-→ new process restores task context
-→ investkit doctor validates the environment
+local install → investkit init → standards and governed Skills
+→ investkit demo research → durable task and sourced report
+→ resume in a later process → investkit doctor
 ```
 
-### Required product components
+It provides create-once initialization, a manifest, a fictional Demo Provider, durable research artifacts, safe resume, and read-only diagnostics. Live data, additional platform adapters, optional packages, brokerage connectivity, and trading remain outside the baseline.
 
-- A locally installable `investkit` CLI artifact.
-- One host-platform adapter.
-- Versioned workspace configuration and installation manifest.
-- One first-party core Skill under `skills/`.
-- A minimal set of investment standards under `specs/`.
-- One offline company-research workflow under `workflows/`.
-- Structured task, run, source, assumption, context, and artifact persistence.
-- A fixed local company fixture with resolvable source references.
-- `init`, `demo research`, and `doctor` behavior.
+## M2 — v0.2 Investment Core Pack
 
-### Deterministic acceptance
+Status: implemented and verified locally in the current working tree; not released or production-ready.
 
-1. A clean supported environment can install a local build artifact and invoke `investkit`.
-2. `investkit init` succeeds in an empty directory, creates versioned configuration/workspace state, records installed files, and does not silently overwrite user files when repeated.
-3. The CLI installs one core Skill from canonical `skills/` into one adapter target, records its source version/hash and target mapping, and the Harness can enumerate it.
-4. A run record identifies the exact investment-standard version loaded from `specs/`.
-5. `investkit demo research` uses only a fixed local fixture; it does not call a financial data service, third-party API, `third_party/raw/`, or `adapted/skills/`.
-6. Every demo creates a unique task with observable `created → running → completed` or `failed` state. Failure still produces a run record.
-7. Key report claims resolve to local source snapshots. The artifact distinguishes facts, assumptions, estimates, model outputs, and unknowns and includes risk and counter-case sections.
-8. A new process restores the research goal, state, inputs, sources, assumptions, runs, and artifacts by task identity without chat history or `.trellis/`.
-9. `investkit doctor` exits successfully for a healthy workspace and checks CLI/config compatibility, adapter target, core Skill discovery, standards, workspace writeability, and task/run/artifact references.
-10. Removing the installed core Skill or breaking an artifact reference makes `doctor` fail with an actionable diagnosis; diagnosis does not silently repair the workspace.
-11. Repeated demos preserve prior tasks. Workflow step order, source set, and assumption schema are reproducible; generated prose need not be byte-identical.
-12. The slice contains no brokerage, order, funds-transfer, hidden telemetry, secret, or automatic third-party installation behavior.
+The pack contains one Runtime prerequisite, `security-identification`, plus exactly 12 Investment Core Skills:
 
-### M1 scope guard
+1. `company-deep-research`
+2. `business-model-analysis`
+3. `financial-statement-analysis`
+4. `earnings-quality-analysis`
+5. `valuation-analysis`
+6. `comps-analysis`
+7. `earnings-analysis`
+8. `investment-thesis`
+9. `bear-case-analysis`
+10. `catalyst-analysis`
+11. `source-verification`
+12. `investment-report`
 
-M1 does not require three platform adapters, live financial data, a web UI, a marketplace, a service database, the complete Agent router, optional packages, or third-party candidate integration. “Offline” means no external research data/service dependency; it does not claim that the host model is air-gapped.
+`investkit demo research` composes the prerequisite and all 12 Core Skills through the 13-stage `company-deep-dive` Workflow. Every completed or validly skipped stage writes a structured capability envelope. Facts, assumptions, estimates, unknowns, findings, risks, warnings, and source IDs remain separate; bear-case analysis and source verification are mandatory gates before report assembly.
 
-## M2 — First Authorized Data Provider
+Required outcomes:
 
-After the offline Harness contract is proven, select one authoritative broker or financial-data candidate whose license, authorization, and security conditions are comparatively clear. This milestone must:
+- governed Skill contracts, direct method references, and positive/near-miss trigger Evals;
+- deterministic offline company, financial, valuation, comps, earnings, thesis, red-team, catalyst, verification, and report behavior;
+- one capability artifact per stage plus the durable v0.1 task root;
+- missing-data, skip, failure, corruption, and resume behavior that never fabricates values;
+- nested Skill installation mappings and checksums;
+- capability map and product documentation aligned with actual local behavior;
+- no network, API key, brokerage, third-party execution, or live-data claim.
 
-1. statically study the API documentation and any bundled scripts without executing the originals;
-2. record permitted data scope, terms, provenance, authentication, endpoints, pagination, limits, errors, and market-code conventions;
-3. implement an InvestKit-owned Provider Adapter behind the unified data interface;
-4. normalize data while retaining provider, source, time, market, currency, and field definitions;
-5. add opt-in credential handling, caching, rate limiting, retries, and actionable errors;
-6. add unit tests and controlled integration tests; and
-7. require project-owner approval before the adapter enters the released first-party Provider source.
+The durable status taxonomy is documented in [`docs/product/investment-capability-map.md`](../docs/product/investment-capability-map.md).
 
-M2 may reuse only clearly licensed, attributed, security-reviewed code that passes isolated tests; first-party reimplementation is preferred. It must not execute original third-party scripts in user environments, enable a credentialed Provider by default, or expose trading/order operations.
+## M3 — Advanced Research Pack
 
-## M3 — Cross-Platform Delivery Lifecycle
+Status: planned after the Investment Core Pack.
 
-- Add Codex, Claude, and Cursor adapters beyond the M1 reference adapter.
-- Make installation ownership explicit through a generated-file manifest.
-- Add governed update and uninstall behavior.
-- Preserve user research workspaces across updates and uninstall by default.
-- Expand `doctor` across supported platform targets.
+- Dedicated industry, competitor, supply-chain, and thematic research.
+- Full initiating-coverage and earnings-report formats.
+- Deeper management, governance, and capital-allocation workflows.
+- Historical valuation datasets and richer event/call analysis.
+- Additional bounded research Agents where an Agent is the right product form.
 
-M3 must not redesign the M1 task, workflow, artifact, or standard contracts without a migration path.
+## M4 — Quant Pack
 
-## M4 — First-Party Research Expansion
+Status: planned after the Advanced Research Pack.
 
-- Industry and peer comparison.
-- Earnings, announcements, news, and event workflows.
-- Approved data tools with explicit provenance and permissions.
-- Additional bounded research Agents and counter-case methods.
-- Report and artifact types beyond the first company-research report.
+- Factor research and strategy specification.
+- Historical backtesting and validation.
+- Bias, cost, calendar, benchmark, and reproducibility controls.
+- Optional package lifecycle only after governed add/update behavior exists.
 
-## M5 — Optional Quant Package
+Quant remains research-only and cannot introduce brokerage or execution authority.
 
-- `investkit add quant` package lifecycle.
-- Strategy specification and historical backtesting.
-- Portfolio and risk analysis.
-- Bias, cost, calendar, and reproducibility checks.
+## M5 — Portfolio & Risk Pack
 
-Quant remains research-only. It must not introduce brokerage connectivity or market execution.
+Status: planned after the Quant Pack.
+
+- Portfolio review and exposure analysis.
+- Correlation and concentration analysis.
+- Research-only position-sizing frameworks with explicit assumptions.
+- Scenario and stress testing.
+- Portfolio-level risk artifacts distinct from the company-level bear case.
+
+## M6 — Capability-Driven Real-Data Provider Expansion
+
+Status: deferred until the Core, Advanced Research, Quant, and Portfolio & Risk capability contracts establish concrete data needs.
+
+Provider work begins from a named capability gap, not from a general data-platform goal. For each approved adapter:
+
+1. name the capability and required normalized fields;
+2. statically review authorization, license, provenance, API behavior, security, and redistribution constraints;
+3. implement an InvestKit-owned adapter behind the unified interface;
+4. keep credentials opt-in and outside source, logs, reports, and task artifacts;
+5. preserve provider identity, source time, retrieval time, market, currency, definitions, and warnings;
+6. add cache, rate-limit, retry, and error behavior appropriate to that capability; and
+7. require owner approval before first-party release.
+
+No Provider may place orders, sign transactions, transfer funds, or turn research output into execution.
+
+## M7 — Cross-Platform Delivery Lifecycle
+
+Status: planned after the capability and installation contracts stabilize.
+
+- Add Claude, Cursor, and other explicit adapters beyond Codex.
+- Add governed package add, update, and uninstall behavior.
+- Preserve user research workspaces and installation ownership.
+- Expand diagnostics without changing common task, artifact, and evidence semantics.
 
 ## Supporting Track — Third-Party Asset Research
 
-The candidate registry and Batch 001 static research remain a separate supporting track. Raw third-party assets are never installed or executed without review. Legally usable official APIs and interface specifications, professional methods, and clearly licensed code may be classified for methodology reference, Provider integration, or controlled code-reuse review and may become part of a tested first-party Provider, Skill, Workflow, or Reference after the applicable approvals. This track does not define product milestones and is not a prerequisite for M1.
+The locked candidate registry and static research may inform first-party methods, references, or future Provider requirements. Every candidate retains one explicit processing decision and honest license/security evidence. Raw third-party assets are never installed or executed as product code, and unavailable evidence remains `unknown`.

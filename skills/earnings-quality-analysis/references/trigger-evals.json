@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0",
+  "skill": "earnings-quality-analysis",
+  "cases": [
+    {"id": "cash-backed-earnings", "question": "Assess earnings quality: profit rose while operating cash flow fell as receivables and contract assets expanded.", "expected_skills": ["earnings-quality-analysis"], "excluded_skills": []},
+    {"id": "accounting-durability", "question": "Review whether earnings are recurring and cash-backed using accruals, one-offs, revenue recognition, footnotes, auditors, and controls.", "expected_skills": ["earnings-quality-analysis"], "excluded_skills": []},
+    {"id": "not-beat-miss", "question": "Did reported EPS beat pre-release consensus and did guidance change after the earnings release?", "expected_skills": ["earnings-analysis"], "excluded_skills": ["earnings-quality-analysis"]},
+    {"id": "not-basic-statements", "question": "Normalize three annual statements and calculate margins, leverage, liquidity, and cash flow.", "expected_skills": ["financial-statement-analysis"], "excluded_skills": ["earnings-quality-analysis"]}
+  ]
+}

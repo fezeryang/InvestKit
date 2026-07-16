@@ -1,0 +1,4 @@
+interface:
+  display_name: "Earnings Analysis"
+  short_description: "Analyze earnings against dated expectations"
+  default_prompt: "Use $earnings-analysis to compare a reported period with dated expectations and guidance."

@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0",
+  "skill": "comps-analysis",
+  "cases": [
+    {"id": "peer-multiples", "question": "Select defensible comparable companies and calculate peer EV to EBITDA and price to earnings multiples with exclusions.", "expected_skills": ["comps-analysis"], "excluded_skills": []},
+    {"id": "relative-range", "question": "Build a peer ledger, aligned trading-multiple distributions, medians, quartiles, and a relative implied-value range.", "expected_skills": ["comps-analysis"], "excluded_skills": []},
+    {"id": "not-dcf", "question": "Calculate intrinsic value with a forecast DCF, terminal growth, WACC, and sensitivity grid.", "expected_skills": ["valuation-analysis"], "excluded_skills": ["comps-analysis"]},
+    {"id": "not-industry-essay", "question": "Research the industry structure, supply chain, and thematic trends without selecting valuation peers.", "expected_skills": ["company-deep-research"], "excluded_skills": ["comps-analysis"]}
+  ]
+}

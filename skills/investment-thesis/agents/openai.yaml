@@ -1,0 +1,4 @@
+interface:
+  display_name: "Investment Thesis"
+  short_description: "Build a falsifiable evidence-linked thesis"
+  default_prompt: "Use $investment-thesis to synthesize validated research into a falsifiable, evidence-linked thesis."

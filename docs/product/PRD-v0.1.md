@@ -1,218 +1,263 @@
-# InvestKit PRD v0.1
+# InvestKit Product Requirements
+
+Document status: v0.1 product baseline with the v0.2 Investment Core Pack amendment. The v0.1 offline Codex slice and v0.2 Investment Core Pack are implemented and verified locally. This is not a release or production-readiness claim.
 
 ## 1. Product Definition
 
-InvestKit is an installable investment-research AI Agent Harness for Codex, Claude, Cursor, and similar environments. It combines persistent investment standards, first-party Skills and Agents, data tools, deterministic research workflows, structured tasks, and a durable research workspace to turn general AI into a traceable, reproducible, and extensible investment-research workbench.
+InvestKit is an installable investment-research AI Agent Harness for Codex, Claude, Cursor, and similar environments. It combines persistent investment standards, first-party Skills and Agents, data tools, deterministic research workflows, structured tasks, and a durable research workspace.
 
-InvestKit is not merely a collection of finance Skills and not merely a report generator. The Harness framework is part of the product, not internal development tooling.
+InvestKit is neither a loose collection of finance prompts nor only a report generator. Professional investment capability and the Harness that installs, orchestrates, persists, restores, and diagnoses it are both first-class product layers.
 
 ## 2. Product Problem
 
-General AI environments can answer finance questions, but they do not provide a consistent investment-research operating system. Without a Harness, users must manually choose prompts and tools, restate standards in every session, reconstruct prior context, and decide where data, sources, assumptions, and outputs belong. Results are difficult to reproduce, audit, extend, or continue.
+General AI environments can answer finance questions, but they do not provide a consistent investment-research operating system. Users otherwise have to select prompts and tools, restate standards, reconstruct prior work, and decide where evidence and outputs belong. Results become difficult to reproduce, audit, continue, or extend.
 
-InvestKit solves that operating-system problem while also providing professional investment capabilities.
+InvestKit provides explicit methods, evidence contracts, workflows, task state, and source lineage so research can survive beyond one chat session.
 
 ## 3. Target Users
 
 - Investors and analysts who want a persistent AI research workspace.
 - Research teams that need shared standards, traceable sources, and reproducible outputs.
-- Builders who want to extend investment capabilities through first-party packages.
-- AI operators deploying the same research behavior across Codex, Claude, Cursor, and other environments.
+- Builders adding governed first-party capabilities or packages.
+- AI operators delivering common research behavior across supported environments.
 
-Users should not need to discover, understand, or manually install many individual Skills before they can begin research.
+Users should not have to discover and manually assemble many individual Skills before useful research can begin.
 
-## 4. Two First-Class Product Layers
+## 4. Two Product Layers
 
 ### 4.1 Investment Capability Layer
 
-- Company fundamentals research.
-- Financial statement analysis.
-- Valuation.
-- Industry and peer comparison.
-- Earnings, announcements, news, and event research.
-- Strategy design and historical backtesting.
-- Portfolio and risk analysis.
-- Source verification and data lineage.
-- Sourced investment-research report generation.
+- Company and business-model research.
+- Financial statement and earnings-quality analysis.
+- Valuation and comparable-company analysis.
+- Earnings, guidance, catalyst, and event analysis.
+- Falsifiable thesis and independent bear-case review.
+- Source verification and sourced report assembly.
+- Future advanced, quant, portfolio, and risk capabilities.
 
-These capabilities must distinguish facts, assumptions, estimates, model outputs, and unknowns. They must expose sources, data definitions, method limitations, and financial risks.
+Capabilities distinguish facts, assumptions, estimates/model outputs, and unknowns. They expose sources, definitions, dates, method limitations, warnings, and financial risks.
 
 ### 4.2 Agent Harness Framework Layer
 
-- InvestKit CLI.
-- Project and research-workspace initialization.
-- Cross-platform installation and adaptation.
-- First-party Skill installation and discovery.
-- Persistent investment-standard injection.
-- Agent registration and routing.
-- Deterministic research workflows.
-- Research-task lifecycle.
-- Session context restoration.
-- Research artifact storage.
-- Source and data lineage.
-- Environment diagnostics.
-- Capability-package add, update, and uninstall lifecycle.
-- Permission and security controls.
+- InvestKit CLI and project initialization.
+- Governed first-party asset installation/discovery.
+- Persistent investment-standard loading.
+- Deterministic Workflow execution.
+- Structured research-task lifecycle and artifacts.
+- Session-independent resume and context recovery.
+- Source/data lineage and environment diagnostics.
+- Future package add, update, uninstall, and additional platform adapters.
 
-Neither layer is optional. Investment analysis without the Harness is not the complete product; a Harness without useful investment capability is also not the complete product.
+Neither layer is optional. Investment analysis without the Harness is incomplete; a Harness without useful investment methods is also incomplete.
 
 ## 5. Product Principles
 
-- **One-command entry:** initialize a usable research workspace without manual Skill assembly.
-- **Standards persist:** investment rules are loaded by the Harness rather than repeatedly pasted into prompts.
-- **Skill-first composition:** professional capabilities are organized as discoverable first-party Skills and optional packages.
-- **Deterministic orchestration:** research follows explicit tasks and workflows instead of ad hoc prompt chains.
-- **Evidence before narrative:** data, sources, assumptions, and run records precede conclusions.
-- **Durable research:** a later session can understand and continue earlier work.
-- **Multi-platform delivery:** the same authoritative source can be installed into supported AI environments through explicit adapters.
-- **Safe by design:** no real-money operations, silent installation, or unaudited third-party execution.
+- **Capability before infrastructure:** define the professional method and data contract before building a Provider.
+- **One-command entry:** initialize a usable workspace without manual Skill assembly.
+- **Standards persist:** the Harness loads relevant rules instead of relying on repeated prompts.
+- **Evidence before narrative:** structured evidence, assumptions, estimates, and unknowns precede prose.
+- **Deterministic orchestration:** tasks and Workflows replace ad hoc prompt chains.
+- **Durable research:** a later process reconstructs work from files rather than hidden chat history.
+- **Explicit installation ownership:** authoritative source and generated platform targets remain distinct.
+- **Safe by design:** no real-money operation, silent installation, unaudited third-party execution, or return promise.
 
-## 6. Target User Experience
+## 6. User And CLI Experience
 
-The target CLI experience includes:
+The implemented offline command surface is:
 
 ```bash
 investkit init
 investkit doctor
-investkit add quant
-investkit update
+investkit demo research
+investkit demo research --resume <task-id>
 ```
 
-After initialization, a user asks an investment question directly inside the AI environment. InvestKit should then:
+Future target behavior includes explicit package add, update, and uninstall. These are not implemented as successful placeholders.
 
-1. Create a structured research task.
-2. Load the applicable investment standards.
-3. Select the required Skills, Agents, and tools.
-4. Acquire approved data or read supplied material.
-5. Verify data definitions, dates, lineage, and sources.
-6. Execute the research workflow.
-7. Run risk review and a counter-case review.
-8. Generate a sourced research report.
-9. Persist inputs, data, assumptions, sources, outputs, and run records.
-10. Restore enough context for a later session to continue the research.
+After initialization, InvestKit should:
 
-The CLI commands above describe target product behavior. They are not implemented in the current repository state.
+1. create a structured research task;
+2. load applicable investment standards;
+3. select the governed Workflow and capabilities;
+4. acquire approved input or read the offline fixture;
+5. validate dates, definitions, lineage, and sources;
+6. execute ordered analytical stages;
+7. run independent counter-case and source-verification gates;
+8. assemble a sourced report from structured results;
+9. persist inputs, data, assumptions, sources, capability outputs, risks, and run records; and
+10. restore enough state for a later process to continue safely.
 
 ## 7. Authoritative Source And Installation Boundaries
 
-The planned product source layout is:
+Authoritative first-party source lives under:
 
-- `skills/`: authoritative first-party Skill source.
-- `agents/`: authoritative first-party Agent source.
-- `workflows/`: authoritative research-workflow source.
-- `specs/`: authoritative investment-research standards.
-- `packages/`: optional capability packages such as `quant`.
-- `workspace-template/`: template for initialized user research spaces.
+- `skills/`
+- `agents/`
+- `workflows/`
+- `specs/`
+- `fixtures/`
+- `packages/`
+- `workspace-template/`
 
-Host-platform locations such as `.agents/skills/`, `.claude/skills/`, `.cursor/`, and other platform directories are installation targets, not authoritative source.
+Host locations such as `.agents/skills/`, `.claude/skills/`, and `.cursor/` are installation targets, not source. The project owner controls first-party promotion/release; the end user authorizes local installation through an explicit CLI action.
 
-The project owner controls what may be promoted or released as first-party InvestKit source. The end user controls local installation of released capabilities through explicit InvestKit CLI operations such as `init` or `add`; the CLI records the source version and host-platform target. The product must not directly copy third-party raw assets into installation targets. `third_party/raw/` and `adapted/skills/` are never automatic installation sources.
+The installer copies only allowlisted regular files, preserves nested relative paths, protects conflicting user files, rejects symlinks/escapes, and records source/target checksums. `third_party/raw/` and `adapted/skills/` are never Runtime install sources.
 
-## 8. Governed Provider And Third-Party Knowledge Boundary
+## 8. v0.1 Offline Harness Baseline
 
-InvestKit may benefit from authoritative broker and financial-institution assets without treating raw third-party packages as installable product code. Four uses must remain distinct:
-
-1. use an authorized official API through an InvestKit Provider Adapter;
-2. reference a professional analysis method and re-express it under InvestKit standards;
-3. reuse a small, clearly licensed portion of code after provenance, license, security, attribution, and isolated-test review;
-4. execute an original third-party script, which is prohibited by default.
-
-The first three uses may be approved when their legal, security, and product conditions are satisfied. Raw third-party assets must not be installed or executed merely because they are present in the repository. Useful material should become governed first-party source through extraction, reimplementation, wrapping, testing, and project-owner release approval.
-
-Financial-data access uses this dependency direction:
+v0.1 established the first local vertical slice:
 
 ```text
-First-party InvestKit Skill
-→ Unified InvestKit Data Interface
-→ Provider Adapter
-→ Authorized Broker or Financial API
+local install → init → Codex Skill target and standards
+→ offline demo research → durable task and sourced report
+→ later-process resume → doctor
 ```
 
-The unified interface may grow to include `identify_security`, `get_security_profile`, `get_price_history`, `get_financial_statements`, `get_valuation_metrics`, `get_company_filings`, `get_research_reports`, `get_market_news`, and `get_source_metadata`. Providers normalize vendor fields into InvestKit data models and preserve provider identity, source, retrieval time, market, currency, field definitions, and licensing constraints. Skills must not bind directly to vendor authentication, URLs, or response formats.
+The baseline owns create-once initialization, one Codex adapter, seven versioned research standards, a fictional Demo Provider, task lifecycle, report persistence, resume validation, and read-only diagnostics. It does not include live Providers, additional platform adapters, optional package lifecycle, backtesting, brokerage access, or trading.
 
-Credentialed Providers are disabled by default. They read secrets only from environment variables or approved system credential storage, use least privilege, never persist credentials in Git, logs, reports, or research tasks, and produce clear missing/expired/insufficient-permission errors. Provider approval never permits brokerage orders, transaction signing, funds transfer, or other execution functionality.
+v0.1 is the preserved Harness foundation for v0.2, not the immediate next product milestone.
 
-Candidate records may separately describe integration purposes such as `reference_methodology`, `api_integration_candidate`, `code_reuse_candidate`, `blocked_execution`, and `approved_provider`. These purpose/integration fields supplement rather than replace the existing review-status, disposition, and approval-status dimensions. For example, execution can remain blocked while approval is `not_requested` and static API research is allowed.
+## 9. v0.2 Immediate Milestone: Investment Core Pack
 
-## 9. Research Workspace And Persistence
+The immediate milestone is the Investment Core Pack, not a standalone real-data Provider.
 
-An initialized workspace must provide stable locations for:
+The Runtime prerequisite is `security-identification`. The exact 12 Investment Core Skills are:
 
-- project configuration and installed capability metadata;
-- structured research tasks and lifecycle state;
-- user inputs and source snapshots;
-- normalized data and lineage records;
-- assumptions and method choices;
-- workflow run records and diagnostics;
-- draft and final research artifacts;
-- compact context needed to resume later sessions.
+1. `company-deep-research`
+2. `business-model-analysis`
+3. `financial-statement-analysis`
+4. `earnings-quality-analysis`
+5. `valuation-analysis`
+6. `comps-analysis`
+7. `earnings-analysis`
+8. `investment-thesis`
+9. `bear-case-analysis`
+10. `catalyst-analysis`
+11. `source-verification`
+12. `investment-report`
 
-The exact on-disk runtime layout is an implementation decision for the first vertical slice, but the data above is required product state rather than disposable chat history.
+Each Skill requires:
 
-## 10. First Runnable Vertical Slice
+- frontmatter containing only `name` and a precise positive/negative trigger description;
+- objective and responsibility boundary;
+- positive and difficult near-miss examples;
+- required/optional inputs and missing-data behavior;
+- named standards;
+- ordered method and mandatory checks;
+- shared machine-readable output contract;
+- source-quality/freshness requirements;
+- risk, non-advice, and non-applicable boundaries;
+- adjacent composition handoffs; and
+- positive and near-miss Evals.
 
-The next development milestone must validate both product layers through one offline company-research path:
+Detailed schemas and checklists may live one level below `references/`. No third-party prompt or code is copied wholesale.
+
+## 10. Company Deep Dive Workflow
+
+`investkit demo research` executes `company-deep-dive` in this exact order:
+
+1. `security-identification`
+2. `company-deep-research`
+3. `business-model-analysis`
+4. `financial-statement-analysis`
+5. `earnings-quality-analysis`
+6. `valuation-analysis`
+7. `comps-analysis`
+8. `earnings-analysis`
+9. `investment-thesis`
+10. `bear-case-analysis`
+11. `catalyst-analysis`
+12. `source-verification`
+13. `investment-report`
+
+Every stage writes or validates a structured intermediate artifact. Missing data remains unknown; a genuinely inapplicable method may be `skipped` only with a reason and missing-input record. Warnings, risks, conflicts, and unknowns propagate forward rather than disappearing into prose.
+
+The bear-case stage consumes a frozen thesis and produces an independent red-team artifact. Source verification resolves material claims before report assembly. The report may not introduce a fact, assumption, estimate, source, risk, or conclusion absent from upstream results.
+
+## 11. Structured Result And Persistence Contract
+
+Every capability result exposes:
+
+```json
+{
+  "schema_version": "1.0",
+  "capability": "business-model-analysis",
+  "status": "completed",
+  "skill": {"name": "business-model-analysis", "version": "0.2.0"},
+  "method": {},
+  "facts": [],
+  "assumptions": [],
+  "estimates": [],
+  "unknowns": [],
+  "findings": [],
+  "risks": [],
+  "warnings": [],
+  "source_ids": []
+}
+```
+
+Allowed statuses are `completed`, `skipped`, and `failed`. A fact needs at least one persisted source ID. An assumption needs rationale and materiality. An estimate names its method and material inputs. Unknowns record the gap and impact.
+
+The durable task root preserves:
 
 ```text
-investkit init
-→ create workspace and configuration
-→ install the first-party core Skill
-→ load investment standards
-→ investkit demo research
-→ create a structured research task
-→ run an offline company-research workflow
-→ generate a sourced report
-→ save inputs, data, assumptions, sources, artifacts, and run records
-→ restore the task context
-→ investkit doctor verifies the environment
+task.json              question.md
+plan.json              loaded-specs.json
+installed-skills.json  data/*.json
+sources.json           assumptions.json
+findings.json          risks.json
+run-log.json           report.md
+capabilities/*.json
 ```
 
-The slice must demonstrate that InvestKit is installable, initializable, able to discover a Skill, able to run a workflow, able to save and restore a task, able to generate a research artifact, and able to diagnose its environment.
+Resume validates completed artifacts before skipping them. A completed-task resume preserves all capability/data/index/report bytes and appends only a run event. Corrupt state and path escapes fail closed.
 
-Offline fixtures are sufficient for this slice. Live data providers, optional packages, and third-party candidate integration are not required.
+## 12. Capability-First Research And Provider Boundary
 
-## 11. Trellis Relationship
+The v0.2 design process compares the locked candidate corpus by capability, records evidence actually read, and independently implements governed first-party methods. Raw third-party scripts, installers, Skills, broker CLIs, and APIs are not executed or installed.
 
-This repository currently uses `.trellis/` to manage InvestKit development tasks, specifications, context, and session records. That is the development toolchain.
+Data dependency direction is:
 
-Trellis is also an important product-form reference: one-command initialization, persistent specification injection, structured tasks, deterministic workflows, Skill-first organization, specialized Agents, context recovery, artifact history, multi-platform delivery, diagnostics, update, and uninstall.
+```text
+first-party Skill method
+→ named normalized data requirement
+→ unified InvestKit data interface
+→ optional approved Provider adapter
+```
 
-InvestKit does not copy Trellis's coding purpose, and `.trellis/` is not the InvestKit runtime. InvestKit must implement investment-specific equivalents under its own CLI, source directories, workflows, task model, and workspace format.
+The offline Demo Provider remains sufficient for v0.2. A future credentialed adapter must serve a named capability, preserve provenance and vendor constraints, remain opt-in, and pass license, security, authorization, secret, and owner-release gates. Provider approval never authorizes orders, transaction signing, funds transfer, or brokerage behavior.
 
-## 12. Safety And Investment Boundaries
+## 13. Capability Map And Future Order
+
+The durable item-level status source is [`investment-capability-map.md`](investment-capability-map.md). Status reflects actual local behavior rather than folder presence and does not imply live data or release readiness.
+
+Future product order is:
+
+```text
+Investment Core Pack
+→ Advanced Research Pack
+→ Quant Pack
+→ Portfolio & Risk Pack
+→ capability-driven real-data Provider expansion
+→ broader platform delivery lifecycle
+```
+
+## 14. Trellis Relationship
+
+`.trellis/` manages InvestKit development tasks, specifications, and session records. It is not the InvestKit Runtime. Initialized projects use InvestKit-owned configuration, Workflows, tasks, and workspaces and do not depend on Trellis or hidden chat history.
+
+## 15. Safety And Investment Boundaries
 
 - No brokerage connection, order placement, transaction signing, or funds transfer.
-- No guaranteed-return claims or deterministic price predictions.
-- No individualized financial advice presented as certainty.
+- No guaranteed-return claim or deterministic price prediction.
+- No individualized advice presented as certainty.
 - No automatic installation or execution of unaudited third-party assets.
-- No hidden telemetry, secret leakage, or access outside declared workspace permissions.
-- Backtests and estimates must expose assumptions, costs, biases, and limitations.
+- No hidden telemetry, secret leakage, or undeclared filesystem access.
+- No missing numeric input coerced to zero or neutral evidence.
+- Backtests and estimates must expose assumptions, costs, bias, and limitations when those future capabilities exist.
 
-## 13. v0.1 Scope
+## 16. Current Non-Claims And Success Standard
 
-v0.1 focuses on proving the Harness contract and one useful research workflow:
+The current working tree does not claim live/current market data, Claude/Cursor support, product Agents, package add/update/uninstall, Advanced Research, Quant, Portfolio & Risk, brokerage connectivity, or trading behavior. v0.2 verification is ongoing; documentation must not be read as a whole-suite green result.
 
-- CLI initialization and diagnostics.
-- One supported platform adapter, with architecture that allows more.
-- Core first-party Skill discovery and installation.
-- Investment-standard loading.
-- Structured research task creation and persistence.
-- Offline company fundamentals, financial statement, basic valuation, and source-verification workflow.
-- Sourced report and run-record generation.
-- Context restoration.
-
-## 14. Explicit Non-Goals For The First Slice
-
-- A complete frontend application.
-- An asset marketplace or third-party Skill platform.
-- Live brokerage or trading integration.
-- Live market-data-provider integration.
-- Full quantitative, portfolio, or backtesting packages.
-- Support for every AI environment in the first implementation.
-- Deep review or installation of the current third-party candidate registry.
-
-## 15. Product Success Standard
-
-The first slice succeeds when a user can initialize InvestKit, run the offline research demo inside a supported AI environment, inspect a structured task and sourced report, restart in a later session, recover the research context, and receive a passing environment diagnosis—without manually installing individual Skills or relying on `.trellis/` as runtime infrastructure.
-
-The broader product succeeds when additional investment capabilities and platform adapters can be added without breaking research standards, task persistence, lineage, safety, or reproducibility.
+The Investment Core Pack succeeds when a fresh offline installation can initialize, diagnose, run the complete 13-stage fictional-company Workflow, inspect typed artifacts, resume without rewriting completed research, and diagnose persisted state—while preserving the v0.1 Harness guarantees and requiring no network, API key, third-party execution, or `.trellis/` dependency.

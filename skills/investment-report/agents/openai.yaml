@@ -1,0 +1,4 @@
+interface:
+  display_name: "Investment Report"
+  short_description: "Assemble a verified investment research report"
+  default_prompt: "Use $investment-report to assemble validated research artifacts into a bounded, source-linked Markdown report."

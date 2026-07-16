@@ -1,0 +1,12 @@
+{"file": ".trellis/spec/backend/investkit-runtime-contract.md", "reason": "Preserve the verified v0.1 CLI, init, task, resume, Provider, doctor, and offline security contracts."}
+{"file": ".trellis/spec/backend/investment-core-contract.md", "reason": "Implement the exact v0.2 Skill set, result envelope, 13-step workflow, method guards, and Evals."}
+{"file": ".trellis/spec/backend/error-handling.md", "reason": "Follow repository error and redaction conventions while extending corrupt-state validation."}
+{"file": ".trellis/spec/backend/quality-guidelines.md", "reason": "Apply backend quality conventions to the dependency-free Python Runtime."}
+{"file": ".trellis/spec/guides/code-reuse-thinking-guide.md", "reason": "Independently reimplement synthesized ideas and avoid unsafe or unlicensed third-party copying."}
+{"file": ".trellis/spec/guides/cross-layer-thinking-guide.md", "reason": "Keep assets, installer, workflow, persistence, report, doctor, and packaging contracts aligned."}
+{"file": ".trellis/tasks/07-15-investment-core-pack/research/candidate-corpus.md", "reason": "Use the bounded 36-candidate evidence ledger and its license/security grades."}
+{"file": ".trellis/tasks/07-15-investment-core-pack/research/fundamental-financial-candidate-study.md", "reason": "Implement the four fundamental/financial methods from the capability-first synthesis."}
+{"file": ".trellis/tasks/07-15-investment-core-pack/research/valuation-earnings-candidate-study.md", "reason": "Implement DCF, comps, earnings, and catalyst methods with the recorded guards."}
+{"file": ".trellis/tasks/07-15-investment-core-pack/research/thesis-risk-reporting-candidate-study.md", "reason": "Implement falsifiable thesis, independent bear case, source gate, reporting, and workflow composition."}
+{"file": ".trellis/tasks/07-15-investment-core-pack/research/runtime-migration-design.md", "reason": "Apply the v0.1-to-v0.2 asset, task, Provider, resume, and doctor migration design."}
+{"file": ".trellis/tasks/07-15-investment-core-pack/research/core-capability-boundaries.md", "reason": "Preserve capability responsibility and handoff boundaries."}

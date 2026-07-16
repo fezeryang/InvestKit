@@ -1,0 +1,4 @@
+interface:
+  display_name: "Security Identification"
+  short_description: "Resolve a stable security identity before research"
+  default_prompt: "Use $security-identification to resolve the research subject without guessing through ambiguity."

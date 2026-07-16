@@ -1,0 +1,50 @@
+{
+  "description": "Deterministic first-party company deep dive over fictional offline demo data.",
+  "id": "company-deep-dive",
+  "inputs": {
+    "provider": "demo",
+    "question": "Analyze the fictional Demo company using only the bundled fixture.",
+    "security_query": "demo"
+  },
+  "output": "report.md",
+  "skills": [
+    "security-identification",
+    "company-deep-research",
+    "business-model-analysis",
+    "financial-statement-analysis",
+    "earnings-quality-analysis",
+    "valuation-analysis",
+    "comps-analysis",
+    "earnings-analysis",
+    "investment-thesis",
+    "bear-case-analysis",
+    "catalyst-analysis",
+    "source-verification",
+    "investment-report"
+  ],
+  "specs": [
+    "research-principles.md",
+    "evidence-policy.md",
+    "source-policy.md",
+    "financial-data-policy.md",
+    "valuation-policy.md",
+    "risk-policy.md",
+    "report-policy.md"
+  ],
+  "steps": [
+    {"id": "security-identification", "output": "capabilities/security-identification.json"},
+    {"id": "company-deep-research", "output": "capabilities/company-deep-research.json"},
+    {"id": "business-model-analysis", "output": "capabilities/business-model-analysis.json"},
+    {"id": "financial-statement-analysis", "output": "capabilities/financial-statement-analysis.json"},
+    {"id": "earnings-quality-analysis", "output": "capabilities/earnings-quality-analysis.json"},
+    {"id": "valuation-analysis", "output": "capabilities/valuation-analysis.json"},
+    {"id": "comps-analysis", "output": "capabilities/comps-analysis.json"},
+    {"id": "earnings-analysis", "output": "capabilities/earnings-analysis.json"},
+    {"id": "investment-thesis", "output": "capabilities/investment-thesis.json"},
+    {"id": "bear-case-analysis", "output": "capabilities/bear-case-analysis.json"},
+    {"id": "catalyst-analysis", "output": "capabilities/catalyst-analysis.json"},
+    {"id": "source-verification", "output": "capabilities/source-verification.json"},
+    {"id": "investment-report", "output": "capabilities/investment-report.json"}
+  ],
+  "version": "0.2.0"
+}

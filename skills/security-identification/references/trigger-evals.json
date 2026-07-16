@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0",
+  "skill": "security-identification",
+  "cases": [
+    {"id": "identify-ambiguous-ticker", "question": "Resolve the ambiguous ticker ALW on the fictional exchange before starting research.", "expected_skills": ["security-identification"], "excluded_skills": []},
+    {"id": "identify-company-listing", "question": "Identify which listed security matches this company name, ticker, market, and exchange hint.", "expected_skills": ["security-identification"], "excluded_skills": []},
+    {"id": "not-dcf", "question": "Calculate a base, bull, and bear DCF for the already resolved company.", "expected_skills": ["valuation-analysis"], "excluded_skills": ["security-identification"]},
+    {"id": "not-source-audit", "question": "Verify every material report claim against its persisted source IDs.", "expected_skills": ["source-verification"], "excluded_skills": ["security-identification"]}
+  ]
+}

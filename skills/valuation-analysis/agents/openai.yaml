@@ -1,0 +1,4 @@
+interface:
+  display_name: "Valuation Analysis"
+  short_description: "Build guarded DCF scenarios and valuation ranges"
+  default_prompt: "Use $valuation-analysis to build an assumption-linked DCF, sensitivity grid, and valuation reconciliation."

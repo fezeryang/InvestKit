@@ -1,0 +1,4 @@
+interface:
+  display_name: "Financial Statement Analysis"
+  short_description: "Normalize statements and calculate guarded trends"
+  default_prompt: "Use $financial-statement-analysis to normalize comparable statements and calculate traceable financial trends."

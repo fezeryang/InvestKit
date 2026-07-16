@@ -1,0 +1,4 @@
+interface:
+  display_name: "Business Model Analysis"
+  short_description: "Map business economics, durability, and gaps"
+  default_prompt: "Use $business-model-analysis to map how this company creates value, revenue, and cash."

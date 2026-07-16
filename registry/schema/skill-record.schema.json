@@ -1,0 +1,146 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investkit.local/schema/skill-record.schema.json",
+  "title": "InvestKit Skill Research Record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "name",
+    "source_url",
+    "repository",
+    "author",
+    "collected_at",
+    "reviewed_at",
+    "asset_type",
+    "capability_categories",
+    "supported_markets",
+    "license",
+    "license_status",
+    "has_skill_md",
+    "has_scripts",
+    "languages",
+    "required_dependencies",
+    "required_api_keys",
+    "network_access",
+    "filesystem_access",
+    "shell_access",
+    "main_capabilities",
+    "inputs",
+    "outputs",
+    "financial_method_risks",
+    "security_risks",
+    "duplicate_with",
+    "recommended_target_type",
+    "decision",
+    "adaptation_summary",
+    "test_recommendations",
+    "confidence",
+    "unknown_fields"
+  ],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "name": { "type": "string", "minLength": 1 },
+    "source_url": { "type": "string" },
+    "repository": { "type": "string" },
+    "author": { "type": "string" },
+    "collected_at": { "type": "string" },
+    "reviewed_at": { "type": "string" },
+    "asset_type": {
+      "type": "string",
+      "enum": [
+        "Agent Skill",
+        "MCP or Tool",
+        "Data Provider",
+        "Quant Module",
+        "Agent",
+        "Workflow",
+        "Template",
+        "Reference",
+        "Reject",
+        "unknown"
+      ]
+    },
+    "capability_categories": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "supported_markets": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "license": { "type": "string" },
+    "license_status": {
+      "type": "string",
+      "enum": ["identified", "missing", "conflicting", "unknown"]
+    },
+    "has_skill_md": { "type": "boolean" },
+    "has_scripts": { "type": "boolean" },
+    "languages": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "required_dependencies": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "required_api_keys": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "network_access": { "type": "string" },
+    "filesystem_access": { "type": "string" },
+    "shell_access": { "type": "string" },
+    "main_capabilities": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "inputs": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "outputs": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "financial_method_risks": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "security_risks": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "duplicate_with": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "recommended_target_type": { "type": "string" },
+    "decision": {
+      "type": "string",
+      "enum": [
+        "adopt",
+        "adapt",
+        "extract",
+        "reference",
+        "duplicate",
+        "unsafe",
+        "reject",
+        "unknown"
+      ]
+    },
+    "adaptation_summary": { "type": "string" },
+    "test_recommendations": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "confidence": {
+      "type": "string",
+      "enum": ["high", "medium", "low", "unknown"]
+    },
+    "unknown_fields": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

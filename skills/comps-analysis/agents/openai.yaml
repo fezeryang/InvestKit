@@ -1,0 +1,4 @@
+interface:
+  display_name: "Comparable Companies Analysis"
+  short_description: "Build defensible peer-relative valuation"
+  default_prompt: "Use $comps-analysis to select defensible peers and calculate a sourced relative-value range."

@@ -19,6 +19,8 @@ This directory contains guidelines for backend development. Fill in each file wi
 | [Error Handling](./error-handling.md) | Error types, handling strategies | To fill |
 | [Quality Guidelines](./quality-guidelines.md) | Code standards, forbidden patterns | To fill |
 | [Logging Guidelines](./logging-guidelines.md) | Structured logging, log levels | To fill |
+| [InvestKit Runtime Contract](./investkit-runtime-contract.md) | v0.2 cross-layer CLI, governed asset/wheel delivery, Provider, workflow, persistence, resume, and doctor contracts | Active |
+| [Investment Core Contract](./investment-core-contract.md) | v0.2 method-specific Skills, capability results, deep-dive analysis, report evidence, and trigger Evals | Active |
 
 ---
 

@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0",
+  "skill": "business-model-analysis",
+  "cases": [
+    {"id": "hybrid-economics", "question": "Analyze the business model, pricing, payer, user, recurring revenue, and unit economics of this hybrid product-plus-subscription company.", "expected_skills": ["business-model-analysis"], "excluded_skills": []},
+    {"id": "order-to-cash", "question": "Trace orders, backlog, delivery, revenue recognition, billing, working capital, and cash collection without combining the stages.", "expected_skills": ["business-model-analysis"], "excluded_skills": []},
+    {"id": "not-ratio-analysis", "question": "Normalize three statements and calculate margins, leverage, liquidity, and cash-flow ratios.", "expected_skills": ["financial-statement-analysis"], "excluded_skills": ["business-model-analysis"]},
+    {"id": "not-comps", "question": "Choose comparable companies and calculate peer EV to EBITDA and price to earnings multiples.", "expected_skills": ["comps-analysis"], "excluded_skills": ["business-model-analysis"]}
+  ]
+}

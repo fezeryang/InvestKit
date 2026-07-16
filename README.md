@@ -1,108 +1,186 @@
 # InvestKit
 
-InvestKit is an installable investment-research AI Agent Harness for Codex, Claude, Cursor, and similar environments. It combines persistent investment standards, first-party Skills and Agents, data tools, deterministic research workflows, structured tasks, and a durable research workspace to turn general AI into a traceable, reproducible, and extensible investment-research workbench.
+InvestKit is an installable, offline-first investment-research AI Agent Harness. The current working tree contains the v0.1 Codex Harness baseline and the v0.2 Investment Core Pack, implemented and verified locally. This is not a claim of release or production readiness.
 
-InvestKit is not just a collection of finance Skills and not just a report generator. Its Agent Harness framework and investment capabilities are both parts of the product.
+InvestKit is research software, not a trading bot. It does not connect to a brokerage, place orders, sign transactions, transfer funds, fetch live prices, or promise investment returns.
 
-## Target Experience
+## What v0.2 adds
 
-The planned product experience is:
+The immediate product milestone is capability-first: define professional research methods and structured evidence contracts before adding live-data infrastructure.
 
-```bash
-investkit init
-investkit doctor
-investkit add quant
-investkit update
-```
+Initialization discovers one Runtime prerequisite, `security-identification`, and exactly 12 Investment Core Skills:
 
-After initialization, the user asks an investment question directly in the host AI environment. InvestKit creates a research task, loads investment standards, routes Skills/Agents/tools, validates data and sources, runs the workflow and counter-case review, generates research artifacts, persists evidence and run records, and restores the work in a later session.
+1. `company-deep-research`
+2. `business-model-analysis`
+3. `financial-statement-analysis`
+4. `earnings-quality-analysis`
+5. `valuation-analysis`
+6. `comps-analysis`
+7. `earnings-analysis`
+8. `investment-thesis`
+9. `bear-case-analysis`
+10. `catalyst-analysis`
+11. `source-verification`
+12. `investment-report`
 
-These commands describe the target product. The CLI and runtime are not implemented yet.
-
-## Two Product Layers
-
-### Investment capability layer
-
-- Company fundamentals and financial statement analysis.
-- Valuation, industry, and peer comparison.
-- Earnings, announcements, news, and event research.
-- Strategy design, historical backtesting, portfolios, and risk.
-- Source verification, data lineage, and research reports.
-
-### Agent Harness framework layer
-
-- CLI initialization, diagnostics, update, package add, and uninstall lifecycle.
-- Cross-platform adapters and explicit first-party capability installation.
-- Persistent investment standards.
-- Skill/Agent/tool registration and routing.
-- Deterministic research workflows and task lifecycle.
-- Durable research workspace, artifacts, run records, and context restoration.
-- Permission and security controls.
-
-## First Runnable Product Slice
-
-The next development milestone is one complete offline company-research path:
+The `company-deep-dive` Workflow runs the prerequisite and all 12 Core Skills as 13 ordered stages:
 
 ```text
-investkit init
-→ workspace and configuration
-→ first-party core Skill installation and discovery
-→ investment-standard loading
-→ investkit demo research
-→ structured research task
-→ offline company-research workflow
-→ sourced report and counter-case review
-→ persisted inputs, data, assumptions, sources, artifacts, and run records
-→ context restoration
-→ investkit doctor
+security-identification
+→ company-deep-research
+→ business-model-analysis
+→ financial-statement-analysis
+→ earnings-quality-analysis
+→ valuation-analysis
+→ comps-analysis
+→ earnings-analysis
+→ investment-thesis
+→ bear-case-analysis
+→ catalyst-analysis
+→ source-verification
+→ investment-report
 ```
 
-This slice must prove that InvestKit is installable, initializable, Skill-discoverable, workflow-executable, task-persistent, context-recoverable, artifact-producing, and diagnosable. It does not depend on third-party candidate assets or live financial APIs.
+Each stage writes a structured capability result. Facts, assumptions, estimates, unknowns, findings, risks, warnings, and source IDs remain distinct. The independent bear case and source-verification gate are mandatory before a completed report.
 
-## Governed Future Data Integration
+## Requirements
 
-The first slice stays completely offline. Later research-data integrations will use InvestKit-owned Provider Adapters behind a unified data interface; first-party Skills will not embed a broker's credentials, URLs, or vendor-specific response formats.
+- Python 3.11 or newer.
+- Setuptools 68 or newer when building from source.
+- No Runtime third-party dependencies, API keys, or network access for the offline path.
 
-Raw third-party assets may not be installed or executed without review. That restriction does not permanently exclude useful material from authoritative brokers or financial institutions: legally usable official APIs and interface specifications, professional research methods, and clearly licensed code may be statically studied, extracted, reimplemented or narrowly reused, tested, and approved into a first-party InvestKit Provider, Skill, Workflow, or Reference. Original third-party scripts remain non-executable by default, and credentialed Providers remain opt-in.
+The commands below use `--no-build-isolation` and `--no-deps` so pip does not try to download build or Runtime packages. Install the build backend in advance on a fully disconnected machine.
 
-## Authoritative Product Source
+## Local installation
 
-The planned source boundaries are:
+From the repository root, install the checkout in editable mode:
 
-- `skills/`: first-party Skill source.
-- `agents/`: first-party Agent source.
-- `workflows/`: research workflow source.
-- `specs/`: investment-research standards.
-- `packages/`: optional capability packages.
-- `workspace-template/`: user research-space template.
+```bash
+python3 -m venv .venv
+.venv/bin/python -m pip install --no-build-isolation --no-deps -e .
+```
 
-`.agents/skills/`, `.claude/skills/`, `.cursor/`, and other host-platform locations are installation targets, not authoritative source. The project owner controls first-party release; the end user authorizes local installation through an explicit InvestKit CLI operation.
+Or build a self-contained wheel and install it into a separate environment:
 
-`third_party/raw/` contains untrusted research material. `adapted/skills/` contains draft adaptation work. Neither may be installed automatically or copied directly into a host-platform target.
+```bash
+python3 -m pip wheel --no-build-isolation --no-deps --wheel-dir dist .
+python3 -m venv .venv
+.venv/bin/python -m pip install --no-index --no-deps \
+  dist/investkit-0.2.0-py3-none-any.whl
+```
 
-## Trellis Relationship
+On Windows, use `.venv\Scripts\python.exe` and `.venv\Scripts\investkit.exe`. A wheel carries read-only delivery copies below `share/investkit`; the repository-root `skills/`, `specs/`, `workflows/`, `fixtures/`, `agents/`, `packages/`, and `workspace-template/` directories remain authoritative source.
 
-This repository currently uses `.trellis/` to help develop InvestKit: it manages development tasks, specifications, workflow state, and session records.
+## Zero-to-demo flow
 
-Trellis is also a reference for the desired product shape—one-command initialization, persistent rules, structured tasks, deterministic workflows, specialized Agents, context recovery, artifacts, multi-platform delivery, diagnostics, update, and uninstall.
+Create or enter an empty user project, then run:
 
-These are separate facts. `.trellis/` is not the InvestKit runtime, and existing `.claude/` or `.cursor/` Trellis integration is not an InvestKit installation.
+```bash
+source .venv/bin/activate
+mkdir investkit-demo
+cd investkit-demo
 
-## Current Repository State
+investkit init
+investkit doctor
+investkit demo research
+```
 
-The repository currently contains product and governance documentation, a governed first-party `skills/` source boundary, a candidate-asset registry, and static research evidence. The InvestKit CLI, product Agents, research workflows, optional packages, workspace template, and host-platform adapters remain to be implemented.
+`demo research` executes `company-deep-dive` against the fictional Aurora Lantern Works fixture and prints a task ID such as `demo-20260716T120000000000Z-a1b2c3d4e5`. Resume that exact task in a later process:
 
-Third-party asset research is a supporting track, not the product roadmap and not a dependency of the first runnable slice.
+```bash
+investkit demo research --resume \
+  demo-20260716T120000000000Z-a1b2c3d4e5
+investkit doctor
+```
 
-## Documentation
+On Windows, activate with `.venv\Scripts\activate`. `init` and `doctor` use the current directory as the project root.
 
-- `docs/product/PRD-v0.1.md`: product requirements.
-- `docs/product/architecture.md`: target product architecture and Trellis boundary.
-- `plans/product-development-roadmap.md`: product milestones and first vertical-slice acceptance.
-- `docs/security/security-policy.md`: security and investment boundaries.
-- `docs/skill-research/SOP.md`: third-party research procedure.
-- `docs/governance/minimum-governance.md`: current candidate routing and installation gate.
+## What initialization creates
 
-## Safety Boundary
+```text
+.investkit/
+  config.json
+  install-manifest.json
+.agents/
+  investkit.json
+  skills/
+    <security-identification + 12 Core Skills>/
+      SKILL.md
+      agents/openai.yaml
+      references/*
+workspace/
+  README.md
+  research/
+```
 
-InvestKit does not connect to brokerages, place orders, sign transactions, transfer funds, promise returns, or present model outputs as certain investment advice. Research must preserve sources and distinguish facts, assumptions, estimates, model results, and unknowns.
+Initialization is create-once and idempotent. Identical files are reported as `SKIP`; a conflicting existing user file is preserved and reported as `WARN`, with a nonzero result when it blocks safe initialization. The manifest records one verified source-to-target mapping and SHA-256 hash per installed file. Unallowlisted, raw, adapted, or symlinked content is not a first-party install source.
+
+## Durable research artifacts
+
+Each run creates `workspace/research/<task-id>/` with the original v0.1 durable root plus v0.2 capability artifacts:
+
+```text
+task.json              question.md
+plan.json              loaded-specs.json
+installed-skills.json  data/*.json
+sources.json           assumptions.json
+findings.json          risks.json
+run-log.json           report.md
+capabilities/<stage-id>.json
+```
+
+Every completed or validly skipped stage has one capability envelope. A skip needs a reason and missing-input list; missing numeric data remains unknown and never becomes zero. Failures retain task, plan, completed-stage artifacts, and run evidence.
+
+Resume validates the task ID, workflow order, result schemas, source IDs, and completed artifacts before skipping a stage. A completed-task resume preserves data, capability results, normalized indexes, and report bytes; only the append-only run log receives a resume event.
+
+All bundled company, security, peer, earnings, catalyst, price, financial, and valuation values are fictional demo data marked `is_demo: true`. The report must disclose that the data is neither live nor real-time and must contain no buy/sell instruction or guaranteed-return language.
+
+## Diagnostics
+
+`investkit doctor` is read-only. It prints `PASS`, `WARN`, and `FAIL` checks and exits nonzero when a critical check fails. Its v0.2 contract covers:
+
+- Runtime/configuration compatibility and the Codex adapter;
+- workspace existence and writability;
+- the exact 13-Skill allowlist and every nested installed-file hash;
+- seven research-standard versions and checksums;
+- the `company-deep-dive` identity and 13-stage order;
+- offline Demo Provider and fixture metadata;
+- capability-result schemas, completion/skip states, and source-ID resolution;
+- mandatory bear-case, source-verification, and report stages;
+- forbidden installation evidence and likely credentials without echoing values;
+- task IDs, symlink boundaries, task/run records, resume state, and artifact integrity.
+
+Unmanaged user-owned Codex Skills are warnings and are not modified. Doctor does not repair failures.
+
+## Current limits and roadmap
+
+The current Runtime supports one host adapter (`codex`) and the commands `init`, `doctor`, `demo research`, and `demo research --resume`. `add`, `update`, and `uninstall` remain future lifecycle capabilities. There is no frontend, cloud synchronization, live Provider, brokerage integration, backtest engine, or multi-platform synchronization in v0.2.
+
+The planned capability order is:
+
+```text
+Investment Core Pack
+→ Advanced Research Pack
+→ Quant Pack
+→ Portfolio & Risk Pack
+→ capability-driven real-data Provider expansion
+```
+
+A future Provider must serve a named capability gap behind InvestKit's unified interface. Credentialed Providers remain opt-in, preserve provenance and vendor constraints, and never gain trading or funds-transfer authority.
+
+See the honest current/future status of each research domain in [`docs/product/investment-capability-map.md`](docs/product/investment-capability-map.md).
+
+## Source and development boundaries
+
+Authoritative product source lives under `skills/`, `agents/`, `workflows/`, `specs/`, `packages/`, `fixtures/`, and `workspace-template/`. Platform paths such as `.agents/skills/` are generated installation state. `.trellis/` manages InvestKit development and is not imported, copied, or required by the Runtime.
+
+Raw third-party material is untrusted research evidence. It is not installed or executed. Only governed, independently implemented first-party assets may enter the product source after the required provenance, license, security, testing, and owner-release review.
+
+To run the local verification suite from the repository root:
+
+```bash
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src \
+  python3 -m unittest discover -s tests -v
+```
+
+This command is an instruction, not a claim about the current result. Product requirements and boundaries are documented in [`docs/product/PRD-v0.1.md`](docs/product/PRD-v0.1.md), [`docs/product/architecture.md`](docs/product/architecture.md), the [product roadmap](plans/product-development-roadmap.md), and [`docs/security/security-policy.md`](docs/security/security-policy.md).
