@@ -559,7 +559,8 @@ def _safe_text(value: Any) -> str:
 
 
 def _code(value: Any) -> str:
-    return f"`{_safe_text(value).replace('`', "'")}`"
+    safe_value = _safe_text(value).replace("`", "'")
+    return f"`{safe_value}`"
 
 
 def _json_value(value: Any) -> str:

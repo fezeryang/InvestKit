@@ -200,7 +200,7 @@ class FirstPartyAssetContractTests(unittest.TestCase):
         for path in runtime_root.rglob("*.py"):
             with self.subTest(path=path.relative_to(REPOSITORY_ROOT)):
                 text = path.read_text(encoding="utf-8")
-                tree = ast.parse(text, filename=str(path))
+                tree = ast.parse(text, filename=str(path), feature_version=(3, 11))
                 imported: list[str] = []
                 for node in ast.walk(tree):
                     if isinstance(node, ast.Import):
