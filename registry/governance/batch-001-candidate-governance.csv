@@ -1,12 +1,12 @@
 source_id,scope_route,review_status,disposition,approval_status,research_permission,execution_install_policy,rationale
 EASTMONEY-001,defer_to_later_batch,intake_verified,unknown,not_requested,deferred_static_review_only,never_execute_or_install_candidate,Mixed repository scope requires later static classification
-CICCWM-001,blocked,static_risk_identified,unknown,not_requested,blocked,never_execute_or_install_candidate,Market data is out of scope and package has telemetry home access and weak TLS behavior
-CICCWM-002,blocked,static_risk_identified,unknown,not_requested,blocked,never_execute_or_install_candidate,Financial capability is relevant but telemetry credential handling and home access block further work
-CICCWM-003,blocked,static_risk_identified,unknown,not_requested,blocked,never_execute_or_install_candidate,News capability is out of scope and package has known security warnings
-CICCWM-004,blocked,static_risk_identified,unknown,not_requested,blocked,never_execute_or_install_candidate,ETF ranking is out of scope and package has known security warnings
-CICCWM-005,blocked,static_risk_identified,unknown,not_requested,blocked,never_execute_or_install_candidate,Abnormal trading data is out of scope and package has known security warnings
-CICCWM-006,blocked,static_risk_identified,unknown,not_requested,blocked,never_execute_or_install_candidate,Fund data is out of scope and package has known security warnings
-SKILLHUB-001,reference_only,reference_snapshot,reference,not_requested,reference_use_only,never_execute_or_install_candidate,Installation instructions are untrusted reference content only
+CICCWM-001,clean_room_adapter,governed_adapter,adapt,approved,read_only_explicit_permission,never_execute_or_install_candidate,First-party market adapter approved; raw telemetry and weak-TLS package remains blocked
+CICCWM-002,clean_room_adapter,governed_adapter,adapt,approved,read_only_explicit_permission,never_execute_or_install_candidate,First-party finance adapter approved; raw credential telemetry package remains blocked
+CICCWM-003,clean_room_adapter,governed_adapter,adapt,approved,read_only_explicit_permission,never_execute_or_install_candidate,First-party hot-news adapter approved; raw package remains blocked
+CICCWM-004,clean_room_adapter,governed_adapter,adapt,approved,read_only_explicit_permission,never_execute_or_install_candidate,First-party ETF-hot adapter approved; raw package remains blocked
+CICCWM-005,clean_room_adapter,governed_adapter,adapt,approved,read_only_explicit_permission,never_execute_or_install_candidate,First-party dragon-tiger adapter approved; raw package remains blocked
+CICCWM-006,clean_room_adapter,governed_adapter,adapt,approved,read_only_explicit_permission,never_execute_or_install_candidate,First-party fund-detail adapter approved; raw package remains blocked
+SKILLHUB-001,rejected,reviewed_not_selected,reject,not_requested,none,never_execute_or_install_candidate,User removed Lingxi from InvestKit scope; package remains uninstalled
 GUOSEN-001,blocked,acquisition_blocked,unknown,not_requested,blocked,never_execute_or_install_candidate,Market data is out of scope and no valid package was acquired
 GUOSEN-002,blocked,acquisition_blocked,unknown,not_requested,blocked,never_execute_or_install_candidate,Potential financial capability cannot be assessed because no valid package was acquired
 GUOSEN-003,blocked,acquisition_blocked,unknown,not_requested,blocked,never_execute_or_install_candidate,No package was acquired and macro data is outside Batch 001 scope

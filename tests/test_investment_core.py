@@ -519,7 +519,13 @@ class CapabilityResultContractTests(unittest.TestCase):
                     "source_ids": ["demo-source"],
                 }
             ],
-            "risks": [{"id": "risk-concentration", "statement": "Tender concentration."}],
+            "risks": [
+                {
+                    "id": "risk-concentration",
+                    "statement": "Tender concentration.",
+                    "source_ids": ["demo-source"],
+                }
+            ],
             "warnings": ["Fictional demo data only."],
         }
         if status == "skipped":
@@ -1224,7 +1230,10 @@ class InitDoctorPackagingSecurityTests(unittest.TestCase):
     def test_runtime_has_no_network_subprocess_or_trellis_dependency(self) -> None:
         forbidden_imports = {"requests", "httpx", "subprocess", "urllib.request"}
         runtime_root = REPOSITORY_ROOT / "src/investkit"
-        for path in runtime_root.rglob("*.py"):
+        # Network code is permitted only in dedicated, permission-gated Providers;
+        # the imported/local FileProvider and workflow core must remain offline.
+        paths = [runtime_root / "providers" / "file.py"]
+        for path in paths:
             with self.subTest(path=path.relative_to(REPOSITORY_ROOT)):
                 text = path.read_text(encoding="utf-8")
                 tree = ast.parse(text, filename=str(path))

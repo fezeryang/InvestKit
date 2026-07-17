@@ -1,29 +1,33 @@
 # InvestKit
 
-InvestKit is an installable, offline-first investment-research AI Agent Harness. The current working tree contains the v0.1 Codex Harness baseline and the v0.2 Investment Core Pack, implemented and verified locally. This is not a claim of release or production readiness.
+InvestKit is an installable, offline-first investment-research AI Agent Harness. The v0.3 working tree can analyze a user-supplied structured bundle or acquire an approved, permission-gated A-share evidence snapshot through the same 13-stage workflow used by the deterministic demo. It persists evidence, calculations, unknowns, risks, and a sourced report so the work can be inspected, resumed, and diagnosed later.
 
-InvestKit is research software, not a trading bot. It does not connect to a brokerage, place orders, sign transactions, transfer funds, fetch live prices, or promise investment returns.
+This is a bounded research capability, not a trading or production-release claim. Approved symbol mode currently fuses official SSE identity/announcement metadata with permission-gated Guangfa F10, financial-comparison, and relative-valuation data. InvestKit does not place orders, transfer funds, give individualized investment advice, or promise returns.
 
-## What v0.2 adds
+## Install from GitHub
 
-The immediate product milestone is capability-first: define professional research methods and structured evidence contracts before adding live-data infrastructure.
+The executable product is one Python 3.11+ CLI. Install it directly from the
+authoritative GitHub repository:
 
-Initialization discovers one Runtime prerequisite, `security-identification`, and exactly 12 Investment Core Skills:
+```bash
+pipx install git+https://github.com/fezeryang/InvestKit.git
+investkit --help
+```
 
-1. `company-deep-research`
-2. `business-model-analysis`
-3. `financial-statement-analysis`
-4. `earnings-quality-analysis`
-5. `valuation-analysis`
-6. `comps-analysis`
-7. `earnings-analysis`
-8. `investment-thesis`
-9. `bear-case-analysis`
-10. `catalyst-analysis`
-11. `source-verification`
-12. `investment-report`
+Codex has a tested native Skill projection. Claude Code, Cursor, and other
+shell-capable AI environments can use the same installed CLI without duplicating
+investment logic or credentials. Native Claude/Cursor adapters are not yet claimed.
+See [distribution and platform support](docs/product/distribution.md).
 
-The `company-deep-dive` Workflow runs the prerequisite and all 12 Core Skills as 13 ordered stages:
+## What v0.3 can do
+
+The current Codex-first Runtime provides three governed input modes:
+
+- `demo`: the fictional Aurora Lantern Works fixture for deterministic evaluation;
+- `imported`: a validated project-local JSON bundle prepared from lawful, dated evidence for one real issuer;
+- `symbol`: approved Providers acquire and identity-check a point-in-time snapshot after explicit network permission.
+
+Both modes run `company-deep-dive` in this order:
 
 ```text
 security-identification
@@ -41,17 +45,13 @@ security-identification
 → investment-report
 ```
 
-Each stage writes a structured capability result. Facts, assumptions, estimates, unknowns, findings, risks, warnings, and source IDs remain distinct. The independent bear case and source-verification gate are mandatory before a completed report.
+Every stage writes a structured capability result. Facts, assumptions, estimates, unknowns, findings, risks, warnings, and source IDs remain distinct. A method with insufficient evidence is skipped with explicit missing inputs or records an unknown; absent numbers are never silently converted to zero. The independent bear case and source-verification gate run before report assembly.
 
-## Requirements
+## Requirements and installation
 
 - Python 3.11 or newer.
 - Setuptools 68 or newer when building from source.
-- No Runtime third-party dependencies, API keys, or network access for the offline path.
-
-The commands below use `--no-build-isolation` and `--no-deps` so pip does not try to download build or Runtime packages. Install the build backend in advance on a fully disconnected machine.
-
-## Local installation
+- No Runtime third-party dependency. Demo/imported paths stay offline; live Provider paths require an environment credential where applicable and `--allow-network`.
 
 From the repository root, install the checkout in editable mode:
 
@@ -60,127 +60,147 @@ python3 -m venv .venv
 .venv/bin/python -m pip install --no-build-isolation --no-deps -e .
 ```
 
-Or build a self-contained wheel and install it into a separate environment:
+Or build and install the v0.3 wheel into a separate environment:
 
 ```bash
 python3 -m pip wheel --no-build-isolation --no-deps --wheel-dir dist .
 python3 -m venv .venv
 .venv/bin/python -m pip install --no-index --no-deps \
-  dist/investkit-0.2.0-py3-none-any.whl
+  dist/investkit-0.3.0-py3-none-any.whl
 ```
 
-On Windows, use `.venv\Scripts\python.exe` and `.venv\Scripts\investkit.exe`. A wheel carries read-only delivery copies below `share/investkit`; the repository-root `skills/`, `specs/`, `workflows/`, `fixtures/`, `agents/`, `packages/`, and `workspace-template/` directories remain authoritative source.
+The `--no-build-isolation`, `--no-deps`, and `--no-index` flags keep these examples offline; install the build backend in advance on a disconnected machine. On Windows, use `.venv\Scripts\python.exe` and `.venv\Scripts\investkit.exe`.
 
-## Zero-to-demo flow
+## Zero to real-company research
 
-Create or enter an empty user project, then run:
+Store approved provider credentials in a private mode-600 `.env`, then run the target-only command:
+
+```bash
+investkit research \
+  --symbol 603868.SH \
+  --question "分析公司的基本面、财务质量、行业相对估值、市场表现、催化剂与主要风险。" \
+  --allow-network
+```
+
+The Harness automatically uses every ready approved provider: SSE identity/announcements, Guangfa F10 and target/industry valuation, and CICCWM market, financial, news, and abnormal-trading evidence. Add `--peer 002032.SZ` only when the analyst has selected a defensible operating peer and wants comparative financials. All records are fused into one immutable bundle, all 13 capabilities run, and unsupported DCF, consensus, transcript, or catalyst inputs remain explicit unknowns. See the [Harness value proposition](docs/product/harness-value-proposition.md) for why this differs from invoking the underlying Skills directly.
+
+For a fully offline user-supplied bundle, create an empty project, initialize it, and copy the published bundle template into that project:
 
 ```bash
 source .venv/bin/activate
-mkdir investkit-demo
-cd investkit-demo
+mkdir company-research
+cd company-research
 
 investkit init
 investkit doctor
-investkit demo research
+python -c "from pathlib import Path; from shutil import copy2; from investkit.assets import default_source_root; Path('inputs').mkdir(exist_ok=True); copy2(default_source_root() / 'schemas/research-bundle-v1.template.json', 'inputs/company.json')"
 ```
 
-`demo research` executes `company-deep-dive` against the fictional Aurora Lantern Works fixture and prints a task ID such as `demo-20260716T120000000000Z-a1b2c3d4e5`. Resume that exact task in a later process:
+Edit `inputs/company.json` before running research. The shipped template is structurally usable but contains placeholders, not evidence for a real issuer. At minimum:
+
+1. Replace the top-level version, creation/retrieval/as-of dates, currency, market, warnings, and exact security identity.
+2. Create stable source records with publisher, exact title, type, locator, dates, quality, freshness, access notes, and license/reuse notes.
+3. Populate all nine operation records. Each record has `data`, `source_ids`, and `warnings`; every source ID must resolve to the top-level registry.
+4. Keep unsupported fields as explicit `null`, empty arrays, or recursively gap-only objects, and add limitations. Do not invent a price, forecast, WACC, peer set, consensus estimate, transcript, or catalyst to make an analysis run.
+5. Remove credentials and secrets. Source locators are provenance metadata only; the Runtime does not fetch them.
+
+The authoritative contract is [`schemas/research-bundle-v1.schema.json`](schemas/research-bundle-v1.schema.json), with an annotated starting point in [`schemas/research-bundle-v1.template.json`](schemas/research-bundle-v1.template.json). Input must be a UTF-8 JSON regular file no larger than 2 MiB inside the initialized project. Symlinks, root escapes, duplicate keys, unresolved source IDs, unsupported versions, invalid date ordering, non-finite numbers, and credential-like content fail closed.
+
+Run the research question against the completed bundle:
 
 ```bash
-investkit demo research --resume \
-  demo-20260716T120000000000Z-a1b2c3d4e5
+investkit research \
+  --input inputs/company.json \
+  --question "What does the supplied evidence support about this company's financial durability, valuation limits, and key risks?"
+```
+
+The command prints a task ID such as `research-20260717T120000000000Z-a1b2c3d4e5` and the report path. Review the report together with the structured artifacts under `workspace/research/<task-id>/`; the report alone is not sufficient evidence for an investment decision.
+
+Resume or inspect the imported task later, then diagnose the project:
+
+```bash
+investkit research --resume \
+  research-20260717T120000000000Z-a1b2c3d4e5
 investkit doctor
 ```
 
-On Windows, activate with `.venv\Scripts\activate`. `init` and `doctor` use the current directory as the project root.
+The validated input is snapshotted into the task before analysis. Resume uses that snapshot rather than the original mutable file, so changing or deleting `inputs/company.json` does not silently change prior research. A completed resume preserves analytical artifacts and the report and appends only a run-log event.
 
-## What initialization creates
+## Pinned Microsoft acceptance example
 
-```text
-.investkit/
-  config.json
-  install-manifest.json
-.agents/
-  investkit.json
-  skills/
-    <security-identification + 12 Core Skills>/
-      SKILL.md
-      agents/openai.yaml
-      references/*
-workspace/
-  README.md
-  research/
+The repository includes [`fixtures/acceptance/microsoft-fy2025.json`](fixtures/acceptance/microsoft-fy2025.json), a pinned Microsoft Corporation FY2025 Form 10-K acceptance bundle. It contains two dated SEC/issuer-filing source records and reported FY2024–FY2025 financial facts. It intentionally omits current price, peers, forecasts, WACC, consensus expectations, guidance comparison, transcript evidence, and future catalysts.
+
+From a checkout, copy it into an initialized project and run:
+
+```bash
+mkdir -p inputs
+cp /path/to/InvestKit/fixtures/acceptance/microsoft-fy2025.json \
+  inputs/microsoft-fy2025.json
+investkit research \
+  --input inputs/microsoft-fy2025.json \
+  --question "What does the supplied FY2025 filing support about Microsoft's financial durability and risk?"
 ```
 
-Initialization is create-once and idempotent. Identical files are reported as `SKIP`; a conflicting existing user file is preserved and reported as `WARN`, with a nonzero result when it blocks safe initialization. The manifest records one verified source-to-target mapping and SHA-256 hash per installed file. Unallowlisted, raw, adapted, or symlinked content is not a first-party install source.
+This example tests real-issuer identity, source joins, supported financial calculations, disclosed skips, persistence, resume, and doctor. It is historical as of 2025-06-30, was assembled with a 2026-07-16 retrieval timestamp, and is deliberately unsuitable for a current investment recommendation.
 
-## Durable research artifacts
+## Demo compatibility
 
-Each run creates `workspace/research/<task-id>/` with the original v0.1 durable root plus v0.2 capability artifacts:
+The deterministic fictional path remains available:
+
+```bash
+investkit demo research
+investkit demo research --resume \
+  demo-20260717T120000000000Z-a1b2c3d4e5
+```
+
+Demo artifacts are marked `is_demo: true` and disclose that their company and values are fictional. Imported artifacts are marked `input_mode: imported`, identify the supplied issuer, and disclose that InvestKit did not independently fetch or guarantee the input.
+
+## Durable artifacts
+
+Each run creates `workspace/research/<task-id>/`:
 
 ```text
 task.json              question.md
 plan.json              loaded-specs.json
-installed-skills.json  data/*.json
+installed-skills.json  input/research-bundle.json  # imported mode only
+data/*.json            capabilities/*.json
 sources.json           assumptions.json
-findings.json          risks.json
+findings.json           risks.json
 run-log.json           report.md
-capabilities/<stage-id>.json
 ```
 
-Every completed or validly skipped stage has one capability envelope. A skip needs a reason and missing-input list; missing numeric data remains unknown and never becomes zero. Failures retain task, plan, completed-stage artifacts, and run evidence.
+The task records the input mode, question, security query, source/Skill/spec snapshots, and—in imported mode—the canonical bundle hash and provenance. Resume validates persisted state before skipping completed work. Corrupt, externally linked, or source-inconsistent artifacts fail closed.
 
-Resume validates the task ID, workflow order, result schemas, source IDs, and completed artifacts before skipping a stage. A completed-task resume preserves data, capability results, normalized indexes, and report bytes; only the append-only run log receives a resume event.
+## Diagnostics and migration
 
-All bundled company, security, peer, earnings, catalyst, price, financial, and valuation values are fictional demo data marked `is_demo: true`. The report must disclose that the data is neither live nor real-time and must contain no buy/sell instruction or guaranteed-return language.
+`investkit doctor` is read-only. It reports `PASS`, `WARN`, and `FAIL` checks and exits nonzero for critical failures. In addition to installation, standards, Workflow, Skill hashes, and demo-fixture checks, v0.3 diagnostics validate imported bundle hashes and schema, source joins, Provider records, capability/report mode disclosures, task lifecycle, stale evidence warnings, and artifact boundaries. Doctor reports problems but does not repair them.
 
-## Diagnostics
+Running `investkit init` against an unmodified v0.2 initialized project performs the governed v0.3 ownership migration. InvestKit-owned files are updated only when their recorded prior hashes still match; conflicting user changes are preserved and reported instead of overwritten. Completed v0.2 demo tasks remain historical task artifacts rather than being rewritten.
 
-`investkit doctor` is read-only. It prints `PASS`, `WARN`, and `FAIL` checks and exits nonzero when a critical check fails. Its v0.2 contract covers:
+## Current limits
 
-- Runtime/configuration compatibility and the Codex adapter;
-- workspace existence and writability;
-- the exact 13-Skill allowlist and every nested installed-file hash;
-- seven research-standard versions and checksums;
-- the `company-deep-dive` identity and 13-stage order;
-- offline Demo Provider and fixture metadata;
-- capability-result schemas, completion/skip states, and source-ID resolution;
-- mandatory bear-case, source-verification, and report stages;
-- forbidden installation evidence and likely credentials without echoing values;
-- task IDs, symlink boundaries, task/run records, resume state, and artifact integrity.
+v0.3 makes local and approved live real-company evidence usable. The current limits include:
 
-Unmanaged user-owned Codex Skills are warnings and are not modified. Doctor does not repair failures.
+- live acquisition currently covers SSE identity/announcement metadata, target-only Guangfa F10 and industry-relative PE/PB, optional peer comparative indicators, plus CICCWM prices, bounded financial history and target-linked event context; it does not yet provide reliable DCF inputs, transcripts, or licensed point-in-time consensus;
+- no raw PDF/HTML/OCR/LLM extraction or cross-issuer normalization guarantee;
+- no claim that user-supplied facts are accurate or independently corroborated;
+- one host adapter (`codex`), with no completed Claude/Cursor delivery path;
+- no package add/update/uninstall lifecycle, frontend, cloud sync, backtest engine, Quant Pack, or Portfolio & Risk Pack;
+- no brokerage connectivity, trade execution, individualized advice, or return guarantee.
 
-## Current limits and roadmap
-
-The current Runtime supports one host adapter (`codex`) and the commands `init`, `doctor`, `demo research`, and `demo research --resume`. `add`, `update`, and `uninstall` remain future lifecycle capabilities. There is no frontend, cloud synchronization, live Provider, brokerage integration, backtest engine, or multi-platform synchronization in v0.2.
-
-The planned capability order is:
-
-```text
-Investment Core Pack
-→ Advanced Research Pack
-→ Quant Pack
-→ Portfolio & Risk Pack
-→ capability-driven real-data Provider expansion
-```
-
-A future Provider must serve a named capability gap behind InvestKit's unified interface. Credentialed Providers remain opt-in, preserve provenance and vendor constraints, and never gain trading or funds-transfer authority.
-
-See the honest current/future status of each research domain in [`docs/product/investment-capability-map.md`](docs/product/investment-capability-map.md).
+See the [product roadmap](docs/product/roadmap.md) and [capability map](docs/product/investment-capability-map.md) for the implemented boundary and next gates.
 
 ## Source and development boundaries
 
-Authoritative product source lives under `skills/`, `agents/`, `workflows/`, `specs/`, `packages/`, `fixtures/`, and `workspace-template/`. Platform paths such as `.agents/skills/` are generated installation state. `.trellis/` manages InvestKit development and is not imported, copied, or required by the Runtime.
+Repository-root `skills/`, `agents/`, `workflows/`, `specs/`, `schemas/`, `packages/`, `fixtures/`, and `workspace-template/` are authoritative first-party source. Wheels carry read-only delivery copies under `share/investkit`; `.agents/skills/` is generated installation state. `.trellis/` manages InvestKit development and is not a Runtime dependency.
 
-Raw third-party material is untrusted research evidence. It is not installed or executed. Only governed, independently implemented first-party assets may enter the product source after the required provenance, license, security, testing, and owner-release review.
+Raw third-party material under `third_party/raw/` is untrusted research evidence. It is neither installed nor executed. Only governed, independently implemented first-party assets may enter product source after provenance, license, security, testing, and owner-release review.
 
-To run the local verification suite from the repository root:
+To run the local test suite from the repository root:
 
 ```bash
 PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src \
   python3 -m unittest discover -s tests -v
 ```
 
-This command is an instruction, not a claim about the current result. Product requirements and boundaries are documented in [`docs/product/PRD-v0.1.md`](docs/product/PRD-v0.1.md), [`docs/product/architecture.md`](docs/product/architecture.md), the [product roadmap](plans/product-development-roadmap.md), and [`docs/security/security-policy.md`](docs/security/security-policy.md).
+This is a verification command, not a claim that a particular checkout has passed release gates. Product requirements and boundaries are documented in the [PRD](docs/product/PRD-v0.1.md), [architecture](docs/product/architecture.md), [roadmap](docs/product/roadmap.md), and [security policy](docs/security/security-policy.md).

@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+from datetime import date, timedelta
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import re
@@ -22,11 +24,19 @@ from .assets import (
     source_file,
 )
 from .capabilities.contracts import validate_capability_result
+from .catalog import load_asset_catalog
 from .filesystem import resolve_within, resolved_root
 from .models import DiagnosticCheck, DiagnosticStatus, DoctorReport
 from .platforms.codex import CodexAdapter
 from .providers.demo import DemoProvider
+from .providers.file import (
+    BundleInputError,
+    BundleValidationError,
+    FileProvider,
+)
+from .research.report import RESTRICTED_LANGUAGE_RE
 from .research.tasks import TASK_ID_RE
+from .security import contains_sensitive_key, contains_sensitive_value
 
 
 EXPECTED_WORKFLOW_STEPS = (
@@ -63,17 +73,6 @@ PROVIDER_METADATA = {
     "is_demo",
     "warnings",
 }
-SENSITIVE_KEY_RE = re.compile(
-    r"(?i)(?:api[_-]?key|access[_-]?token|auth[_-]?token|password|private[_-]?key|secret|credential)"
-)
-SENSITIVE_VALUE_RE = re.compile(
-    r"(?i)(?:\bsk-[A-Za-z0-9_-]{16,}|\bbearer\s+[A-Za-z0-9._-]{12,}|"
-    r"-----BEGIN [A-Z ]*PRIVATE KEY-----)"
-)
-SENSITIVE_TEXT_ASSIGNMENT_RE = re.compile(
-    r"(?i)(?:api[_-]?key|access[_-]?token|auth[_-]?token|password|"
-    r"private[_-]?key|secret|credential)\s*[:=]\s*[^\s,;]{4,}"
-)
 FORBIDDEN_SOURCE_MARKERS = ("third_party/raw", "adapted/skills")
 REQUIRED_COMPLETED_TASK_ARTIFACTS = (
     "task.json",
@@ -102,7 +101,48 @@ IMMUTABLE_COMPLETED_TASK_ARTIFACTS = (
     "risks.json",
     "report.md",
 )
+IMPORTED_BUNDLE_PATH = "input/research-bundle.json"
+DATA_OPERATION_PATHS = {
+    "identify_security": "data/security-identity.json",
+    "get_source_metadata": "data/source-metadata.json",
+    "get_security_profile": "data/security-profile.json",
+    "get_financial_statements": "data/financial-statements.json",
+    "get_price_history": "data/price-history.json",
+    "get_valuation_inputs": "data/valuation-inputs.json",
+    "get_peer_comparables": "data/peer-comparables.json",
+    "get_earnings_history": "data/earnings-history.json",
+    "get_catalyst_events": "data/catalyst-events.json",
+}
+OPERATION_COMPLETION_STEPS = {
+    "identify_security": "security-identification",
+    "get_source_metadata": "security-identification",
+    "get_security_profile": "company-deep-research",
+    "get_financial_statements": "financial-statement-analysis",
+    "get_price_history": "valuation-analysis",
+    "get_valuation_inputs": "valuation-analysis",
+    "get_peer_comparables": "comps-analysis",
+    "get_earnings_history": "earnings-analysis",
+    "get_catalyst_events": "catalyst-analysis",
+}
+IMPORTED_REPORT_RESTRICTED_RE = re.compile(
+    r"(?im)(?:^|[.!?]\s+)(?:buy|sell|hold)\b|"
+    r"\b(?:recommend(?:ation)?|rating|rated|should)\s+(?:is\s+|to\s+)?"
+    r"(?:buy|sell|hold)\b|"
+    r"\b(?:buy|sell|hold)\s+(?:the\s+)?(?:stock|shares|security)\b|"
+    r"guaranteed (?:return|profit)|"
+    r"risk-free return|price will|position size|stop loss|"
+    r"(?:connect|access|use)\s+(?:a\s+)?brokerage|"
+    r"(?:place|submit|execute)\s+(?:an?\s+)?order|"
+    r"(?:transfer|send)\s+funds"
+)
+REPORT_INJECTION_RE = re.compile(
+    r"(?i)<\s*/?\s*[a-z][^>\n]*>|javascript\s*:|data\s*:\s*text/html|"
+    r"!?\[[^\]\n]*\]\s*\([^\n)]*\)"
+)
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
+MAX_OWNED_JSON_BYTES = 2 * 1024 * 1024
+MAX_SENSITIVE_TEXT_BYTES = 2 * 1024 * 1024
+IMPORTED_FRESHNESS_MAX_AGE_DAYS = 180
 
 
 def run_doctor(
@@ -247,6 +287,7 @@ def run_doctor(
     )
 
     checks.append(_check_canonical_skills(source))
+    checks.extend(_check_asset_catalog(source))
     installed_check, unmanaged_checks = _check_installed_skills(project)
     checks.append(installed_check)
     checks.extend(unmanaged_checks)
@@ -258,8 +299,59 @@ def run_doctor(
     checks.extend((provider_check, fixture_check))
     checks.append(_check_forbidden_state(project, config, manifest))
     checks.append(_check_sensitive_state(project))
-    checks.append(_check_tasks(project))
+    checks.extend(_check_tasks(project))
     return DoctorReport(tuple(checks))
+
+
+def _check_asset_catalog(source_root: Path) -> tuple[DiagnosticCheck, DiagnosticCheck]:
+    """Validate catalog structure and report execution gates without network I/O."""
+
+    try:
+        catalog = load_asset_catalog(source_root)
+    except Exception:
+        return (
+            _check(
+                "Runtime asset catalog",
+                DiagnosticStatus.FAIL,
+                "catalog is missing, unsafe, malformed, or internally inconsistent",
+            ),
+            _check(
+                "Asset execution gates",
+                DiagnosticStatus.WARN,
+                "execution gates cannot be evaluated until the catalog is valid",
+            ),
+        )
+    first_party = sum(asset.origin == "first_party" for asset in catalog.assets)
+    candidates = sum(asset.origin == "candidate" for asset in catalog.assets)
+    catalog_check = _check(
+        "Runtime asset catalog",
+        DiagnosticStatus.PASS,
+        f"catalog {catalog.catalog_version} contains {len(catalog.assets)} assets "
+        f"({first_party} first-party, {candidates} candidates)",
+    )
+    credential_names = sorted(
+        {name for asset in catalog.assets for name in asset.credentials}
+    )
+    missing_credentials = [name for name in credential_names if not os.environ.get(name)]
+    unavailable_count = sum(asset.state != "ready" for asset in catalog.assets)
+    details: list[str] = []
+    if unavailable_count:
+        details.append(f"{unavailable_count} assets are intentionally not ready")
+    if missing_credentials:
+        details.append("credentials not configured: " + ", ".join(missing_credentials))
+    if details:
+        gate_check = _check(
+            "Asset execution gates",
+            DiagnosticStatus.WARN,
+            "; ".join(details),
+        )
+    else:
+        gate_check = _check(
+            "Asset execution gates",
+            DiagnosticStatus.PASS,
+            "all catalog execution gates are satisfied",
+        )
+    return catalog_check, gate_check
 
 
 def _check_canonical_skills(source_root: Path) -> DiagnosticCheck:
@@ -477,7 +569,7 @@ def _check_specs(source_root: Path, manifest: Mapping[str, Any]) -> DiagnosticCh
 def _check_workflow(source_root: Path) -> DiagnosticCheck:
     try:
         path = source_file(source_root, WORKFLOW_PATH)
-        value = json.loads(path.read_text(encoding="utf-8"))
+        value = _read_strict_json(path)
         steps = value.get("steps", []) if isinstance(value, Mapping) else []
         identifiers = tuple(
             str(step.get("id", "")) if isinstance(step, Mapping) else str(step)
@@ -607,8 +699,16 @@ def _check_forbidden_state(
                 problem = f"installation marker is inaccessible for {display_name}"
                 break
             try:
-                marker = json.loads(marker_path.read_text(encoding="utf-8"))
-            except (OSError, UnicodeError, json.JSONDecodeError):
+                marker = _read_strict_json(marker_path)
+            except (
+                OSError,
+                UnicodeError,
+                json.JSONDecodeError,
+                OverflowError,
+                RecursionError,
+                TypeError,
+                ValueError,
+            ):
                 problem = f"unapproved installation marker is corrupt for {display_name}"
                 break
             marker_text = json.dumps(marker).replace("\\", "/").lower()
@@ -664,132 +764,462 @@ def _check_sensitive_state(project_root: Path) -> DiagnosticCheck:
                 if not is_json and not is_owned_markdown:
                     continue
                 path = directory_path / file_name
-                if path.is_symlink():
+                try:
+                    path.relative_to(research_root)
+                except ValueError:
                     continue
-                resolved = path.resolve()
-                if resolved.is_relative_to(research_root):
-                    candidates.append(resolved)
+                candidates.append(path)
     findings: list[str] = []
+    uninspectable: list[str] = []
     for path in candidates:
-        if not path.is_file():
+        try:
+            metadata = path.lstat()
+        except FileNotFoundError:
+            continue
+        except OSError:
+            metadata = None
+        try:
+            relative = path.relative_to(project_root).as_posix()
+        except ValueError:
+            relative = "InvestKit-owned state"
+        if metadata is None or not stat.S_ISREG(metadata.st_mode):
+            uninspectable.append(relative)
             continue
         try:
-            text = path.read_text(encoding="utf-8")
-            value = json.loads(text) if path.suffix == ".json" else None
-        except (OSError, UnicodeError, json.JSONDecodeError):
+            payload = _read_regular_bytes(path, MAX_SENSITIVE_TEXT_BYTES)
+            text = payload.decode("utf-8", errors="strict")
+        except (OSError, UnicodeError, ValueError):
+            uninspectable.append(relative)
             continue
+        value: Any = None
+        if path.suffix == ".json":
+            try:
+                value = _strict_json_loads(text)
+            except (
+                json.JSONDecodeError,
+                OverflowError,
+                RecursionError,
+                TypeError,
+                ValueError,
+            ):
+                uninspectable.append(relative)
         if (
             (path.suffix == ".json" and _contains_sensitive(value))
-            or SENSITIVE_VALUE_RE.search(text)
-            or SENSITIVE_TEXT_ASSIGNMENT_RE.search(text)
+            or contains_sensitive_value(text)
         ):
-            try:
-                relative = path.relative_to(project_root).as_posix()
-            except ValueError:
-                relative = "InvestKit-owned state"
             findings.append(relative)
+    findings = list(dict.fromkeys(findings))
+    uninspectable = [
+        value for value in dict.fromkeys(uninspectable) if value not in findings
+    ]
+    has_failures = bool(findings or uninspectable)
+    if findings:
+        message = "sensitive value detected in: " + ", ".join(findings)
+    elif uninspectable:
+        message = "owned state could not be safely inspected: " + ", ".join(
+            uninspectable
+        )
+    else:
+        message = "no likely credential values found in InvestKit-owned state"
     return _check(
         "sensitive information scan",
-        DiagnosticStatus.FAIL if findings else DiagnosticStatus.PASS,
-        "sensitive value detected in: " + ", ".join(findings)
-        if findings
-        else "no likely credential values found in InvestKit-owned state",
+        DiagnosticStatus.FAIL if has_failures else DiagnosticStatus.PASS,
+        message,
     )
 
 
-def _check_tasks(project_root: Path) -> DiagnosticCheck:
-    problems: list[str] = []
+def _check_tasks(project_root: Path) -> list[DiagnosticCheck]:
+    """Return one safe, mode-aware diagnostic per durable research task."""
+
     try:
         research_root = resolve_within(project_root, "workspace/research")
     except Exception:
-        return _check(
-            "research task records",
-            DiagnosticStatus.FAIL,
-            "research workspace escapes the project boundary",
-        )
-    if research_root.is_dir():
-        for entry in sorted(research_root.iterdir(), key=lambda path: path.name):
-            task_name = _safe_name(entry.name)
-            if entry.is_symlink():
-                problems.append(f"{task_name} is an unsafe symlinked task path")
-                continue
-            if not entry.is_dir():
-                continue
+        return [
+            _check(
+                "research task records",
+                DiagnosticStatus.FAIL,
+                "research workspace escapes the project boundary",
+            )
+        ]
+    if not research_root.is_dir():
+        return [
+            _check(
+                "research task records",
+                DiagnosticStatus.PASS,
+                "no durable research tasks are present",
+            )
+        ]
+
+    checks: list[DiagnosticCheck] = []
+    try:
+        entries = sorted(research_root.iterdir(), key=lambda path: path.name)
+    except OSError:
+        return [
+            _check(
+                "research task records",
+                DiagnosticStatus.FAIL,
+                "research workspace is inaccessible",
+            )
+        ]
+    for entry in entries:
+        task_name = _safe_name(entry.name)
+        if entry.is_symlink():
+            checks.append(
+                _check(
+                    f"research task {task_name}",
+                    DiagnosticStatus.FAIL,
+                    "task path is an unsafe symlink",
+                )
+            )
+            continue
+        if not entry.is_dir():
+            continue
+        try:
             task_path = entry.resolve()
-            if not task_path.is_relative_to(research_root):
-                problems.append(f"{task_name} escapes the research workspace")
-                continue
-            if not TASK_ID_RE.fullmatch(entry.name) or ".." in entry.name:
-                problems.append(f"{task_name} has an invalid task ID")
-                continue
-            task = _read_task_json(task_path, "task.json")
-            if task is None:
-                problems.append(f"{task_name} has a corrupt task record")
-                continue
-            if (
-                not isinstance(task, Mapping)
-                or task.get("id") != entry.name
-                or task.get("status") not in {"created", "running", "failed", "completed"}
-            ):
-                problems.append(f"{task_name} has an invalid task record")
-                continue
-            status = str(task["status"])
-            expected_skills = task.get("skills")
-            expected_specs = task.get("specs")
-            workflow = task.get("workflow")
-            if (
-                not isinstance(expected_skills, list)
-                or not all(isinstance(value, str) for value in expected_skills)
-                or len(expected_skills) != len(CORE_SKILLS)
-                or set(expected_skills) != set(CORE_SKILLS)
-                or not isinstance(expected_specs, list)
-                or not all(isinstance(value, str) for value in expected_specs)
-                or len(expected_specs) != len(REQUIRED_SPECS)
-                or set(expected_specs) != set(REQUIRED_SPECS)
-                or not isinstance(workflow, Mapping)
-                or workflow.get("id") != "company-deep-dive"
-                or not isinstance(workflow.get("version"), str)
-                or not workflow.get("version")
-            ):
-                problems.append(f"{task_name} has invalid capability snapshots")
-            plan = _read_task_json(task_path, "plan.json")
-            run_log = _read_task_json(task_path, "run-log.json")
-            plan_problems = _plan_problems(plan, status)
-            run_log_problems = _run_log_problems(run_log, entry.name, status)
-            problems.extend(f"{task_name} {problem}" for problem in plan_problems)
-            problems.extend(f"{task_name} {problem}" for problem in run_log_problems)
-            if not plan_problems and isinstance(plan, Mapping):
-                problems.extend(
-                    f"{task_name} {problem}"
-                    for problem in _capability_artifact_problems(
-                        task_path,
-                        status,
-                        plan,
-                    )
+        except OSError:
+            task_path = entry
+        if not task_path.is_relative_to(research_root):
+            checks.append(
+                _check(
+                    f"research task {task_name}",
+                    DiagnosticStatus.FAIL,
+                    "task path escapes the research workspace",
                 )
-            if status == "failed":
-                outcome = task.get("outcome")
-                if (
-                    not isinstance(outcome, Mapping)
-                    or outcome.get("status") != "failed"
-                    or not isinstance(outcome.get("error"), str)
-                    or not outcome.get("error")
-                ):
-                    problems.append(f"{task_name} has invalid failed outcome state")
-            if status == "completed" and not plan_problems:
-                problems.extend(
-                    _completed_task_problems(task_path, task_name, task, plan)
+            )
+            continue
+        if not TASK_ID_RE.fullmatch(entry.name) or ".." in entry.name:
+            checks.append(
+                _check(
+                    f"research task {task_name}",
+                    DiagnosticStatus.FAIL,
+                    "task ID is invalid",
                 )
-    return _check(
-        "research task records",
-        DiagnosticStatus.FAIL if problems else DiagnosticStatus.PASS,
-        "; ".join(problems)
-        if problems
-        else "research task records are structurally valid",
+            )
+            continue
+        task_checks = _check_one_task(project_root, task_path, entry.name)
+        checks.extend(task_checks)
+    if not checks:
+        checks.append(
+            _check(
+                "research task records",
+                DiagnosticStatus.PASS,
+                "no durable research tasks are present",
+            )
+        )
+    return checks
+
+
+def _check_one_task(
+    project_root: Path,
+    task_path: Path,
+    task_id: str,
+) -> list[DiagnosticCheck]:
+    task_name = _safe_name(task_id)
+    check_name = f"research task {task_name}"
+    filesystem_problems = _task_filesystem_problems(task_path)
+    if filesystem_problems:
+        return [
+            _check(
+                check_name,
+                DiagnosticStatus.FAIL,
+                _bounded_problem_message(filesystem_problems),
+            )
+        ]
+    task = _read_task_json(task_path, "task.json")
+    if task is None:
+        return [
+            _check(check_name, DiagnosticStatus.FAIL, "task record is corrupt")
+        ]
+    status_value = task.get("status")
+    if (
+        task.get("id") != task_id
+        or status_value not in {"created", "running", "failed", "completed"}
+    ):
+        return [
+            _check(check_name, DiagnosticStatus.FAIL, "task record is invalid")
+        ]
+    status = str(status_value)
+    explicit_mode = "input_mode" in task
+    input_mode = task.get("input_mode", "demo")
+    if input_mode not in {"demo", "imported"}:
+        return [
+            _check(check_name, DiagnosticStatus.FAIL, "task input mode is invalid")
+        ]
+    mode = str(input_mode)
+    problems: list[str] = []
+    warnings: list[str] = []
+
+    expected_skills = task.get("skills")
+    expected_specs = task.get("specs")
+    workflow = task.get("workflow")
+    if (
+        not isinstance(expected_skills, list)
+        or not all(isinstance(value, str) for value in expected_skills)
+        or len(expected_skills) != len(CORE_SKILLS)
+        or set(expected_skills) != set(CORE_SKILLS)
+        or not isinstance(expected_specs, list)
+        or not all(isinstance(value, str) for value in expected_specs)
+        or len(expected_specs) != len(REQUIRED_SPECS)
+        or set(expected_specs) != set(REQUIRED_SPECS)
+        or not isinstance(workflow, Mapping)
+        or workflow.get("id") != "company-deep-dive"
+        or not isinstance(workflow.get("version"), str)
+        or not workflow.get("version")
+    ):
+        problems.append("capability snapshots are invalid")
+
+    plan = _read_task_json(task_path, "plan.json")
+    run_log = _read_task_json(task_path, "run-log.json")
+    problems.extend(_plan_problems(plan, status, task))
+    problems.extend(_run_log_problems(run_log, task_id, status))
+    if isinstance(plan, Mapping):
+        plan_mode = plan.get("input_mode", "demo")
+        if (explicit_mode and plan.get("input_mode") != mode) or (
+            not explicit_mode and plan_mode != "demo"
+        ):
+            problems.append("plan input mode disagrees with the task")
+
+    question = task.get("question")
+    if not isinstance(question, str) or not question.strip():
+        problems.append("research question is missing")
+    elif not _question_artifact_matches(
+        task_path,
+        question,
+        allow_legacy=not explicit_mode,
+    ):
+        problems.append("question artifact disagrees with the task")
+
+    if isinstance(plan, Mapping):
+        problems.extend(
+            _capability_artifact_problems(task_path, status, plan)
+        )
+        completed_steps = _completed_plan_steps(plan)
+    else:
+        completed_steps = ()
+    capability_values = _read_capability_values(task_path)
+    if set(capability_values) != set(completed_steps):
+        problems.append("capability artifacts do not equal the completed-step prefix")
+
+    provider: FileProvider | None = None
+    if mode == "imported":
+        provider, imported_problems = _validate_imported_snapshot(
+            project_root,
+            task_path,
+            task,
+        )
+        problems.extend(imported_problems)
+        if provider is not None:
+            warnings.extend(_imported_freshness_warnings(provider))
+            problems.extend(
+                _imported_state_problems(
+                    task_path,
+                    task,
+                    provider,
+                    completed_steps,
+                    status,
+                )
+            )
+            problems.extend(
+                _imported_capability_problems(capability_values, provider)
+            )
+    else:
+        problems.extend(
+            _data_artifact_set_problems(
+                task_path,
+                task,
+                completed_steps,
+                status,
+            )
+        )
+
+    problems.extend(
+        _aggregate_artifact_problems(
+            task_path,
+            mode=mode,
+            legacy=not explicit_mode,
+            capability_values=capability_values,
+        )
+    )
+    if status == "failed":
+        outcome = task.get("outcome")
+        if (
+            not isinstance(outcome, Mapping)
+            or outcome.get("status") != "failed"
+            or not isinstance(outcome.get("error"), str)
+            or not outcome.get("error")
+        ):
+            problems.append("failed outcome state is invalid")
+    if status == "completed" and isinstance(plan, Mapping):
+        completed_problems = _completed_task_problems(
+            task_path,
+            task_name,
+            task,
+            plan,
+        )
+        prefix = task_name + " "
+        problems.extend(
+            value[len(prefix) :] if value.startswith(prefix) else value
+            for value in completed_problems
+        )
+        problems.extend(
+            _report_mode_problems(
+                task_path,
+                task,
+                mode=mode,
+                provider=provider,
+            )
+        )
+
+    if problems:
+        return [
+            _check(
+                check_name,
+                DiagnosticStatus.FAIL,
+                _bounded_problem_message(problems),
+            )
+        ]
+
+    checks = [
+        _check(
+            check_name,
+            DiagnosticStatus.PASS,
+            f"{status} {mode} task artifacts are valid",
+        )
+    ]
+    if status != "completed":
+        checks.append(
+            _check(
+                f"research task {task_name} lifecycle",
+                DiagnosticStatus.WARN,
+                f"task is valid but {status} and requires operator review",
+            )
+        )
+    for warning in warnings:
+        checks.append(
+            _check(
+                f"research task {task_name} freshness",
+                DiagnosticStatus.WARN,
+                warning,
+            )
+        )
+    return checks
+
+
+def _task_filesystem_problems(task_path: Path) -> list[str]:
+    """Reject links and special files without following either kind."""
+
+    problems: list[str] = []
+    pending = [task_path]
+    while pending:
+        directory = pending.pop()
+        try:
+            with os.scandir(directory) as entries:
+                children = sorted(entries, key=lambda entry: entry.name)
+        except OSError:
+            problems.append("task filesystem is inaccessible")
+            continue
+        for entry in children:
+            try:
+                metadata = entry.stat(follow_symlinks=False)
+            except OSError:
+                problems.append("task filesystem contains an unreadable entry")
+                continue
+            try:
+                display = Path(entry.path).relative_to(task_path).as_posix()
+            except ValueError:
+                display = "unknown"
+            safe_display = _safe_name(display)
+            if stat.S_ISLNK(metadata.st_mode):
+                problems.append(
+                    f"task filesystem contains unsafe symlink: {safe_display}"
+                )
+            elif stat.S_ISDIR(metadata.st_mode):
+                pending.append(Path(entry.path))
+            elif not stat.S_ISREG(metadata.st_mode):
+                problems.append(
+                    f"task filesystem contains special file: {safe_display}"
+                )
+    return problems
+
+
+def _bounded_problem_message(problems: list[str]) -> str:
+    unique: list[str] = []
+    for problem in problems:
+        safe = str(problem).strip()
+        if safe and safe not in unique:
+            unique.append(safe)
+    visible = unique[:8]
+    message = "; ".join(visible)
+    if len(unique) > len(visible):
+        message += f"; {len(unique) - len(visible)} additional validation issue(s)"
+    return message[:1600] or "task validation failed"
+
+
+def _question_artifact_matches(
+    task_path: Path,
+    question: str,
+    *,
+    allow_legacy: bool,
+) -> bool:
+    artifact = _task_artifact(task_path, "question.md")
+    if artifact is None or not artifact.is_file():
+        return False
+    try:
+        raw = artifact.read_text(encoding="utf-8")
+    except (OSError, UnicodeError):
+        return False
+    prefix = "# Research Question\n\n    "
+    if raw.startswith(prefix) and raw.endswith("\n"):
+        encoded = raw[len(prefix) : -1]
+        if "\n" in encoded:
+            return False
+        try:
+            decoded = json.loads(encoded)
+        except json.JSONDecodeError:
+            return False
+        return (
+            isinstance(decoded, str)
+            and decoded == question
+            and _safe_question_markdown(decoded) == raw
+        )
+    if allow_legacy:
+        text = raw.strip()
+        if text.startswith("# Research Question"):
+            text = text[len("# Research Question") :].strip()
+        return bool(text) and text == question
+    return False
+
+
+def _safe_question_markdown(question: str) -> str:
+    encoded = json.dumps(question, ensure_ascii=False, allow_nan=False)
+    for character, escape in (
+        ("<", r"\u003c"),
+        (">", r"\u003e"),
+        ("!", r"\u0021"),
+        ("[", r"\u005b"),
+        ("]", r"\u005d"),
+        ("&", r"\u0026"),
+    ):
+        encoded = encoded.replace(character, escape)
+    return f"# Research Question\n\n    {encoded}\n"
+
+
+def _completed_plan_steps(plan: Mapping[str, Any]) -> tuple[str, ...]:
+    steps = plan.get("steps")
+    if not isinstance(steps, list):
+        return ()
+    return tuple(
+        str(step.get("id", ""))
+        for step in steps
+        if isinstance(step, Mapping) and step.get("status") == "completed"
     )
 
 
-def _plan_problems(plan: Mapping[str, Any] | None, status: str) -> list[str]:
+def _plan_problems(
+    plan: Mapping[str, Any] | None,
+    status: str,
+    task: Mapping[str, Any] | None = None,
+) -> list[str]:
     if not isinstance(plan, Mapping):
         return ["has corrupt plan.json"]
     steps = plan.get("steps")
@@ -814,13 +1244,66 @@ def _plan_problems(plan: Mapping[str, Any] | None, status: str) -> list[str]:
         for step_status in step_statuses
     ):
         return ["has invalid step status in plan.json"]
-    if status == "created" and any(value != "pending" for value in step_statuses):
-        return ["has plan state inconsistent with created status"]
-    if status == "failed" and "failed" not in step_statuses:
-        return ["has no failed workflow step"]
-    if status == "completed" and any(value != "completed" for value in step_statuses):
-        return ["has incomplete completed workflow state"]
-    return []
+    completed_prefix: list[str] = []
+    encountered_incomplete = False
+    for identifier, step_status in zip(identifiers, step_statuses):
+        if step_status == "completed":
+            if encountered_incomplete:
+                return ["has a non-prefix completed workflow step"]
+            completed_prefix.append(identifier)
+        else:
+            encountered_incomplete = True
+
+    problems: list[str] = []
+    active_status = "running" if status == "running" else "failed"
+    if status == "created":
+        if any(value != "pending" for value in step_statuses):
+            problems.append("has plan state inconsistent with created status")
+    elif status in {"running", "failed"}:
+        active_indexes = [
+            index for index, value in enumerate(step_statuses) if value == active_status
+        ]
+        if active_indexes != [len(completed_prefix)]:
+            problems.append(f"has invalid {active_status} workflow position")
+        if any(
+            value != "pending"
+            for value in step_statuses[len(completed_prefix) + 1 :]
+        ):
+            problems.append("has non-pending workflow state after the active step")
+        forbidden = "failed" if status == "running" else "running"
+        if forbidden in step_statuses:
+            problems.append(f"has unexpected {forbidden} workflow state")
+    elif status == "completed" and any(
+        value != "completed" for value in step_statuses
+    ):
+        problems.append("has incomplete completed workflow state")
+
+    if isinstance(task, Mapping):
+        task_completed = task.get("completed_steps")
+        if not isinstance(task_completed, list) or task_completed != completed_prefix:
+            problems.append("completed-step manifest does not match the plan prefix")
+        current_step = task.get("current_step")
+        if status in {"created", "completed"}:
+            if current_step is not None:
+                problems.append("current step is inconsistent with task status")
+        else:
+            expected_current = (
+                identifiers[len(completed_prefix)]
+                if len(completed_prefix) < len(identifiers)
+                else None
+            )
+            if current_step != expected_current:
+                problems.append("current step does not match the active plan step")
+        outcome = task.get("outcome")
+        if status in {"created", "running"} and outcome is not None:
+            problems.append("task outcome is present before completion")
+        if status == "completed" and (
+            not isinstance(outcome, Mapping)
+            or outcome.get("status") != "completed"
+            or outcome.get("report") != "report.md"
+        ):
+            problems.append("completed task outcome is invalid")
+    return problems
 
 
 def _run_log_problems(
@@ -851,6 +1334,522 @@ def _run_log_problems(
     if not any(event.get("status") == required_status for event in events):
         return [f"has no {required_status} run-log event"]
     return []
+
+
+def _validate_imported_snapshot(
+    project_root: Path,
+    task_path: Path,
+    task: Mapping[str, Any],
+) -> tuple[FileProvider | None, list[str]]:
+    """Validate an imported snapshot without consulting its mutable origin."""
+
+    record = task.get("input")
+    if not isinstance(record, Mapping):
+        return None, ["bundle snapshot input record is missing"]
+    problems: list[str] = []
+    allowed_fields = {"bundle_version", "origin", "sha256", "snapshot"}
+    if set(record) not in {frozenset(allowed_fields), frozenset((*allowed_fields, "acquisition_mode"))}:
+        problems.append("bundle snapshot input record fields are invalid")
+    acquisition_mode = record.get("acquisition_mode", "user_imported")
+    if acquisition_mode not in {"user_imported", "official_live"}:
+        problems.append("bundle snapshot acquisition mode is invalid")
+    if record.get("snapshot") != IMPORTED_BUNDLE_PATH:
+        problems.append("bundle snapshot path is invalid")
+    expected_hash = record.get("sha256")
+    if not isinstance(expected_hash, str) or not SHA256_RE.fullmatch(expected_hash):
+        problems.append("bundle snapshot hash record is invalid")
+    bundle_version = record.get("bundle_version")
+    if not isinstance(bundle_version, str) or not bundle_version.strip():
+        problems.append("bundle snapshot version is missing")
+    origin = record.get("origin")
+    if not _safe_relative_metadata(origin):
+        problems.append("bundle snapshot origin metadata is unsafe")
+    if problems:
+        return None, problems
+
+    relative = Path(IMPORTED_BUNDLE_PATH)
+    if _relative_path_has_symlink(task_path, relative):
+        return None, ["bundle snapshot is missing or unsafe"]
+    snapshot = _task_artifact(task_path, IMPORTED_BUNDLE_PATH)
+    if snapshot is None or not snapshot.is_file():
+        return None, ["bundle snapshot is missing or unsafe"]
+    try:
+        raw_digest = _sha256(snapshot)
+    except OSError:
+        return None, ["bundle snapshot is missing or unsafe"]
+    if raw_digest != expected_hash:
+        return None, ["bundle snapshot hash mismatch"]
+    try:
+        provider = FileProvider(project_root, snapshot)
+    except BundleInputError:
+        return None, ["bundle snapshot is unsafe or inaccessible"]
+    except BundleValidationError:
+        return None, ["bundle schema validation failed for the snapshot"]
+    except Exception:
+        return None, ["bundle snapshot validation failed safely"]
+    if provider.bundle_sha256 != expected_hash:
+        return None, ["bundle snapshot canonical hash mismatch"]
+    if provider.bundle.get("bundle_version") != bundle_version:
+        return None, ["bundle snapshot version disagrees with the task"]
+    query = task.get("security_query")
+    if not isinstance(query, str) or not query.strip():
+        return None, ["imported security query is missing"]
+    try:
+        provider.identify_security(query)
+    except Exception:
+        return None, ["imported security query does not resolve to the snapshot"]
+    return provider, []
+
+
+def _safe_relative_metadata(value: Any) -> bool:
+    if not isinstance(value, str) or not value.strip() or "\x00" in value:
+        return False
+    normalized = value.replace("\\", "/")
+    relative = Path(normalized)
+    return not relative.is_absolute() and ".." not in relative.parts
+
+
+def _imported_freshness_warnings(provider: FileProvider) -> list[str]:
+    sources = provider.bundle.get("sources")
+    if not isinstance(sources, list):
+        return []
+    warnings: list[str] = []
+    if any(
+        isinstance(source, Mapping)
+        and re.search(
+            r"(?i)stale|historical",
+            str(source.get("freshness", "")),
+        )
+        for source in sources
+    ):
+        warnings.append("imported source registry contains historical/stale evidence")
+
+    cutoff = date.today() - timedelta(days=IMPORTED_FRESHNESS_MAX_AGE_DAYS)
+    dated_values: list[Any] = [provider.bundle.get("as_of_date")]
+    for source in sources:
+        if isinstance(source, Mapping):
+            dated_values.extend(
+                (source.get("as_of_date"), source.get("publication_date"))
+            )
+    if any(
+        isinstance(value, str)
+        and (parsed := _iso_date_or_none(value)) is not None
+        and parsed < cutoff
+        for value in dated_values
+    ):
+        warnings.append(
+            "imported evidence is stale by date (older than the "
+            f"{IMPORTED_FRESHNESS_MAX_AGE_DAYS}-day freshness window)"
+        )
+    return warnings
+
+
+def _iso_date_or_none(value: str) -> date | None:
+    try:
+        return date.fromisoformat(value)
+    except ValueError:
+        return None
+
+
+def _imported_state_problems(
+    task_path: Path,
+    task: Mapping[str, Any],
+    provider: FileProvider,
+    completed_steps: tuple[str, ...],
+    status: str,
+) -> list[str]:
+    problems = _data_artifact_set_problems(
+        task_path,
+        task,
+        completed_steps,
+        status,
+    )
+    completed = set(completed_steps)
+    sources = _read_task_json(task_path, "sources.json")
+    expected_sources = {
+        "input_mode": "imported",
+        "schema_version": "1.0",
+        "sources": _deepcopy_json(provider.bundle.get("sources")),
+    }
+    if "security-identification" in completed:
+        if sources != expected_sources:
+            problems.append("persisted source registry differs from the bundle registry")
+    elif sources != {
+        "input_mode": "imported",
+        "schema_version": "1.0",
+        "sources": [],
+    }:
+        problems.append("source registry is ahead of the completed-step prefix")
+
+    expected_records, record_error = _expected_imported_provider_records(
+        provider,
+        str(task.get("security_query", "")),
+    )
+    if record_error:
+        problems.append(record_error)
+        return problems
+    for operation, relative_path in DATA_OPERATION_PATHS.items():
+        required_step = OPERATION_COMPLETION_STEPS[operation]
+        if required_step not in completed:
+            continue
+        actual = _read_task_json(task_path, relative_path)
+        if actual != expected_records.get(operation):
+            problems.append(
+                "persisted provider data differs from the snapshot operation: "
+                + relative_path
+            )
+    return problems
+
+
+def _deepcopy_json(value: Any) -> Any:
+    """Copy JSON-compatible values without exposing mutable Provider state."""
+
+    if isinstance(value, Mapping):
+        return {str(key): _deepcopy_json(child) for key, child in value.items()}
+    if isinstance(value, list):
+        return [_deepcopy_json(child) for child in value]
+    return value
+
+
+def _expected_imported_provider_records(
+    provider: FileProvider,
+    query: str,
+) -> tuple[dict[str, dict[str, Any]], str | None]:
+    try:
+        identity = provider.identify_security(query)
+        security_id = str(identity.get("security_id", ""))
+        records = {
+            "identify_security": identity,
+            "get_source_metadata": provider.get_source_metadata(security_id),
+            "get_security_profile": provider.get_security_profile(security_id),
+            "get_financial_statements": provider.get_financial_statements(security_id),
+            "get_price_history": provider.get_price_history(security_id),
+            "get_valuation_inputs": provider.get_valuation_inputs(security_id),
+            "get_peer_comparables": provider.get_peer_comparables(security_id),
+            "get_earnings_history": provider.get_earnings_history(security_id),
+            "get_catalyst_events": provider.get_catalyst_events(security_id),
+        }
+    except Exception:
+        return {}, "provider data could not be reconstructed from the snapshot"
+    return {name: dict(value) for name, value in records.items()}, None
+
+
+def _expected_data_paths(completed_steps: tuple[str, ...]) -> set[str]:
+    completed = set(completed_steps)
+    return {
+        path
+        for operation, path in DATA_OPERATION_PATHS.items()
+        if OPERATION_COMPLETION_STEPS[operation] in completed
+    }
+
+
+def _data_artifact_set_problems(
+    task_path: Path,
+    task: Mapping[str, Any],
+    completed_steps: tuple[str, ...],
+    status: str,
+) -> list[str]:
+    expected = _expected_data_paths(completed_steps)
+    problems: list[str] = []
+    if _relative_path_has_symlink(task_path, Path("data")):
+        return ["data directory is an unsafe symlink"]
+    resolved = _task_artifact(task_path, "data")
+    if resolved is None or not resolved.is_dir():
+        return ["data directory is missing or unsafe"]
+    actual: set[str] = set()
+    try:
+        entries = sorted((task_path / "data").iterdir(), key=lambda path: path.name)
+    except OSError:
+        return ["data directory is inaccessible"]
+    for entry in entries:
+        display = _safe_name(entry.name)
+        if entry.is_symlink() or not entry.is_file() or entry.suffix != ".json":
+            problems.append(f"data artifact is unsafe or unexpected: {display}")
+            continue
+        actual.add(f"data/{entry.name}")
+    if actual != expected:
+        problems.append("data artifacts do not equal the completed-step prefix")
+    task_data = task.get("data")
+    if status == "completed":
+        if (
+            not isinstance(task_data, list)
+            or len(task_data) != len(expected)
+            or set(task_data) != expected
+        ):
+            problems.append("completed task data manifest is incomplete or unexpected")
+    elif task_data != []:
+        problems.append("incomplete task data manifest must remain empty")
+    return problems
+
+
+def _read_capability_values(task_path: Path) -> dict[str, dict[str, Any]]:
+    values: dict[str, dict[str, Any]] = {}
+    if _relative_path_has_symlink(task_path, Path("capabilities")):
+        return values
+    root = _task_artifact(task_path, "capabilities")
+    if root is None or not root.is_dir():
+        return values
+    try:
+        entries = sorted((task_path / "capabilities").iterdir())
+    except OSError:
+        return values
+    for entry in entries:
+        if entry.is_symlink() or not entry.is_file() or entry.suffix != ".json":
+            continue
+        if entry.stem not in EXPECTED_WORKFLOW_STEPS:
+            continue
+        value = _read_task_json(task_path, f"capabilities/{entry.name}")
+        if value is not None:
+            values[entry.stem] = value
+    return values
+
+
+def _imported_capability_problems(
+    capability_values: Mapping[str, Mapping[str, Any]],
+    provider: FileProvider,
+) -> list[str]:
+    source_values = provider.bundle.get("sources")
+    known_ids = {
+        str(source.get("source_id"))
+        for source in source_values
+        if isinstance(source, Mapping) and source.get("source_id")
+    } if isinstance(source_values, list) else set()
+    operation_sources = provider.bundle.get("operations")
+    relevant_operations = {
+        "security-identification": ("identify_security",),
+        "company-deep-research": ("get_security_profile",),
+        "business-model-analysis": ("get_security_profile",),
+        "financial-statement-analysis": ("get_financial_statements",),
+        "earnings-quality-analysis": ("get_financial_statements",),
+        "valuation-analysis": ("get_valuation_inputs", "get_price_history"),
+        "comps-analysis": ("get_peer_comparables",),
+        "earnings-analysis": ("get_earnings_history",),
+        "catalyst-analysis": ("get_catalyst_events",),
+    }
+    problems: list[str] = []
+    for capability, value in capability_values.items():
+        method = value.get("method")
+        if not isinstance(method, Mapping) or method.get("input_mode") != "imported":
+            problems.append(f"capability method lacks imported mode: {capability}")
+        referenced = {
+            str(source_id) for source_id in value.get("source_ids", [])
+        } if isinstance(value.get("source_ids"), list) else set()
+        if not referenced.issubset(known_ids):
+            problems.append(f"capability has unresolved source IDs: {capability}")
+        for field in ("facts", "findings", "risks"):
+            records = value.get(field)
+            if not isinstance(records, list):
+                continue
+            for record in records:
+                if not isinstance(record, Mapping):
+                    continue
+                record_ids = {
+                    str(source_id) for source_id in record.get("source_ids", [])
+                } if isinstance(record.get("source_ids"), list) else set()
+                if not record_ids.issubset(known_ids):
+                    problems.append(
+                        f"capability record has unresolved source IDs: {capability}"
+                    )
+        operation_names = relevant_operations.get(capability)
+        if operation_names and isinstance(operation_sources, Mapping):
+            allowed: set[str] = set()
+            for operation_name in operation_names:
+                operation = operation_sources.get(operation_name)
+                if isinstance(operation, Mapping) and isinstance(
+                    operation.get("source_ids"), list
+                ):
+                    allowed.update(str(value) for value in operation["source_ids"])
+            if not referenced.issubset(allowed):
+                problems.append(
+                    f"capability uses sources outside its operation evidence: {capability}"
+                )
+    return problems
+
+
+def _aggregate_artifact_problems(
+    task_path: Path,
+    *,
+    mode: str,
+    legacy: bool,
+    capability_values: Mapping[str, Mapping[str, Any]],
+) -> list[str]:
+    assumptions = _read_task_json(task_path, "assumptions.json")
+    findings = _read_task_json(task_path, "findings.json")
+    risks = _read_task_json(task_path, "risks.json")
+    if (
+        not isinstance(assumptions, Mapping)
+        or not isinstance(findings, Mapping)
+        or not isinstance(risks, Mapping)
+    ):
+        return ["aggregate artifacts are missing, unsafe, or corrupt"]
+    values = (assumptions, findings, risks)
+    problems: list[str] = []
+    for value in values:
+        artifact_mode = value.get("input_mode")
+        if legacy:
+            if artifact_mode not in {None, "demo"}:
+                problems.append("legacy aggregate artifact has an invalid mode")
+        elif artifact_mode != mode:
+            problems.append("aggregate artifact input mode disagrees with the task")
+        if value.get("schema_version") != "1.0":
+            problems.append("aggregate artifact schema version is invalid")
+
+    expected_findings: list[dict[str, Any]] = []
+    expected_assumptions: list[dict[str, Any]] = []
+    expected_risks: list[dict[str, Any]] = []
+    expected_unknowns: list[dict[str, Any]] = []
+    expected_warnings: list[str] = []
+    expected_index: dict[str, dict[str, Any]] = {}
+    for capability in EXPECTED_WORKFLOW_STEPS:
+        result = capability_values.get(capability)
+        if not isinstance(result, Mapping):
+            continue
+        expected_index[capability] = {
+            "artifact": f"capabilities/{capability}.json",
+            "status": result.get("status"),
+        }
+        for field, destination in (
+            ("findings", expected_findings),
+            ("assumptions", expected_assumptions),
+            ("risks", expected_risks),
+            ("unknowns", expected_unknowns),
+        ):
+            records = result.get(field)
+            if not isinstance(records, list):
+                problems.append(f"capability aggregate records are invalid: {capability}")
+                continue
+            for record in records:
+                if isinstance(record, Mapping):
+                    destination.append({"capability": capability, **dict(record)})
+        warnings = result.get("warnings")
+        if isinstance(warnings, list):
+            for warning in warnings:
+                text = str(warning).strip()
+                if text and text not in expected_warnings:
+                    expected_warnings.append(text)
+
+    if findings.get("capabilities") != expected_index:
+        problems.append("findings capability index differs from persisted capabilities")
+    if findings.get("findings") != expected_findings:
+        problems.append("findings aggregate differs from persisted capabilities")
+    if assumptions.get("assumptions") != expected_assumptions:
+        problems.append("assumptions aggregate differs from persisted capabilities")
+    if risks.get("risks") != expected_risks:
+        problems.append("risks aggregate differs from persisted capabilities")
+    if risks.get("unknowns") != expected_unknowns:
+        problems.append("unknowns aggregate differs from persisted capabilities")
+    if risks.get("warnings") != expected_warnings:
+        problems.append("warnings aggregate differs from persisted capabilities")
+    return problems
+
+
+def _report_mode_problems(
+    task_path: Path,
+    task: Mapping[str, Any],
+    *,
+    mode: str,
+    provider: FileProvider | None,
+) -> list[str]:
+    artifact = _task_artifact(task_path, "report.md")
+    if artifact is None or not artifact.is_file():
+        return ["report is missing or unsafe"]
+    try:
+        report = artifact.read_text(encoding="utf-8")
+    except (OSError, UnicodeError):
+        return ["report is corrupt"]
+    lower = report.casefold()
+    comparable = lower.replace("\\", "")
+    problems: list[str] = []
+    if REPORT_INJECTION_RE.search(report):
+        problems.append("report contains unsafe markup or link injection")
+    if RESTRICTED_LANGUAGE_RE.search(report) or IMPORTED_REPORT_RESTRICTED_RE.search(
+        report
+    ):
+        problems.append("report contains action or return-promise language")
+    if mode == "imported":
+        input_record = task.get("input")
+        official_live = (
+            isinstance(input_record, Mapping)
+            and input_record.get("acquisition_mode") == "official_live"
+        )
+        if official_live:
+            if (
+                "## official live data declaration" not in lower
+                or "## imported data declaration" in lower
+                or "## demo data declaration" in lower
+                or "fictional" in lower
+                or "aurora lantern" in lower
+            ):
+                problems.append("report mode is inconsistent with official live data")
+            declaration = _markdown_section(report, "Official Live Data Declaration")
+            disclosure = declaration.casefold()
+            if (
+                "official public sources" not in disclosure
+                or "does not guarantee completeness" not in disclosure
+            ):
+                problems.append("report disclosure is incomplete for official live data")
+        else:
+            if (
+                "## imported data declaration" not in lower
+                or "## official live data declaration" in lower
+                or "## demo data declaration" in lower
+                or "fictional" in lower
+                or "aurora lantern" in lower
+            ):
+                problems.append("report mode is inconsistent with imported data")
+            declaration = _markdown_section(report, "Imported Data Declaration")
+            independently_disclosed = bool(
+                re.search(
+                    r"not independently[^\n]{0,120}(?:guarantee|verify)",
+                    declaration.casefold(),
+                )
+            )
+            if "user-supplied" not in declaration.casefold() or not independently_disclosed:
+                problems.append("report disclosure is incomplete for imported data")
+        if provider is None:
+            problems.append("report provenance cannot be checked without a valid bundle")
+        else:
+            security = provider.bundle.get("security")
+            input_record = task.get("input")
+            required_values: list[str] = []
+            if isinstance(security, Mapping):
+                required_values.extend(
+                    str(security.get(field, ""))
+                    for field in ("legal_name", "ticker", "security_id")
+                )
+            required_values.extend(
+                [
+                    str(task.get("question", "")),
+                    str(provider.bundle.get("as_of_date", "")),
+                    str(provider.bundle.get("bundle_version", "")),
+                    str(input_record.get("sha256", ""))
+                    if isinstance(input_record, Mapping)
+                    else "",
+                ]
+            )
+            for value in required_values:
+                normalized = " ".join(value.split()).casefold().replace("\\", "")
+                if not normalized or normalized not in comparable:
+                    problems.append("report identity or persisted provenance is incomplete")
+                    break
+    else:
+        if (
+            "## demo data declaration" not in lower
+            or "fictional" not in lower
+            or "## imported data declaration" in lower
+        ):
+            problems.append("report mode is inconsistent with demo data")
+    return problems
+
+
+def _markdown_section(report: str, title: str) -> str:
+    marker = f"## {title}"
+    start = report.find(marker)
+    if start < 0:
+        return ""
+    content_start = start + len(marker)
+    end = report.find("\n## ", content_start)
+    return report[content_start:] if end < 0 else report[content_start:end]
 
 
 def _capability_artifact_problems(
@@ -938,6 +1937,10 @@ def _capability_artifact_problems(
             problems.append(f"has unexpected completed capability {capability}")
         for capability in sorted(MANDATORY_COMPLETED_CAPABILITIES):
             value = values.get(capability)
+            if capability == "bear-case-analysis":
+                thesis = values.get("investment-thesis")
+                if isinstance(thesis, Mapping) and thesis.get("status") != "completed":
+                    continue
             if not isinstance(value, Mapping) or value.get("status") != "completed":
                 problems.append(
                     f"requires completed mandatory capability {capability}"
@@ -1052,6 +2055,8 @@ def _immutable_artifact_problems(
             for value in data_references
             if isinstance(value, str) and value.startswith("data/")
         )
+    if task.get("input_mode", "demo") == "imported":
+        expected_paths.add(IMPORTED_BUNDLE_PATH)
     stored = task.get("artifact_hashes")
     if not isinstance(stored, Mapping) or not stored:
         return ["has no immutable artifact hash manifest"]
@@ -1090,8 +2095,16 @@ def _read_task_json(task_path: Path, relative_path: str) -> dict[str, Any] | Non
     if artifact is None or not artifact.is_file():
         return None
     try:
-        value = json.loads(artifact.read_text(encoding="utf-8"))
-    except (OSError, UnicodeError, json.JSONDecodeError):
+        value = _read_strict_json(artifact)
+    except (
+        OSError,
+        UnicodeError,
+        json.JSONDecodeError,
+        OverflowError,
+        RecursionError,
+        TypeError,
+        ValueError,
+    ):
         return None
     return value if isinstance(value, dict) else None
 
@@ -1125,14 +2138,91 @@ def _relative_path_has_symlink(root: Path, relative: Path) -> bool:
 def _read_object(root: Path, relative_path: str) -> tuple[dict[str, Any], str | None]:
     try:
         path = resolve_within(root, relative_path)
-        value = json.loads(path.read_text(encoding="utf-8"))
+        value = _read_strict_json(path)
     except FileNotFoundError:
         return {}, f"{relative_path} is missing"
-    except (OSError, UnicodeError, json.JSONDecodeError, RuntimeError, ValueError):
+    except (
+        OSError,
+        UnicodeError,
+        json.JSONDecodeError,
+        OverflowError,
+        RecursionError,
+        RuntimeError,
+        TypeError,
+        ValueError,
+    ):
         return {}, f"{relative_path} is corrupt or invalid"
     if not isinstance(value, dict):
         return {}, f"{relative_path} must contain a JSON object"
     return value, None
+
+
+def _read_strict_json(path: Path) -> Any:
+    payload = _read_regular_bytes(path, MAX_OWNED_JSON_BYTES)
+    text = payload.decode("utf-8", errors="strict")
+    return _strict_json_loads(text)
+
+
+def _read_regular_bytes(path: Path, max_bytes: int) -> bytes:
+    """Read one bounded regular file while refusing a symlink leaf."""
+
+    before = path.lstat()
+    if not stat.S_ISREG(before.st_mode) or before.st_size > max_bytes:
+        raise ValueError("owned state is not a bounded regular file")
+    flags = os.O_RDONLY | getattr(os, "O_CLOEXEC", 0)
+    flags |= getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0)
+    descriptor = os.open(path, flags)
+    try:
+        opened = os.fstat(descriptor)
+        if (
+            not stat.S_ISREG(opened.st_mode)
+            or opened.st_size > max_bytes
+            or (opened.st_dev, opened.st_ino) != (before.st_dev, before.st_ino)
+        ):
+            raise ValueError("owned state changed during inspection")
+        chunks: list[bytes] = []
+        remaining = max_bytes + 1
+        while remaining:
+            chunk = os.read(descriptor, min(64 * 1024, remaining))
+            if not chunk:
+                break
+            chunks.append(chunk)
+            remaining -= len(chunk)
+        payload = b"".join(chunks)
+        if len(payload) > max_bytes:
+            raise ValueError("owned state exceeds its size limit")
+        return payload
+    finally:
+        os.close(descriptor)
+
+
+def _strict_json_loads(text: str) -> Any:
+    return json.loads(
+        text,
+        object_pairs_hook=_unique_json_object,
+        parse_constant=_reject_json_constant,
+        parse_float=_finite_json_float,
+    )
+
+
+def _unique_json_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError("duplicate JSON object key")
+        result[key] = value
+    return result
+
+
+def _reject_json_constant(_value: str) -> Any:
+    raise ValueError("non-finite JSON constant is forbidden")
+
+
+def _finite_json_float(value: str) -> float:
+    parsed = float(value)
+    if not math.isfinite(parsed):
+        raise ValueError("non-finite JSON number is forbidden")
+    return parsed
 
 
 def _mode_is_writable(path: Path) -> bool:
@@ -1162,14 +2252,14 @@ def _contains_none(value: Any) -> bool:
 def _contains_sensitive(value: Any) -> bool:
     if isinstance(value, Mapping):
         for key, child in value.items():
-            if SENSITIVE_KEY_RE.search(str(key)) and child not in (None, "", [], {}):
+            if contains_sensitive_key(key) and child not in (None, "", [], {}):
                 return True
             if _contains_sensitive(child):
                 return True
         return False
     if isinstance(value, (list, tuple)):
         return any(_contains_sensitive(child) for child in value)
-    return isinstance(value, str) and bool(SENSITIVE_VALUE_RE.search(value))
+    return contains_sensitive_value(value)
 
 
 def _check(

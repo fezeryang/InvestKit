@@ -1,0 +1,412 @@
+{
+  "schema_version": "1.0",
+  "bundle_version": "microsoft-fy2025-10k-v1",
+  "created_at": "2026-07-16T12:00:00Z",
+  "retrieved_at": "2026-07-16T12:00:00Z",
+  "as_of_date": "2025-06-30",
+  "currency": "USD",
+  "market": "NASDAQ",
+  "status": "imported",
+  "warnings": [
+    "The runtime treats this pinned acceptance asset as user-supplied imported input; InvestKit did not independently fetch it and does not guarantee its accuracy.",
+    "The bundle is a historical FY2025 filing snapshot and is stale for a current investment view.",
+    "Prices, peers, forecasts, consensus expectations, transcripts, and future catalysts were not collected and remain explicit gaps."
+  ],
+  "security": {
+    "security_id": "NASDAQ:MSFT",
+    "ticker": "MSFT",
+    "legal_name": "Microsoft Corporation",
+    "exchange": "Nasdaq",
+    "aliases": [
+      "MSFT",
+      "Microsoft",
+      "Microsoft Corporation"
+    ]
+  },
+  "sources": [
+    {
+      "source_id": "sec-msft-fy2025-10k-index",
+      "publisher": "U.S. Securities and Exchange Commission",
+      "title": "Filing Detail - Microsoft Form 10-K",
+      "source_type": "regulatory-filing-index",
+      "locator": "https://www.sec.gov/Archives/edgar/data/789019/000095017025100235/0000950170-25-100235-index.html",
+      "publication_date": "2025-07-30",
+      "as_of_date": "2025-06-30",
+      "retrieved_at": "2026-07-16T12:00:00Z",
+      "quality": "primary-authoritative",
+      "freshness": "historical-stale",
+      "access_notes": "Public EDGAR filing metadata; retained as locator metadata only and not fetched by the InvestKit runtime.",
+      "license_notes": "The SEC Webmaster FAQ states that public EDGAR filing content is free to access and reuse; attribution and the exact locator are retained."
+    },
+    {
+      "source_id": "sec-msft-fy2025-10k",
+      "publisher": "Microsoft Corporation",
+      "title": "Form 10-K for the fiscal year ended June 30, 2025",
+      "source_type": "issuer-filed-regulatory-report",
+      "locator": "https://www.sec.gov/Archives/edgar/data/789019/000095017025100235/msft-20250630.htm",
+      "publication_date": "2025-07-30",
+      "as_of_date": "2025-06-30",
+      "retrieved_at": "2026-07-16T12:00:00Z",
+      "quality": "primary-issuer-disclosure",
+      "freshness": "historical-stale",
+      "access_notes": "Issuer-filed annual report hosted by EDGAR; normalized facts only are stored and the InvestKit runtime does not fetch the locator.",
+      "license_notes": "The SEC Webmaster FAQ states that public EDGAR filing content is free to access and reuse; attribution and the exact locator are retained."
+    }
+  ],
+  "operations": {
+    "identify_security": {
+      "data": {
+        "security_id": "NASDAQ:MSFT",
+        "ticker": "MSFT",
+        "legal_name": "Microsoft Corporation",
+        "exchange": "Nasdaq",
+        "aliases": [
+          "MSFT",
+          "Microsoft",
+          "Microsoft Corporation"
+        ],
+        "cik": "0000789019",
+        "sec_file_number": "001-37845",
+        "form": "10-K",
+        "accession_number": "0000950170-25-100235",
+        "filed_at": "2025-07-30",
+        "accepted_at": "2025-07-30T16:11:40Z",
+        "period_of_report": "2025-06-30"
+      },
+      "source_ids": [
+        "sec-msft-fy2025-10k-index",
+        "sec-msft-fy2025-10k"
+      ],
+      "warnings": [
+        "The identity is pinned to one historical SEC accession and is not a live security-master lookup."
+      ]
+    },
+    "get_security_profile": {
+      "data": {
+        "name": "Microsoft Corporation",
+        "business_model": "Develops and supports technology products and services spanning cloud computing, productivity and collaboration, and personal computing.",
+        "segments": [
+          "Productivity and Business Processes",
+          "Intelligent Cloud",
+          "More Personal Computing"
+        ],
+        "segment_revenue": [
+          {
+            "segment": "Productivity and Business Processes",
+            "fiscal_year": 2025,
+            "revenue": 120810,
+            "units": "USD millions"
+          },
+          {
+            "segment": "Intelligent Cloud",
+            "fiscal_year": 2025,
+            "revenue": 106265,
+            "units": "USD millions"
+          },
+          {
+            "segment": "More Personal Computing",
+            "fiscal_year": 2025,
+            "revenue": 54649,
+            "units": "USD millions"
+          }
+        ],
+        "revenue_components": {
+          "productivity_and_business_processes": 0.4288239553605657,
+          "intelligent_cloud": 0.3771954111115844,
+          "more_personal_computing": 0.1939806335278499
+        },
+        "products": [
+          "Cloud computing services",
+          "Productivity and collaboration software and services",
+          "Personal computing products and services"
+        ],
+        "customers": null,
+        "suppliers": null,
+        "geographies": [],
+        "country": null,
+        "industry": "Services - Prepackaged Software",
+        "sic": "7372",
+        "competitive_position": null,
+        "competitive_context": {
+          "summary": "The issuer identifies competition across its technology markets as a material risk topic."
+        },
+        "business_risks": [
+          "Competition across technology markets",
+          "Cybersecurity incidents and resilience",
+          "Legal and regulatory developments",
+          "Execution and capital-intensity risks related to AI and datacenter investment"
+        ],
+        "risks": [
+          "Competition across technology markets",
+          "Cybersecurity incidents and resilience",
+          "Legal and regulatory developments",
+          "Execution and capital-intensity risks related to AI and datacenter investment"
+        ],
+        "revenue_model": "Technology products, software licensing, subscriptions, cloud services, advertising, gaming, and devices.",
+        "payer": null,
+        "value_proposition": null,
+        "order_to_cash": null,
+        "employees": 228000,
+        "employee_count": 228000,
+        "customer_retention": null,
+        "customer_concentration_percent": null,
+        "customer_concentration_note": "The filing states that no individual customer accounted for more than 10% of revenue.",
+        "management": {},
+        "capital_allocation": {},
+        "research_drivers": [
+          "segment revenue mix",
+          "cash conversion",
+          "AI and datacenter investment execution",
+          "cybersecurity and regulatory risk"
+        ],
+        "limitations": [
+          "No management-tenure study was normalized into this bundle.",
+          "No customer-retention percentage or customer-concentration estimate was supplied.",
+          "No order-to-cash or supplier evidence was normalized."
+        ]
+      },
+      "source_ids": [
+        "sec-msft-fy2025-10k"
+      ],
+      "warnings": [
+        "The company profile is limited to facts and concise risk-topic paraphrases from the pinned Form 10-K."
+      ]
+    },
+    "get_financial_statements": {
+      "data": {
+        "accounting_basis": "U.S. GAAP",
+        "period_type": "annual",
+        "units": "USD millions except per-share values",
+        "periods": [
+          {
+            "fiscal_year": 2024,
+            "revenue": 245122,
+            "gross_profit": 171008,
+            "operating_income": 109433,
+            "net_income": 88136,
+            "cash_from_operations": 118548,
+            "capital_expenditure": -44477,
+            "cash_and_equivalents": 18315,
+            "short_term_investments": 57228,
+            "accounts_receivable": 56924,
+            "inventory": 1246,
+            "current_assets": 159734,
+            "total_assets": 512163,
+            "accounts_payable": 21996,
+            "current_liabilities": 125286,
+            "short_term_debt": 6693,
+            "current_portion_of_long_term_debt": 2249,
+            "long_term_debt": 42688,
+            "total_debt": 51630,
+            "net_debt": 33315,
+            "total_equity": 268477,
+            "diluted_eps": 11.8,
+            "weighted_average_diluted_shares": 7469
+          },
+          {
+            "fiscal_year": 2025,
+            "revenue": 281724,
+            "gross_profit": 193893,
+            "operating_income": 128528,
+            "net_income": 101832,
+            "cash_from_operations": 136162,
+            "capital_expenditure": -64551,
+            "cash_and_equivalents": 30242,
+            "short_term_investments": 64323,
+            "accounts_receivable": 69905,
+            "inventory": 938,
+            "current_assets": 191131,
+            "total_assets": 619003,
+            "accounts_payable": 27724,
+            "current_liabilities": 141218,
+            "short_term_debt": 0,
+            "current_portion_of_long_term_debt": 2999,
+            "long_term_debt": 40152,
+            "total_debt": 43151,
+            "net_debt": 12909,
+            "total_equity": 343479,
+            "diluted_eps": 13.64,
+            "weighted_average_diluted_shares": 7465
+          }
+        ],
+        "derivation_notes": {
+          "total_debt": "Short-term debt plus current portion of long-term debt plus long-term debt.",
+          "net_debt": "Total debt less cash and cash equivalents; short-term investments are deliberately excluded."
+        },
+        "limitations": [
+          "Total debt and net debt are labeled calculations from separately reported balance-sheet fields.",
+          "No accounting-footnote normalization beyond the listed fields was performed."
+        ]
+      },
+      "source_ids": [
+        "sec-msft-fy2025-10k"
+      ],
+      "warnings": [
+        "Statement values are historical reported consolidated amounts; total debt and net debt are explicitly derived as documented."
+      ]
+    },
+    "get_price_history": {
+      "data": {
+        "observations": [],
+        "latest_price": null,
+        "frequency": null,
+        "limitations": [
+          "No aligned market-price series was collected for this acceptance bundle.",
+          "The cover-page non-affiliate market-value disclosure is not treated as a security price."
+        ]
+      },
+      "source_ids": [],
+      "warnings": [
+        "Price history is intentionally absent; price-based analysis must remain unknown or skipped."
+      ]
+    },
+    "get_valuation_inputs": {
+      "data": {
+        "current_price": null,
+        "market_capitalization": null,
+        "enterprise_value": null,
+        "forecast_unlevered_free_cash_flow": null,
+        "wacc": null,
+        "terminal_growth": null,
+        "diluted_shares": 7465,
+        "diluted_shares_definition": "FY2025 weighted-average diluted shares in millions; not a period-end share count.",
+        "cash": 30242,
+        "total_debt": 43151,
+        "peer_ev_to_operating_income": null,
+        "scenario_assumptions": null,
+        "sensitivity_wacc_values": null,
+        "sensitivity_terminal_growth_values": null,
+        "units": "USD millions except per-share values",
+        "limitations": [
+          "The filing supports only a historical cash, calculated gross-debt, and weighted-average diluted-share bridge.",
+          "Forecast cash flows, WACC, terminal growth, scenario assumptions, sensitivity axes, and current market inputs are absent."
+        ]
+      },
+      "source_ids": [
+        "sec-msft-fy2025-10k"
+      ],
+      "warnings": [
+        "Essential DCF inputs were not collected; valuation analysis must skip rather than manufacture assumptions."
+      ]
+    },
+    "get_source_metadata": {
+      "data": {
+        "sources": [
+          {
+            "source_id": "sec-msft-fy2025-10k-index",
+            "publisher": "U.S. Securities and Exchange Commission",
+            "title": "Filing Detail - Microsoft Form 10-K",
+            "source_type": "regulatory-filing-index",
+            "locator": "https://www.sec.gov/Archives/edgar/data/789019/000095017025100235/0000950170-25-100235-index.html",
+            "publication_date": "2025-07-30",
+            "as_of_date": "2025-06-30",
+            "retrieved_at": "2026-07-16T12:00:00Z",
+            "quality": "primary-authoritative",
+            "freshness": "historical-stale",
+            "access_notes": "Public EDGAR filing metadata; retained as locator metadata only and not fetched by the InvestKit runtime.",
+            "license_notes": "The SEC Webmaster FAQ states that public EDGAR filing content is free to access and reuse; attribution and the exact locator are retained."
+          },
+          {
+            "source_id": "sec-msft-fy2025-10k",
+            "publisher": "Microsoft Corporation",
+            "title": "Form 10-K for the fiscal year ended June 30, 2025",
+            "source_type": "issuer-filed-regulatory-report",
+            "locator": "https://www.sec.gov/Archives/edgar/data/789019/000095017025100235/msft-20250630.htm",
+            "publication_date": "2025-07-30",
+            "as_of_date": "2025-06-30",
+            "retrieved_at": "2026-07-16T12:00:00Z",
+            "quality": "primary-issuer-disclosure",
+            "freshness": "historical-stale",
+            "access_notes": "Issuer-filed annual report hosted by EDGAR; normalized facts only are stored and the InvestKit runtime does not fetch the locator.",
+            "license_notes": "The SEC Webmaster FAQ states that public EDGAR filing content is free to access and reuse; attribution and the exact locator are retained."
+          }
+        ],
+        "limitations": [
+          "The filing index and issuer-filed 10-K have distinct roles but belong to the same accession.",
+          "No issuer-hosted mirror is included or counted as independent corroboration.",
+          "No locator is fetched by the offline runtime."
+        ]
+      },
+      "source_ids": [
+        "sec-msft-fy2025-10k-index",
+        "sec-msft-fy2025-10k"
+      ],
+      "warnings": [
+        "The two source records support metadata and filing facts respectively; they are not independent evidence of the issuer's claims."
+      ]
+    },
+    "get_peer_comparables": {
+      "data": {
+        "peers": [],
+        "selection_method": null,
+        "period_alignment": null,
+        "units": null,
+        "limitations": [
+          "No governed peer selection or aligned peer valuation data was collected."
+        ]
+      },
+      "source_ids": [],
+      "warnings": [
+        "Peer comparables are intentionally absent; comps analysis must skip rather than infer peers from an industry label."
+      ]
+    },
+    "get_earnings_history": {
+      "data": {
+        "events": [
+          {
+            "period": "FY2024",
+            "actual": {
+              "revenue": 245122,
+              "revenue_definition": "Reported consolidated annual revenue in USD millions.",
+              "eps": 11.8,
+              "eps_definition": "Reported diluted earnings per share in USD."
+            },
+            "expectation": {},
+            "guidance": {},
+            "drivers": [],
+            "estimate_revisions": [],
+            "transcript_available": false
+          },
+          {
+            "period": "FY2025",
+            "actual": {
+              "revenue": 281724,
+              "revenue_definition": "Reported consolidated annual revenue in USD millions.",
+              "eps": 13.64,
+              "eps_definition": "Reported diluted earnings per share in USD."
+            },
+            "expectation": {},
+            "guidance": {},
+            "drivers": [],
+            "estimate_revisions": [],
+            "transcript_available": false
+          }
+        ],
+        "units": "USD millions except per-share values",
+        "limitations": [
+          "No point-in-time consensus expectations, issuer guidance comparison, transcript, or estimate revisions were supplied.",
+          "Transcript availability means not supplied in this bundle; it does not assert that no transcript exists elsewhere."
+        ]
+      },
+      "source_ids": [
+        "sec-msft-fy2025-10k"
+      ],
+      "warnings": [
+        "Only reported annual actuals are present; consensus surprise, guidance comparison, transcript tone, and revisions remain unknown."
+      ]
+    },
+    "get_catalyst_events": {
+      "data": {
+        "events": [],
+        "limitations": [
+          "No dated future catalyst was researched for this historical acceptance bundle.",
+          "Generic forward-looking statements are not reclassified as catalyst events."
+        ]
+      },
+      "source_ids": [],
+      "warnings": [
+        "Catalyst events are intentionally absent; catalyst analysis must skip without inventing a calendar."
+      ]
+    }
+  }
+}

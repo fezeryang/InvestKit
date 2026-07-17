@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
+import math
 from typing import Any, Mapping, Sequence
 
 
@@ -77,6 +78,7 @@ def validate_capability_result(
 
     if not isinstance(value, Mapping):
         raise TypeError("capability result must be a mapping")
+    _reject_nonfinite(value, "result")
     required = set(BASE_FIELDS)
     missing = required - set(value)
     if missing:
@@ -95,8 +97,8 @@ def validate_capability_result(
     assumptions = _record_list(value.get("assumptions"), "assumptions")
     estimates = _record_list(value.get("estimates"), "estimates")
     unknowns = _record_list(value.get("unknowns"), "unknowns")
-    _record_list(value.get("findings"), "findings")
-    _record_list(value.get("risks"), "risks")
+    findings = _record_list(value.get("findings"), "findings")
+    risks = _record_list(value.get("risks"), "risks")
     warnings = value.get("warnings")
     if not isinstance(warnings, list) or not all(_nonempty_string(item) for item in warnings):
         raise TypeError("warnings must be a list of non-empty strings")
@@ -132,6 +134,15 @@ def validate_capability_result(
             unknown.get("question")
         ):
             raise ValueError("each unknown requires a gap or question")
+    if status == "completed":
+        for label, records in (("finding", findings), ("risk", risks)):
+            for record in records:
+                _require_nonempty(record, ("id", "statement"), label)
+                sources = record.get("source_ids")
+                if not _nonempty_string_list(sources):
+                    raise ValueError(
+                        f"each completed {label} must reference one or more source_ids"
+                    )
 
     source_ids = value.get("source_ids")
     if not isinstance(source_ids, list) or not all(
@@ -244,3 +255,19 @@ def _nonempty_string_list(value: Any) -> bool:
         and bool(value)
         and all(_nonempty_string(item) for item in value)
     )
+
+
+def _reject_nonfinite(value: Any, path: str) -> None:
+    """Reject NaN and infinities anywhere in a persisted capability envelope."""
+
+    if isinstance(value, float):
+        if not math.isfinite(value):
+            raise ValueError(f"capability result contains a non-finite number at {path}")
+        return
+    if isinstance(value, Mapping):
+        for key, item in value.items():
+            _reject_nonfinite(item, f"{path}.{key}")
+        return
+    if isinstance(value, Sequence) and not isinstance(value, (str, bytes)):
+        for index, item in enumerate(value):
+            _reject_nonfinite(item, f"{path}[{index}]")

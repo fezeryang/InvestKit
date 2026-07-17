@@ -46,4 +46,4 @@ class Provider(ABC):
 
     @abstractmethod
     def get_catalyst_events(self, security_id: str) -> ProviderRecord:
-        """Return dated fictional events with evidence and uncertainty."""
+        """Return dated events with evidence and explicit uncertainty."""

@@ -178,12 +178,21 @@ class FirstPartyAssetContractTests(unittest.TestCase):
         workflow = json.loads(path.read_text(encoding="utf-8"))
 
         self.assertEqual(workflow.get("id"), "company-deep-dive")
-        self.assertTrue(workflow.get("version"))
+        self.assertEqual(workflow.get("version"), "0.3.0")
         self.assertEqual(_workflow_step_ids(workflow), EXPECTED_WORKFLOW_STEPS)
         serialized = json.dumps(workflow).lower()
         self.assertIn("company-deep-research", serialized)
         self.assertIn("source-verification", serialized)
         self.assertIn("report", serialized)
+        public_contract = json.dumps(
+            {
+                "description": workflow.get("description"),
+                "inputs": workflow.get("inputs"),
+            }
+        ).lower()
+        self.assertNotIn("fictional", public_contract)
+        self.assertNotIn("bundled fixture", public_contract)
+        self.assertIn("validated", public_contract)
 
     def test_runtime_has_no_trellis_import_or_path_dependency(self) -> None:
         runtime_root = REPOSITORY_ROOT / "src/investkit"

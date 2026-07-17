@@ -19,8 +19,14 @@ from investkit.assets import (
 from investkit.capabilities.analysis import run_capability
 from investkit.capabilities.catalog import RUNTIME_SKILLS, discover_skill_files
 from investkit.capabilities.contracts import validate_capability_result
+from investkit.filesystem import resolve_within, resolved_root
 from investkit.providers.base import Provider
 from investkit.providers.demo import DemoProvider
+from investkit.providers.file import (
+    BundleInputError,
+    BundleValidationError,
+    FileProvider,
+)
 
 from .report import render_report
 from .tasks import (
@@ -55,6 +61,7 @@ REQUIRED_COMPLETED_ARTIFACTS = (
     "run-log.json",
     "report.md",
 )
+IMPORTED_BUNDLE_PATH = "input/research-bundle.json"
 DATA_PATHS = {
     "identity": "data/security-identity.json",
     "source_metadata": "data/source-metadata.json",
@@ -100,12 +107,12 @@ def run_demo_research(
 ) -> ResearchResult:
     """Create and execute one unique fictional company-deep-dive task."""
 
-    store = TaskStore(project_root)
+    store = _initialized_task_store(project_root)
     source = _source_root(source_root)
     workflow = _load_workflow(source)
     loaded_specs = _load_specs(source)
     installed_skills = _load_installed_skills(store.project_root, source)
-    task_id = new_task_id()
+    task_id = new_task_id("demo")
     task_path = store.create(task_id)
     question = (
         "What do the bundled fictional company records show when analyzed by "
@@ -119,6 +126,9 @@ def run_demo_research(
         workflow=workflow,
         loaded_specs=loaded_specs,
         installed_skills=installed_skills,
+        input_mode="demo",
+        security_query="demo",
+        input_record=None,
     )
     active_provider = provider if provider is not None else DemoProvider(source)
     context: dict[str, Any] = {
@@ -127,12 +137,103 @@ def run_demo_research(
         "loaded_specs": loaded_specs,
         "plan": plan,
         "question": question,
+        "input_mode": "demo",
+        "security_query": "demo",
         "source_root": source,
         "sources": {"schema_version": "1.0", "sources": []},
         "task": task,
         "workflow": workflow,
     }
     return _execute(store, task_path, active_provider, context, resumed=False)
+
+
+def run_research(
+    project_root: str | Path,
+    source_root: str | Path,
+    *,
+    input_path: str | Path,
+    question: str,
+) -> ResearchResult:
+    """Run the full workflow over one validated project-local research bundle."""
+
+    provider = FileProvider(Path(project_root), input_path)
+    return run_research_bundle(
+        project_root,
+        source_root,
+        provider=provider,
+        question=question,
+    )
+
+
+def run_research_bundle(
+    project_root: str | Path,
+    source_root: str | Path,
+    *,
+    provider: FileProvider,
+    question: str,
+    acquisition_mode: str = "user_imported",
+) -> ResearchResult:
+    """Run imported research from one already validated immutable Provider snapshot."""
+
+    normalized_question = str(question).strip()
+    if not normalized_question:
+        raise ResearchTaskError("research question must be non-empty")
+    if acquisition_mode not in {"user_imported", "official_live"}:
+        raise ResearchTaskError("research acquisition mode is unsupported")
+    store = _initialized_task_store(project_root)
+    source = _source_root(source_root)
+    workflow = _load_workflow(source)
+    loaded_specs = _load_specs(source)
+    installed_skills = _load_installed_skills(store.project_root, source)
+    security = _mapping(provider.bundle.get("security"), "bundle security")
+    security_query = _required_text(
+        security.get("ticker", security.get("security_id")), "security query"
+    )
+    task_id = new_task_id("research")
+    task_path = store.create(task_id)
+    input_record = {
+        "bundle_version": _required_text(
+            provider.bundle.get("bundle_version"), "bundle version"
+        ),
+        "acquisition_mode": acquisition_mode,
+        "origin": provider.bundle_origin,
+        "sha256": provider.bundle_sha256,
+        "snapshot": IMPORTED_BUNDLE_PATH,
+    }
+    task, plan = _initialize_task(
+        store,
+        task_path,
+        task_id=task_id,
+        question=normalized_question,
+        workflow=workflow,
+        loaded_specs=loaded_specs,
+        installed_skills=installed_skills,
+        input_mode="imported",
+        security_query=security_query,
+        input_record=input_record,
+    )
+    # Persist the validated canonical snapshot before analytical execution.
+    store.write_text(
+        task_path,
+        IMPORTED_BUNDLE_PATH,
+        provider.bundle_bytes.decode("utf-8"),
+        overwrite=False,
+    )
+    context: dict[str, Any] = {
+        "capability_results": {},
+        "input_mode": "imported",
+        "input_record": input_record,
+        "installed_skills": installed_skills,
+        "loaded_specs": loaded_specs,
+        "plan": plan,
+        "question": normalized_question,
+        "security_query": security_query,
+        "source_root": source,
+        "sources": {"input_mode": "imported", "schema_version": "1.0", "sources": []},
+        "task": task,
+        "workflow": workflow,
+    }
+    return _execute(store, task_path, provider, context, resumed=False)
 
 
 def resume_demo_research(
@@ -144,7 +245,42 @@ def resume_demo_research(
 ) -> ResearchResult:
     """Resume an incomplete task or validate an immutable completed task."""
 
-    store = TaskStore(project_root)
+    return _resume_research(
+        project_root,
+        task_id,
+        source_root,
+        provider=provider,
+        expected_mode="demo",
+    )
+
+
+def resume_research(
+    project_root: str | Path,
+    task_id: str,
+    source_root: str | Path,
+) -> ResearchResult:
+    """Resume an imported task from its persisted validated bundle snapshot."""
+
+    return _resume_research(
+        project_root,
+        task_id,
+        source_root,
+        provider=None,
+        expected_mode="imported",
+    )
+
+
+def _resume_research(
+    project_root: str | Path,
+    task_id: str,
+    source_root: str | Path,
+    *,
+    provider: Provider | None,
+    expected_mode: str,
+) -> ResearchResult:
+    """Shared resume implementation with explicit mode compatibility."""
+
+    store = _initialized_task_store(project_root)
     task_path = store.task_path(task_id, require_exists=True)
     task = _validated_task(store.read_json(task_path, "task.json"), task_id)
     plan = _validated_plan(store.read_json(task_path, "plan.json"))
@@ -153,8 +289,18 @@ def resume_demo_research(
         store.read_json(task_path, "installed-skills.json"), "skills"
     )
     _validate_snapshot_records(loaded_specs, installed_skills)
-    question = _read_question(store, task_path)
+    question = _read_question(
+        store,
+        task_path,
+        allow_legacy=plan.get("version") == "0.2.0",
+    )
     _validate_task_snapshots(task, question, plan)
+    input_mode = _task_input_mode(task)
+    if input_mode != expected_mode:
+        raise CorruptTaskError(
+            f"research task input mode is {input_mode}; use the matching resume command"
+        )
+    input_record = _validate_imported_snapshot(store, task_path, task)
 
     if task["status"] == "completed":
         _validate_completed_task(store, task_path, plan, task)
@@ -162,6 +308,7 @@ def resume_demo_research(
             task_path,
             {
                 "event": "resume",
+                "input_mode": input_mode,
                 "message": "Completed task inspected; immutable artifacts preserved.",
                 "status": "completed",
                 "timestamp": utc_now(),
@@ -198,20 +345,46 @@ def resume_demo_research(
         loaded_specs=loaded_specs,
         plan=plan,
         question=question,
+        input_mode=input_mode,
+        input_record=input_record,
+        security_query=str(task.get("security_query", "demo")),
         source_root=source,
         task=task,
         workflow=workflow,
     )
+    if provider is not None:
+        active_provider = provider
+    elif input_mode == "imported":
+        active_provider = FileProvider(store.project_root, task_path / IMPORTED_BUNDLE_PATH)
+        if active_provider.bundle_sha256 != input_record.get("sha256"):
+            raise CorruptTaskError("persisted research bundle snapshot hash mismatch")
+    else:
+        active_provider = DemoProvider(source)
+    if input_mode == "imported":
+        if not isinstance(active_provider, FileProvider):
+            raise CorruptTaskError("imported resume requires its persisted bundle provider")
+        _validate_imported_provider_state(
+            store,
+            task_path,
+            task,
+            active_provider,
+        )
+        _validate_imported_completed_capabilities(
+            store,
+            task_path,
+            context,
+            plan,
+        )
     store.append_event(
         task_path,
         {
             "event": "resume",
+            "input_mode": input_mode,
             "message": "Resuming only incomplete workflow stages.",
             "status": "running",
             "timestamp": utc_now(),
         },
     )
-    active_provider = provider if provider is not None else DemoProvider(source)
     return _execute(store, task_path, active_provider, context, resumed=True)
 
 
@@ -224,10 +397,14 @@ def _initialize_task(
     workflow: Mapping[str, Any],
     loaded_specs: list[dict[str, Any]],
     installed_skills: list[dict[str, Any]],
+    input_mode: str,
+    security_query: str,
+    input_record: Mapping[str, Any] | None,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     created_at = utc_now()
     plan = {
         "schema_version": "1.0",
+        "input_mode": input_mode,
         "steps": [
             {
                 "id": step["id"],
@@ -246,8 +423,11 @@ def _initialize_task(
         "current_step": None,
         "data": [],
         "id": task_id,
+        "input": dict(input_record) if input_record is not None else None,
+        "input_mode": input_mode,
         "outcome": None,
         "question": question,
+        "security_query": security_query,
         "schema_version": "1.0",
         "skills": [record["name"] for record in installed_skills],
         "specs": [record["name"] for record in loaded_specs],
@@ -256,30 +436,50 @@ def _initialize_task(
         "warnings": [],
         "workflow": {"id": workflow["id"], "version": workflow["version"]},
     }
-    store.write_text(task_path, "question.md", f"# Research Question\n\n{question}\n")
+    store.write_text(task_path, "question.md", _question_markdown(question))
     store.write_json(task_path, "plan.json", plan)
     store.write_json(task_path, "loaded-specs.json", {"specs": loaded_specs})
     store.write_json(task_path, "installed-skills.json", {"skills": installed_skills})
-    store.write_json(task_path, "sources.json", {"schema_version": "1.0", "sources": []})
+    store.write_json(
+        task_path,
+        "sources.json",
+        {"input_mode": input_mode, "schema_version": "1.0", "sources": []},
+    )
     store.write_json(
         task_path,
         "assumptions.json",
-        {"assumptions": [], "schema_version": "1.0"},
+        {"assumptions": [], "input_mode": input_mode, "schema_version": "1.0"},
     )
     store.write_json(
         task_path,
         "findings.json",
-        {"capabilities": {}, "findings": [], "schema_version": "1.0"},
+        {
+            "capabilities": {},
+            "findings": [],
+            "input_mode": input_mode,
+            "schema_version": "1.0",
+        },
     )
     store.write_json(
         task_path,
         "risks.json",
-        {"risks": [], "schema_version": "1.0", "unknowns": [], "warnings": []},
+        {
+            "input_mode": input_mode,
+            "risks": [],
+            "schema_version": "1.0",
+            "unknowns": [],
+            "warnings": [],
+        },
     )
     store.write_json(task_path, "task.json", task)
     store.append_event(
         task_path,
-        {"event": "task", "status": "created", "timestamp": created_at},
+        {
+            "event": "task",
+            "input_mode": input_mode,
+            "status": "created",
+            "timestamp": created_at,
+        },
     )
     return task, plan
 
@@ -302,6 +502,7 @@ def _execute(
         task_path,
         {
             "event": "task",
+            "input_mode": _context_input_mode(context),
             "resumed": resumed,
             "status": "running",
             "timestamp": task["updated_at"],
@@ -438,12 +639,22 @@ def _execute_step(
     context: MutableMapping[str, Any],
 ) -> dict[str, Any]:
     if step_id == "security-identification":
-        identity = _provider_record(provider.identify_security("demo"), step_id)
+        input_mode = _context_input_mode(context)
+        query = _required_text(context.get("security_query"), "security query")
+        identity = _provider_record(
+            provider.identify_security(query), step_id, input_mode=input_mode
+        )
         security_id = _required_text(identity.get("security_id"), "security ID")
         source_metadata = _provider_record(
-            provider.get_source_metadata(security_id), step_id
+            provider.get_source_metadata(security_id),
+            step_id,
+            input_mode=input_mode,
         )
-        sources = _build_sources(source_metadata, _path_value(context["source_root"]))
+        sources = _build_sources(
+            source_metadata,
+            _path_value(context["source_root"]),
+            input_mode=input_mode,
+        )
         context.update(
             {"identity": identity, "source_metadata": source_metadata, "sources": sources}
         )
@@ -515,10 +726,19 @@ def _execute_step(
                 step_id,
             )
 
-    result = run_capability(step_id, _analysis_inputs(context))
+    result = run_capability(step_id, _analysis_inputs(context, step_id))
+    method = _mutable_mapping(result.get("method"), "capability method")
+    method["input_mode"] = _context_input_mode(context)
     validate_capability_result(result, expected=step_id)
     _validate_result_sources(result, _known_source_ids(context))
-    if step_id in MANDATORY_COMPLETED_CAPABILITIES and result["status"] != "completed":
+    if (
+        _capability_must_complete(
+            step_id,
+            input_mode=_context_input_mode(context),
+            prior=_capability_results(context),
+        )
+        and result["status"] != "completed"
+    ):
         raise ResearchTaskError(f"mandatory capability did not complete: {step_id}")
 
     prospective = {**_capability_results(context), step_id: result}
@@ -532,13 +752,24 @@ def _execute_step(
             installed_skills=_record_sequence(context["installed_skills"], "installed Skills"),
             loaded_specs=_record_sequence(context["loaded_specs"], "loaded specs"),
             generation_time=utc_now(),
+            input_mode=_context_input_mode(context),
+            input_provenance=_mapping(
+                context.get("input_record"), "input provenance"
+            )
+            if _context_input_mode(context) == "imported"
+            else {},
         )
         store.write_text(task_path, "report.md", report)
 
     capability_path = f"capabilities/{step_id}.json"
     store.write_json(task_path, capability_path, result, overwrite=False)
     _capability_results(context)[step_id] = result
-    _refresh_aggregate_artifacts(store, task_path, _capability_results(context))
+    _refresh_aggregate_artifacts(
+        store,
+        task_path,
+        _capability_results(context),
+        input_mode=_context_input_mode(context),
+    )
     return result
 
 
@@ -550,7 +781,11 @@ def _fetch_and_store(
     value: Mapping[str, Any],
     operation: str,
 ) -> None:
-    record = _provider_record(value, operation)
+    record = _provider_record(
+        value,
+        operation,
+        input_mode=_context_input_mode(context),
+    )
     context[key] = record
     store.write_json(task_path, DATA_PATHS[key], record)
 
@@ -726,7 +961,9 @@ def _validate_completed_step(
         raise CorruptTaskError(f"corrupt capability artifact: {step_id}") from error
     if result.get("status") not in {"completed", "skipped"}:
         raise CorruptTaskError(f"completed stage has invalid capability status: {step_id}")
-    if step_id in MANDATORY_COMPLETED_CAPABILITIES and result.get("status") != "completed":
+    if _persisted_capability_must_complete(store, task_path, step_id) and result.get(
+        "status"
+    ) != "completed":
         raise CorruptTaskError(f"mandatory capability is incomplete: {step_id}")
     sources = store.read_json(task_path, "sources.json")
     _validate_result_sources(result, _source_ids(sources))
@@ -744,6 +981,41 @@ def _validate_completed_step(
     return dict(result)
 
 
+def _capability_must_complete(
+    capability: str,
+    *,
+    input_mode: str,
+    prior: Mapping[str, Any],
+) -> bool:
+    """Apply mandatory completion only where the evidence makes it meaningful."""
+
+    if capability not in MANDATORY_COMPLETED_CAPABILITIES:
+        return False
+    if capability != "bear-case-analysis":
+        return True
+    if input_mode == "demo":
+        return True
+    thesis = prior.get("investment-thesis")
+    return isinstance(thesis, Mapping) and thesis.get("status") == "completed"
+
+
+def _persisted_capability_must_complete(
+    store: TaskStore,
+    task_path: Path,
+    capability: str,
+) -> bool:
+    """Evaluate the conditional bear-case gate from durable artifacts."""
+
+    if capability not in MANDATORY_COMPLETED_CAPABILITIES:
+        return False
+    if capability != "bear-case-analysis":
+        return True
+    thesis = store.read_json(task_path, "capabilities/investment-thesis.json")
+    if not isinstance(thesis, Mapping):
+        raise CorruptTaskError("corrupt capability artifact: investment-thesis")
+    return thesis.get("status") == "completed"
+
+
 def _validate_final_artifacts(
     store: TaskStore,
     task_path: Path,
@@ -758,6 +1030,9 @@ def _validate_final_artifacts(
             store.read_json(task_path, relative_path)
         elif not store.read_text(task_path, relative_path).strip():
             raise ResearchTaskError(f"required task artifact is empty: {relative_path}")
+    task = _mapping(store.read_json(task_path, "task.json"), "task")
+    if _task_input_mode(task) == "imported":
+        _validate_imported_snapshot(store, task_path, task)
     for step_id in EXPECTED_STEPS:
         _validate_completed_step(store, task_path, step_id)
     actual = {
@@ -817,6 +1092,180 @@ def _validate_completed_task(
         raise CorruptTaskError("completed task immutable artifact hash mismatch")
 
 
+def _task_input_mode(task: Mapping[str, Any]) -> str:
+    """Interpret pre-v0.3 tasks as demo without rewriting durable state."""
+
+    mode = task.get("input_mode", "demo")
+    if mode not in {"demo", "imported"}:
+        raise CorruptTaskError("corrupt task record: unsupported input mode")
+    return str(mode)
+
+
+def _validate_imported_snapshot(
+    store: TaskStore,
+    task_path: Path,
+    task: Mapping[str, Any],
+) -> dict[str, Any]:
+    if _task_input_mode(task) == "demo":
+        return {}
+    record = task.get("input")
+    if not isinstance(record, Mapping):
+        raise CorruptTaskError("imported task has no persisted input record")
+    if record.get("snapshot") != IMPORTED_BUNDLE_PATH:
+        raise CorruptTaskError("imported task has an invalid bundle snapshot path")
+    expected_hash = str(record.get("sha256", ""))
+    if not SHA256_RE.fullmatch(expected_hash):
+        raise CorruptTaskError("imported task has an invalid bundle snapshot hash")
+    path = store.artifact_path(task_path, IMPORTED_BUNDLE_PATH)
+    if not path.is_file() or path.is_symlink():
+        raise CorruptTaskError("imported task bundle snapshot is missing or unsafe")
+    if hashlib.sha256(path.read_bytes()).hexdigest() != expected_hash:
+        raise CorruptTaskError("persisted research bundle snapshot hash mismatch")
+    if not isinstance(record.get("bundle_version"), str) or not record["bundle_version"]:
+        raise CorruptTaskError("imported task has no bundle version")
+    try:
+        provider = FileProvider(store.project_root, path)
+    except (BundleInputError, BundleValidationError) as error:
+        raise CorruptTaskError("persisted research bundle snapshot is invalid") from error
+    if provider.bundle_sha256 != expected_hash:
+        raise CorruptTaskError("persisted research bundle canonical hash mismatch")
+    if provider.bundle.get("bundle_version") != record["bundle_version"]:
+        raise CorruptTaskError("persisted research bundle version mismatch")
+    return dict(record)
+
+
+def _validate_imported_provider_state(
+    store: TaskStore,
+    task_path: Path,
+    task: Mapping[str, Any],
+    provider: FileProvider,
+) -> None:
+    """Prove every persisted imported Provider record still equals the snapshot."""
+
+    query = _required_text(task.get("security_query"), "security query")
+    identity = _provider_record(
+        provider.identify_security(query),
+        "identify_security",
+        input_mode="imported",
+    )
+    security_id = _required_text(identity.get("security_id"), "security ID")
+    source_metadata = _provider_record(
+        provider.get_source_metadata(security_id),
+        "get_source_metadata",
+        input_mode="imported",
+    )
+    expected: dict[str, dict[str, Any]] = {
+        DATA_PATHS["identity"]: identity,
+        DATA_PATHS["source_metadata"]: source_metadata,
+        DATA_PATHS["profile"]: _provider_record(
+            provider.get_security_profile(security_id),
+            "get_security_profile",
+            input_mode="imported",
+        ),
+        DATA_PATHS["statements"]: _provider_record(
+            provider.get_financial_statements(security_id),
+            "get_financial_statements",
+            input_mode="imported",
+        ),
+        DATA_PATHS["price_history"]: _provider_record(
+            provider.get_price_history(security_id),
+            "get_price_history",
+            input_mode="imported",
+        ),
+        DATA_PATHS["valuation_inputs"]: _provider_record(
+            provider.get_valuation_inputs(security_id),
+            "get_valuation_inputs",
+            input_mode="imported",
+        ),
+        DATA_PATHS["peers"]: _provider_record(
+            provider.get_peer_comparables(security_id),
+            "get_peer_comparables",
+            input_mode="imported",
+        ),
+        DATA_PATHS["earnings"]: _provider_record(
+            provider.get_earnings_history(security_id),
+            "get_earnings_history",
+            input_mode="imported",
+        ),
+        DATA_PATHS["catalysts"]: _provider_record(
+            provider.get_catalyst_events(security_id),
+            "get_catalyst_events",
+            input_mode="imported",
+        ),
+    }
+    data_root = store.artifact_path(task_path, "data")
+    if not data_root.is_dir() or data_root.is_symlink():
+        raise CorruptTaskError("imported task Provider data directory is unsafe")
+    allowed_names = {Path(relative).name for relative in expected}
+    for path in data_root.iterdir():
+        if path.is_symlink() or not path.is_file() or path.name not in allowed_names:
+            raise CorruptTaskError("imported task contains unexpected Provider data")
+    for relative_path, expected_record in expected.items():
+        if not store.artifact_is_file(task_path, relative_path):
+            continue
+        if store.read_json(task_path, relative_path) != expected_record:
+            raise CorruptTaskError(
+                f"imported Provider data differs from the persisted snapshot: {relative_path}"
+            )
+    expected_sources = {
+        "input_mode": "imported",
+        "schema_version": "1.0",
+        "sources": source_metadata.get("sources"),
+    }
+    if store.artifact_is_file(task_path, "sources.json") and (
+        store.read_json(task_path, "sources.json") != expected_sources
+    ):
+        raise CorruptTaskError(
+            "imported source registry differs from the persisted snapshot"
+        )
+
+
+def _validate_imported_completed_capabilities(
+    store: TaskStore,
+    task_path: Path,
+    context: MutableMapping[str, Any],
+    plan: Mapping[str, Any],
+) -> None:
+    """Reproduce every completed imported result before trusting failed state."""
+
+    verification_context = dict(context)
+    verification_context["capability_results"] = {}
+    verified_results: dict[str, Any] = {}
+    steps = plan.get("steps")
+    if not isinstance(steps, list):
+        raise CorruptTaskError("corrupt imported task plan")
+    for step in steps:
+        if not isinstance(step, Mapping) or step.get("status") != "completed":
+            continue
+        step_id = str(step.get("id", ""))
+        persisted = _validate_completed_step(store, task_path, step_id)
+        try:
+            expected = run_capability(
+                step_id,
+                _analysis_inputs(verification_context, step_id),
+            )
+            method = _mutable_mapping(
+                expected.get("method"), "reproduced capability method"
+            )
+            method["input_mode"] = "imported"
+            validate_capability_result(expected, expected=step_id)
+            _validate_result_sources(
+                expected,
+                _known_source_ids(verification_context),
+            )
+        except Exception as error:
+            raise CorruptTaskError(
+                f"completed imported capability cannot be reproduced: {step_id}"
+            ) from error
+        if expected != persisted:
+            raise CorruptTaskError(
+                f"completed imported capability differs from derived evidence: {step_id}"
+            )
+        verified_results[step_id] = expected
+        _capability_results(verification_context)[step_id] = expected
+    _capability_results(context).update(verified_results)
+
+
 def _validate_report_materials(store: TaskStore, task_path: Path) -> None:
     results = {
         step_id: store.read_json(task_path, f"capabilities/{step_id}.json")
@@ -846,6 +1295,8 @@ def _refresh_aggregate_artifacts(
     store: TaskStore,
     task_path: Path,
     results: Mapping[str, Mapping[str, Any]],
+    *,
+    input_mode: str,
 ) -> None:
     findings: list[dict[str, Any]] = []
     assumptions: list[dict[str, Any]] = []
@@ -875,19 +1326,25 @@ def _refresh_aggregate_artifacts(
         {
             "capabilities": capability_index,
             "findings": findings,
+            "input_mode": input_mode,
             "schema_version": "1.0",
         },
     )
     store.write_json(
         task_path,
         "assumptions.json",
-        {"assumptions": assumptions, "schema_version": "1.0"},
+        {
+            "assumptions": assumptions,
+            "input_mode": input_mode,
+            "schema_version": "1.0",
+        },
     )
     store.write_json(
         task_path,
         "risks.json",
         {
             "risks": risks,
+            "input_mode": input_mode,
             "schema_version": "1.0",
             "unknowns": unknowns,
             "warnings": warnings,
@@ -920,6 +1377,8 @@ def _artifact_hashes(store: TaskStore, task_path: Path) -> dict[str, str]:
         *[DATA_PATHS[key] for key in DATA_PATHS],
         *[f"capabilities/{step_id}.json" for step_id in EXPECTED_STEPS],
     ]
+    if store.artifact_is_file(task_path, IMPORTED_BUNDLE_PATH):
+        relative_paths.append(IMPORTED_BUNDLE_PATH)
     hashes: dict[str, str] = {}
     for relative_path in sorted(relative_paths):
         path = store.artifact_path(task_path, relative_path)
@@ -929,7 +1388,33 @@ def _artifact_hashes(store: TaskStore, task_path: Path) -> dict[str, str]:
     return hashes
 
 
-def _build_sources(source_metadata: Mapping[str, Any], source_root: Path) -> dict[str, Any]:
+def _build_sources(
+    source_metadata: Mapping[str, Any],
+    source_root: Path,
+    *,
+    input_mode: str,
+) -> dict[str, Any]:
+    if input_mode == "imported":
+        raw_sources = source_metadata.get("sources")
+        if not isinstance(raw_sources, list) or not raw_sources:
+            raise ResearchTaskError("imported source registry is missing or empty")
+        records: list[dict[str, Any]] = []
+        seen: set[str] = set()
+        for value in raw_sources:
+            if not isinstance(value, Mapping):
+                raise ResearchTaskError("imported source registry contains an invalid record")
+            source_id = _required_text(value.get("source_id"), "source ID")
+            if source_id in seen:
+                raise ResearchTaskError("imported source registry contains duplicate IDs")
+            seen.add(source_id)
+            records.append(dict(value))
+        return {
+            "input_mode": "imported",
+            "schema_version": "1.0",
+            "sources": records,
+        }
+    if input_mode != "demo":
+        raise ResearchTaskError("unsupported workflow input mode")
     fixture = _source_file(source_root, FIXTURE_PATH)
     source_id = _required_text(source_metadata.get("source_id"), "source ID")
     record = {
@@ -939,11 +1424,11 @@ def _build_sources(source_metadata: Mapping[str, Any], source_root: Path) -> dic
         "sha256": hashlib.sha256(fixture.read_bytes()).hexdigest(),
         "source_id": source_id,
     }
-    return {"schema_version": "1.0", "sources": [record]}
+    return {"input_mode": "demo", "schema_version": "1.0", "sources": [record]}
 
 
-def _analysis_inputs(context: Mapping[str, Any]) -> dict[str, Any]:
-    return {
+def _analysis_inputs(context: Mapping[str, Any], capability: str) -> dict[str, Any]:
+    inputs = {
         key: context[key]
         for key in (
             "identity",
@@ -960,9 +1445,49 @@ def _analysis_inputs(context: Mapping[str, Any]) -> dict[str, Any]:
         )
         if key in context
     }
+    inputs["input_mode"] = _context_input_mode(context)
+    input_record = context.get("input_record")
+    inputs["evidence_origin"] = (
+        input_record.get("acquisition_mode", "user_imported")
+        if isinstance(input_record, Mapping)
+        else "user_imported"
+    )
+    source_keys = {
+        "security-identification": ("identity",),
+        "company-deep-research": ("profile",),
+        "business-model-analysis": ("profile",),
+        "financial-statement-analysis": ("statements",),
+        "earnings-quality-analysis": ("statements",),
+        "valuation-analysis": ("price_history", "valuation_inputs"),
+        "comps-analysis": ("peers",),
+        "earnings-analysis": ("earnings",),
+        "catalyst-analysis": ("catalysts",),
+    }.get(capability)
+    if source_keys is not None:
+        active_source_ids: set[str] = set()
+        for source_key in source_keys:
+            record = context.get(source_key)
+            if not isinstance(record, Mapping):
+                continue
+            source_ids = record.get("source_ids", [])
+            if not isinstance(source_ids, list) or not all(
+                isinstance(source_id, str) and source_id.strip()
+                for source_id in source_ids
+            ):
+                raise ResearchTaskError(
+                    f"provider record for {source_key} has invalid source IDs"
+                )
+            active_source_ids.update(source_id.strip() for source_id in source_ids)
+        inputs["active_source_ids"] = sorted(active_source_ids)
+    return inputs
 
 
-def _provider_record(value: Any, operation: str) -> dict[str, Any]:
+def _provider_record(
+    value: Any,
+    operation: str,
+    *,
+    input_mode: str,
+) -> dict[str, Any]:
     if not isinstance(value, Mapping):
         raise ResearchTaskError(f"provider returned an invalid record for {operation}")
     missing = REQUIRED_PROVIDER_METADATA - set(value)
@@ -970,8 +1495,19 @@ def _provider_record(value: Any, operation: str) -> dict[str, Any]:
         raise ResearchTaskError(
             f"provider record for {operation} is missing: {', '.join(sorted(missing))}"
         )
-    if value.get("is_demo") is not True:
-        raise ResearchTaskError("offline workflow requires a demo-marked provider")
+    expected_demo = input_mode == "demo"
+    if value.get("is_demo") is not expected_demo:
+        raise ResearchTaskError("provider record input mode does not match the workflow")
+    if not expected_demo:
+        if value.get("input_mode") != "imported":
+            raise ResearchTaskError("imported provider record has no imported mode marker")
+        if not SHA256_RE.fullmatch(str(value.get("bundle_sha256", ""))):
+            raise ResearchTaskError("imported provider record has no valid bundle hash")
+        source_ids = value.get("source_ids")
+        if not isinstance(source_ids, list) or not all(
+            isinstance(source_id, str) and source_id for source_id in source_ids
+        ):
+            raise ResearchTaskError("imported provider record has invalid source IDs")
     for field in ("as_of_date", "currency", "market", "source"):
         _required_text(value.get(field), f"provider {field}")
     if not value.get("fixture_version") and not value.get("retrieved_at"):
@@ -1051,6 +1587,12 @@ def _validate_task_snapshots(
 ) -> None:
     if task.get("question") != question:
         raise CorruptTaskError("corrupt task record: research question does not match")
+    mode = _task_input_mode(task)
+    if plan.get("input_mode", "demo") != mode:
+        raise CorruptTaskError("corrupt task record: plan input mode is inconsistent")
+    query = task.get("security_query", "demo")
+    if not isinstance(query, str) or not query.strip():
+        raise CorruptTaskError("corrupt task record: security query is missing")
     if tuple(task.get("skills", [])) != EXPECTED_STEPS:
         raise CorruptTaskError("corrupt task record: installed Skill snapshot is invalid")
     if set(task.get("specs", [])) != set(REQUIRED_SPECS):
@@ -1130,13 +1672,52 @@ def _snapshot_signature(records: Sequence[Mapping[str, Any]]) -> str:
     return json.dumps(records, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
 
 
-def _read_question(store: TaskStore, task_path: Path) -> str:
-    text = store.read_text(task_path, "question.md").strip()
-    if text.startswith("# Research Question"):
-        text = text[len("# Research Question") :].strip()
-    if not text:
-        raise CorruptTaskError("task is incomplete: research question is empty")
-    return text
+def _question_markdown(question: str) -> str:
+    """Render a reversible Markdown code view without active markup or URLs."""
+
+    encoded = json.dumps(question, ensure_ascii=False, allow_nan=False)
+    for character, escape in (
+        ("<", r"\u003c"),
+        (">", r"\u003e"),
+        ("!", r"\u0021"),
+        ("[", r"\u005b"),
+        ("]", r"\u005d"),
+        ("&", r"\u0026"),
+    ):
+        encoded = encoded.replace(character, escape)
+    return f"# Research Question\n\n    {encoded}\n"
+
+
+def _read_question(
+    store: TaskStore,
+    task_path: Path,
+    *,
+    allow_legacy: bool,
+) -> str:
+    raw = store.read_text(task_path, "question.md")
+    prefix = "# Research Question\n\n    "
+    if raw.startswith(prefix) and raw.endswith("\n"):
+        encoded = raw[len(prefix) : -1]
+        if "\n" in encoded:
+            raise CorruptTaskError("corrupt task artifact: question.md")
+        try:
+            value = json.loads(encoded)
+        except json.JSONDecodeError as error:
+            raise CorruptTaskError("corrupt task artifact: question.md") from error
+        if (
+            not isinstance(value, str)
+            or not value.strip()
+            or _question_markdown(value) != raw
+        ):
+            raise CorruptTaskError("corrupt task artifact: question.md")
+        return value
+    if allow_legacy:
+        text = raw.strip()
+        if text.startswith("# Research Question"):
+            text = text[len("# Research Question") :].strip()
+        if text:
+            return text
+    raise CorruptTaskError("corrupt task artifact: question.md")
 
 
 def _record_list(value: Any, key: str) -> list[dict[str, Any]]:
@@ -1171,6 +1752,37 @@ def _all_warnings(context: Mapping[str, Any]) -> list[str]:
             if text and text not in warnings:
                 warnings.append(text)
     return warnings
+
+
+def _context_input_mode(context: Mapping[str, Any]) -> str:
+    mode = context.get("input_mode", "demo")
+    if mode not in {"demo", "imported"}:
+        raise ResearchTaskError("workflow input mode is invalid")
+    return str(mode)
+
+
+def _initialized_task_store(project_root: str | Path) -> TaskStore:
+    """Open task storage only after immutable initialization markers exist."""
+
+    try:
+        project = resolved_root(project_root)
+        required_files = (
+            ".investkit/config.json",
+            ".investkit/install-manifest.json",
+            ".agents/investkit.json",
+        )
+        if any(not resolve_within(project, relative).is_file() for relative in required_files):
+            raise ResearchTaskError("project is not initialized")
+        research_root = resolve_within(project, "workspace/research")
+        if not research_root.is_dir():
+            raise ResearchTaskError("project is not initialized")
+    except ResearchTaskError:
+        raise
+    except Exception as error:
+        raise ResearchTaskError(
+            "project is not initialized; run investkit init first"
+        ) from error
+    return TaskStore(project)
 
 
 def _mapping(value: Any, description: str) -> Mapping[str, Any]:

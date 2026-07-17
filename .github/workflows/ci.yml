@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - name: Install build tooling
+        run: python -m pip install --upgrade pip setuptools
+      - name: Build wheel
+        run: python -m pip wheel --no-deps --wheel-dir dist .
+      - name: Run test suite
+        env:
+          PYTHONPATH: src
+        run: python -m unittest discover -s tests
+      - name: Verify clean wheel installation
+        run: |
+          python -m venv /tmp/investkit-venv
+          /tmp/investkit-venv/bin/python -m pip install --no-index --no-deps dist/*.whl
+          /tmp/investkit-venv/bin/investkit --help

@@ -1,0 +1,218 @@
+{
+  "schema_version": "1.0",
+  "bundle_version": "replace-with-dataset-version-1",
+  "created_at": "2000-01-01T00:00:00Z",
+  "retrieved_at": "2000-01-01T00:00:00Z",
+  "as_of_date": "2000-01-01",
+  "currency": "USD",
+  "market": "REPLACE-MARKET",
+  "status": "imported",
+  "warnings": [
+    "Template: replace every example identity, date, source, and limitation before using this bundle for research.",
+    "Imported data is user-supplied; InvestKit does not independently fetch or guarantee it."
+  ],
+  "security": {
+    "security_id": "EXAMPLE:ACME",
+    "ticker": "ACME",
+    "legal_name": "Example Research Bundle Company",
+    "exchange": "EXAMPLE",
+    "aliases": [
+      "ACME",
+      "Example Research Bundle Company"
+    ]
+  },
+  "sources": [
+    {
+      "source_id": "replace-source-1",
+      "publisher": "Replace with the source publisher",
+      "title": "Replace with the exact source title",
+      "source_type": "replace-with-source-type",
+      "locator": "https://example.invalid/replace-with-source-locator",
+      "publication_date": "2000-01-01",
+      "as_of_date": "2000-01-01",
+      "retrieved_at": "2000-01-01T00:00:00Z",
+      "quality": "unknown - replace with an evidence-based quality assessment",
+      "freshness": "unknown - replace with an evidence-based freshness assessment",
+      "access_notes": "Replace with access and provenance notes; locators are metadata and are not fetched by the offline runtime.",
+      "license_notes": "Reuse status is unknown in this template and must be checked by the bundle preparer."
+    }
+  ],
+  "operations": {
+    "identify_security": {
+      "data": {
+        "security_id": "EXAMPLE:ACME",
+        "ticker": "ACME",
+        "legal_name": "Example Research Bundle Company",
+        "exchange": "EXAMPLE",
+        "aliases": [
+          "ACME",
+          "Example Research Bundle Company"
+        ]
+      },
+      "source_ids": [
+        "replace-source-1"
+      ],
+      "warnings": [
+        "Template identity values must be replaced and verified against the cited source."
+      ]
+    },
+    "get_security_profile": {
+      "data": {
+        "name": "Example Research Bundle Company",
+        "business_model": null,
+        "segments": [],
+        "products": [],
+        "customers": null,
+        "suppliers": null,
+        "geographies": [],
+        "competitive_position": null,
+        "business_risks": [],
+        "revenue_model": null,
+        "payer": null,
+        "value_proposition": null,
+        "revenue_components": {},
+        "order_to_cash": null,
+        "employee_count": null,
+        "customer_concentration_percent": null,
+        "research_drivers": [],
+        "limitations": [
+          "Template profile fields are intentionally unpopulated. Replace only with source-backed values and keep unavailable values null or empty."
+        ]
+      },
+      "source_ids": [
+        "replace-source-1"
+      ],
+      "warnings": [
+        "The template provides no substantive company-profile evidence."
+      ]
+    },
+    "get_financial_statements": {
+      "data": {
+        "accounting_basis": null,
+        "period_type": null,
+        "units": null,
+        "periods": [],
+        "limitations": [
+          "No financial statements are populated in the template. Preserve missing values instead of substituting zero."
+        ]
+      },
+      "source_ids": [],
+      "warnings": [
+        "Financial statement analysis must remain unknown or skipped until dated statements and units are supplied."
+      ]
+    },
+    "get_price_history": {
+      "data": {
+        "observations": [],
+        "latest_price": null,
+        "frequency": null,
+        "limitations": [
+          "No price observations are populated in the template."
+        ]
+      },
+      "source_ids": [],
+      "warnings": [
+        "Price-based conclusions must remain unknown until an aligned, dated market source is supplied."
+      ]
+    },
+    "get_valuation_inputs": {
+      "data": {
+        "current_price": null,
+        "market_capitalization": null,
+        "enterprise_value": null,
+        "forecast_unlevered_free_cash_flow": null,
+        "forecast_metadata": null,
+        "consensus": null,
+        "industry_valuation_reference": null,
+        "wacc": null,
+        "terminal_growth": null,
+        "diluted_shares": null,
+        "cash": null,
+        "total_debt": null,
+        "peer_ev_to_operating_income": null,
+        "scenario_assumptions": null,
+        "sensitivity_wacc_values": null,
+        "sensitivity_terminal_growth_values": null,
+        "units": null,
+        "limitations": [
+          "No valuation assumptions or market bridge are populated in the template."
+        ]
+      },
+      "source_ids": [],
+      "warnings": [
+        "Valuation must skip rather than manufacture forecasts, discount rates, terminal growth, or market inputs."
+      ]
+    },
+    "get_source_metadata": {
+      "data": {
+        "sources": [
+          {
+            "source_id": "replace-source-1",
+            "publisher": "Replace with the source publisher",
+            "title": "Replace with the exact source title",
+            "source_type": "replace-with-source-type",
+            "locator": "https://example.invalid/replace-with-source-locator",
+            "publication_date": "2000-01-01",
+            "as_of_date": "2000-01-01",
+            "retrieved_at": "2000-01-01T00:00:00Z",
+            "quality": "unknown - replace with an evidence-based quality assessment",
+            "freshness": "unknown - replace with an evidence-based freshness assessment",
+            "access_notes": "Replace with access and provenance notes; locators are metadata and are not fetched by the offline runtime.",
+            "license_notes": "Reuse status is unknown in this template and must be checked by the bundle preparer."
+          }
+        ],
+        "limitations": [
+          "Every source must retain a stable unique ID, exact title, publisher, dates, locator, quality, freshness, access, and reuse notes."
+        ]
+      },
+      "source_ids": [
+        "replace-source-1"
+      ],
+      "warnings": [
+        "The example source is a placeholder and is not evidence for a real issuer."
+      ]
+    },
+    "get_peer_comparables": {
+      "data": {
+        "peers": [],
+        "selection_method": null,
+        "industry_benchmark": null,
+        "period_alignment": null,
+        "units": null,
+        "limitations": [
+          "No governed peer selection or aligned comparable-company data is populated in the template."
+        ]
+      },
+      "source_ids": [],
+      "warnings": [
+        "Comparable-company analysis must skip rather than infer peers from a label."
+      ]
+    },
+    "get_earnings_history": {
+      "data": {
+        "events": [],
+        "transcript_available": null,
+        "units": null,
+        "limitations": [
+          "No earnings actuals, point-in-time expectations, guidance, revisions, or transcript evidence is populated in the template."
+        ]
+      },
+      "source_ids": [],
+      "warnings": [
+        "Earnings surprise, guidance, revision, and transcript conclusions must remain unknown."
+      ]
+    },
+    "get_catalyst_events": {
+      "data": {
+        "events": [],
+        "limitations": [
+          "No dated future catalyst is populated in the template."
+        ]
+      },
+      "source_ids": [],
+      "warnings": [
+        "Catalyst analysis must skip instead of inventing an event calendar."
+      ]
+    }
+  }
+}

@@ -39,6 +39,7 @@ SOURCE_DIRECTORIES = (
     "agents",
     "workflows",
     "specs",
+    "schemas",
     "packages",
     "workspace-template",
     "fixtures",
@@ -49,6 +50,9 @@ FORBIDDEN_SOURCE_PATHS = (
 )
 WORKFLOW_PATH = Path("workflows/company-deep-dive.json")
 FIXTURE_PATH = Path("fixtures/demo/aurora-lantern-works.json")
+BUNDLE_SCHEMA_PATH = Path("schemas/research-bundle-v1.schema.json")
+BUNDLE_TEMPLATE_PATH = Path("schemas/research-bundle-v1.template.json")
+CATALOG_PATH = Path("schemas/runtime-asset-catalog-v1.json")
 SPEC_VERSION_RE = re.compile(
     r"(?im)^\s*(?:[-*]\s*)?(?:\*\*)?(?:spec\s+)?version(?:\*\*)?\s*"
     r"[:=-]\s*`?v?([0-9]+(?:\.[0-9]+){1,2})"
@@ -187,6 +191,9 @@ def _is_complete_source(source_root: Path) -> bool:
         *(Path("specs") / name for name in REQUIRED_SPECS),
         WORKFLOW_PATH,
         FIXTURE_PATH,
+        BUNDLE_SCHEMA_PATH,
+        BUNDLE_TEMPLATE_PATH,
+        CATALOG_PATH,
         Path("workspace-template/README.md"),
         Path("agents/README.md"),
         Path("packages/README.md"),

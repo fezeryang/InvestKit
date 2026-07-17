@@ -53,6 +53,7 @@ FIRST_PARTY_SOURCE_DIRECTORIES = (
     "agents",
     "workflows",
     "specs",
+    "schemas",
     "packages",
     "workspace-template",
     "fixtures",

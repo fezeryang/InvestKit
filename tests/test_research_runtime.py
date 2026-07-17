@@ -364,6 +364,109 @@ class ResearchRuntimeContractTests(unittest.TestCase):
             self.resume("../escape-marker")
         self.assertFalse(outside.exists())
 
+    def test_task_store_refuses_non_finite_machine_json(self) -> None:
+        from investkit.research.tasks import TaskStore
+
+        store = TaskStore(self.project_root)
+        task_path = store.create("research-non-finite-json")
+        with self.assertRaises(ValueError):
+            store.write_json(task_path, "non-finite.json", {"value": float("inf")})
+        self.assertFalse((task_path / "non-finite.json").exists())
+
+    def test_task_store_parent_swap_cannot_redirect_atomic_write(self) -> None:
+        from investkit.research.tasks import TaskStore
+
+        store = TaskStore(self.project_root)
+        task_path = store.create("research-parent-swap")
+        capabilities = task_path / "capabilities"
+        original_capabilities = task_path / "capabilities.original"
+        outside = self.project_root.parent / "outside-capabilities"
+        outside.mkdir()
+        original_artifact_path = store._artifact_path
+        swapped = False
+
+        def swap_after_preflight(path: Path, relative_path: str) -> Path:
+            nonlocal swapped
+            resolved = original_artifact_path(path, relative_path)
+            if relative_path == "capabilities/probe.json" and not swapped:
+                capabilities.rename(original_capabilities)
+                capabilities.symlink_to(outside, target_is_directory=True)
+                swapped = True
+            return resolved
+
+        with mock.patch.object(
+            store,
+            "_artifact_path",
+            side_effect=swap_after_preflight,
+        ):
+            with self.assertRaises(Exception):
+                store.write_json(
+                    task_path,
+                    "capabilities/probe.json",
+                    {"must_remain": "inside the task"},
+                )
+
+        self.assertTrue(swapped, "the deterministic parent-swap probe did not run")
+        self.assertFalse((outside / "probe.json").exists())
+        self.assertFalse((original_capabilities / "probe.json").exists())
+
+    def test_task_store_parent_swap_cannot_redirect_artifact_read(self) -> None:
+        from investkit.research.tasks import CorruptTaskError, TaskStore
+
+        store = TaskStore(self.project_root)
+        task_path = store.create("research-read-parent-swap")
+        store.write_json(task_path, "data/record.json", {"origin": "task"})
+        data = task_path / "data"
+        original_data = task_path / "data.original"
+        outside = self.project_root.parent / "outside-data"
+        outside.mkdir()
+        outside_record = outside / "record.json"
+        outside_record.write_text('{"origin":"outside sentinel"}\n', encoding="utf-8")
+        outside_before = outside_record.read_bytes()
+        original_artifact_path = store._artifact_path
+        swapped = False
+
+        def swap_after_preflight(path: Path, relative_path: str) -> Path:
+            nonlocal swapped
+            resolved = original_artifact_path(path, relative_path)
+            if relative_path == "data/record.json" and not swapped:
+                data.rename(original_data)
+                data.symlink_to(outside, target_is_directory=True)
+                swapped = True
+            return resolved
+
+        with mock.patch.object(
+            store,
+            "_artifact_path",
+            side_effect=swap_after_preflight,
+        ):
+            with self.assertRaises(CorruptTaskError):
+                store.read_json(task_path, "data/record.json")
+
+        self.assertTrue(swapped, "the deterministic parent-swap probe did not run")
+        self.assertEqual(outside_record.read_bytes(), outside_before)
+        self.assertEqual(
+            _read_json(original_data / "record.json"),
+            {"origin": "task"},
+        )
+
+    def test_task_store_rejects_nonstandard_or_ambiguous_persisted_json(self) -> None:
+        from investkit.research.tasks import CorruptTaskError, TaskStore
+
+        store = TaskStore(self.project_root)
+        task_path = store.create("research-strict-json")
+        invalid_payloads = {
+            "duplicate.json": '{"status":"running","status":"completed"}\n',
+            "nan.json": '{"value":NaN}\n',
+            "overflow.json": '{"value":1e9999}\n',
+        }
+
+        for name, payload in invalid_payloads.items():
+            with self.subTest(artifact=name):
+                store.write_text(task_path, name, payload)
+                with self.assertRaises(CorruptTaskError):
+                    store.read_json(task_path, name)
+
     def test_workflow_failure_persists_failed_state_and_run_log(self) -> None:
         _, DemoProvider, _, _ = _runtime_api()
         delegate = DemoProvider(asset_root=REPOSITORY_ROOT)

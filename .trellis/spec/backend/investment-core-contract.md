@@ -2,7 +2,7 @@
 
 ## 1. Scope / Trigger
 
-Use this contract when adding or changing an Investment Core Skill, its trigger/Eval data, structured capability results, the `company-deep-dive` Workflow, Demo Provider datasets needed by those capabilities, report assembly, task resume validation, or doctor checks for v0.2.
+Use this contract when adding or changing an Investment Core Skill, its trigger/Eval data, structured capability results, the `company-deep-dive` Workflow, Demo or File Provider datasets needed by those capabilities, report assembly, task resume validation, or doctor checks.
 
 This contract extends the v0.1 Runtime contract. The product order is capability first: define a professional research method and its data contract, then extend the offline Provider only when that named capability needs data. Do not build a Provider or data platform independently of a capability.
 
@@ -141,6 +141,9 @@ Every operation, including the three additions, retains `as_of_date`, `currency`
 
 - DCF requires `WACC > terminal growth`, positive diluted shares, explicit forecast assumptions, EV-to-equity bridge, base/bull/bear cases, and an odd-dimension sensitivity grid whose center equals base assumptions.
 - Comps excludes invalid denominators and records peer-selection/exclusion reasons, sample size, fiscal-period/metric comparability, and median calculations.
+- A structured InvestKit forecast records method, as-of date, and forecast periods. Broker consensus remains a separate point-in-time record requiring observation time, positive contributor count, period definitions, valid low/high dispersion bounds, and optional revision evidence; it is never inferred from guidance or an InvestKit estimate.
+- An industry benchmark requires a named classification, as-of date, positive constituent count, and per-metric target, industry median, percentile, and aligned definition. Missing vintage or definitions invalidate the benchmark rather than degrading it into a generic sector comparison.
+- Completed DCF output exposes a bear/base/bull per-share scenario range explicitly labeled as non-guaranteed; original disclosures remain optional escalation evidence rather than a prerequisite for normalized forecast and valuation analysis.
 - Earnings quality separates accounting earnings from cash conversion and flags missing one-off/working-capital data.
 - Thesis results contain confirming and disconfirming evidence plus falsifiers.
 - Bear case is a mandatory independent red-team result, not a paragraph generated from the bull case.
@@ -241,3 +244,245 @@ else:
 ```
 
 The structured distinction lets source verification, downstream Skills, resume, doctor, and report assembly enforce the same evidence boundary.
+
+## v0.3 Imported-Evidence Analysis Amendment
+
+This amendment supersedes v0.2 demo-specific language when reusable capability
+methods receive imported evidence. Demo-specific fixture warnings remain required in
+demo mode.
+
+### 1. Scope / Trigger
+
+Use this amendment when changing imported-mode capability analysis, operation-to-
+capability input composition, source attribution, unknown/skip semantics, finite
+calculations, source verification, or report claims.
+
+The analytical boundary is evidence-led: a capability may transform validated facts
+and explicit assumptions, but it may not fill missing company characteristics,
+management commentary, market expectations, guidance, transcript content, price,
+peers, catalysts, or valuation inputs from generic knowledge or demo prose.
+
+### 2. Signatures
+
+The public capability dispatcher remains provider-neutral:
+
+```python
+analyze_capability(
+    capability: str,
+    inputs: Mapping[str, Any],
+) -> dict[str, Any]
+
+build_capability_result(
+    capability: str,
+    *,
+    status: str,
+    skill: Mapping[str, str],
+    method: Mapping[str, Any],
+    facts: Sequence[Mapping[str, Any]] = (),
+    assumptions: Sequence[Mapping[str, Any]] = (),
+    estimates: Sequence[Mapping[str, Any]] = (),
+    unknowns: Sequence[Mapping[str, Any] | str] = (),
+    findings: Sequence[Mapping[str, Any] | str] = (),
+    risks: Sequence[Mapping[str, Any] | str] = (),
+    warnings: Sequence[str] = (),
+    skip_reason: str | None = None,
+    missing_inputs: Sequence[str] = (),
+) -> dict[str, Any]
+
+validate_capability_result(
+    value: Mapping[str, Any],
+    *,
+    expected: str,
+) -> None
+```
+
+Workflow composition passes the complete relevant Provider-operation records and
+their source sets; a capability must not select only the first source ID.
+
+### 3. Contracts
+
+#### Neutral reusable analysis
+
+- Reusable methods branch on `input_mode`; only demo mode may call evidence fictional
+  or name the demo issuer.
+- Company profile facts such as management, capital allocation, competitive
+  position, payer/customer structure, and value proposition exist only when the
+  profile record supplies them. Absence produces a named unknown with impact, not a
+  fact, finding, risk, or default narrative.
+- Earnings expectation, guidance, and transcript commentary exist only when their
+  respective fields are supplied. A missing expectation cannot become zero or a
+  consensus assumption and cannot yield a beat/miss comparison.
+- Thesis drivers, falsifiers, KPIs, and bear mechanisms are constructed from
+  persisted company, financial, valuation, price, earnings, catalyst, and explicit
+  profile evidence. They never inject Aurora-specific tender, municipal-payer,
+  backlog, input-cost, or other fixed operating narratives.
+
+#### Source attribution
+
+Every fact, sourced finding, and sourced risk carries the deduplicated complete
+source set of the Provider records used to produce it. Source order is canonical and
+does not affect the result. Identity may join all sources supporting the identity
+record; a financial ratio joins the full financial-operation set; a valuation result
+joins every active price and valuation-input source; a cross-capability thesis claim
+joins the union of the upstream evidence it actually uses.
+
+The capability envelope `source_ids` is the sorted/deduplicated union of every source
+reference in facts, findings, and risks. Every ID must resolve to `sources.json`.
+Completed findings and risks, like facts, require a non-empty stable ID, statement,
+and one or more persisted source IDs.
+Source verification examines facts, findings, and risks, preserves all registry
+records, and reports missing, unresolved, stale, low-quality, conflicting, or
+source-free claims without inventing resolution. A user-supplied freshness adjective
+cannot override dates: source verification derives a stale condition when an
+as-of/publication date is more than 180 days older than that source's persisted
+retrieval date.
+
+#### Numerical integrity and missing inputs
+
+All input numbers and every emitted numeric estimate, calculation, scenario, and
+sensitivity cell are finite JSON numbers. Division requires a finite nonzero
+denominator. DCF additionally requires positive shares and `WACC > terminal growth`.
+Invalid or absent inputs produce unknowns, warnings, exclusions, or a valid skipped
+result; they never produce `NaN`, Infinity, zero-filled evidence, or false precision.
+
+Calculations supported by a financial bundle may include statement margins,
+cash-conversion/accrual measures, and free cash flow when their named inputs exist.
+Period labels alone are not financial evidence and produce a valid skip with no
+calculation finding. Finding copy is assembled from diagnostics actually calculated;
+available working-capital/current-liquidity fields may not be described as missing.
+Valuation, comps, earnings surprise, guidance comparison, and catalyst timing remain
+unknown/skipped when their required evidence is absent. A completed stage may still
+be analytically limited when it explicitly records those gaps; mandatory bear-case,
+source-verification, and report stages must remain contract-valid.
+
+A source-free explicit-gap profile produces valid company/business skips rather than
+an exception. An imported thesis requires actual persisted operating drivers or
+calculated estimates, analytical findings, and disconfirming risk evidence; it never
+uses a generic operating-performance fallback. When that evidence is absent, thesis
+and bear case are valid disclosed skips, source verification still completes, and a
+bounded `complete_with_gaps` report may be assembled. If the thesis completes, the
+independent bear case must complete before reporting; demo mode retains its mandatory
+completed bear-case gate.
+
+#### Imported report boundary
+
+The report names the security/company, analyst question, as-of date, project-relative
+input provenance, and material limitations. It states that evidence was imported and
+not independently guaranteed. It emits only structured upstream claims and source
+IDs, escapes untrusted Markdown/HTML/URI syntax, and contains no buy/sell/hold action
+recommendation, guaranteed return, deterministic price prediction, brokerage action,
+or funds-transfer instruction. Ordinary issuer names such as “Best Buy” and benign
+phrases such as “Market Data” are not false positives; action language is evaluated
+in investment-instruction context. The boundary covers both English and Chinese
+buy/sell/hold/build-position/increase/reduce-position/stop-loss/action wording.
+
+### 4. Validation & Error Matrix
+
+| Condition | Required behavior |
+|---|---|
+| Profile omits management/capital allocation/competition/payer/value proposition | Emit explicit unknowns; no fact/finding/risk about the absent topic |
+| Source-free profile contains only explicit gaps | Company and business-model stages skip with reasons; workflow does not fail |
+| Financial periods contain labels but no finite statement values | Financial and earnings-quality stages skip; emit no calculation claim |
+| Earnings expectation is absent | No surprise/beat/miss comparison and no consensus assumption |
+| Guidance or transcript is absent | Record the bundle-not-supplied gap; no management-tone claim |
+| Price or valuation inputs are absent | Skip bounded valuation or emit unknown; never substitute zero |
+| Peer denominator is missing, non-finite, zero, or invalid | Exclude that peer/metric with a reason |
+| WACC, growth, shares, or forecast guard fails | No DCF estimate/sensitivity output; disclose invalid/missing inputs |
+| Calculation would emit NaN or Infinity | Reject/skip the result before persistence |
+| One operation has multiple source IDs | Preserve their complete deduplicated set on every derived claim |
+| Input source order changes | Capability semantics and canonical source attribution remain unchanged |
+| Fact/finding/risk references unknown source | Capability validation/workflow/doctor fail |
+| Source verification finds stale/low-quality/conflicting evidence | Preserve it and disclose the issue; do not silently drop or resolve it |
+| Upstream evidence has no real thesis driver/finding/disconfirming risk | Thesis and bear case skip; never inject a generic fallback |
+| Imported report contains raw HTML, Markdown link/image injection, unsafe URI, or investment action instruction | Escape/neutralize at assembly and fail doctor if unsafe text persists |
+
+### 5. Good / Base / Bad Cases
+
+#### Good
+
+- Microsoft FY2025 10-K financials produce supported margin, cash-conversion, and
+  free-cash-flow calculations, each joined to the SEC filing/index sources actually
+  carried by the relevant operation.
+- Identity supported by both a filing index and filing record retains both sources,
+  independent of source order.
+- A report distinguishes verified filing facts, derived calculations, explicit
+  unknowns, method limitations, and research-only conclusions.
+
+#### Base
+
+- The issuer bundle supplies filings but no price, forecast, peers, consensus,
+  guidance, transcript, or catalysts. The 13-stage workflow remains auditable:
+  supported methods complete, unsupported methods skip or emit unknowns, and the
+  final report clearly states why it is not a complete investment decision basis.
+- A profile provides a product description but no competitive assessment. The
+  product description may be a fact; competitive position remains unknown.
+- Two sources support one period. Every resulting financial fact retains both; no
+  preferred-source policy is invented by list order.
+
+#### Bad
+
+- Emitting “management is disciplined” because capital allocation fields are absent.
+- Treating missing expectations as `0` and reporting a positive surprise.
+- Using only `source_ids[0]` for a multi-source calculation.
+- Persisting `Infinity` because terminal growth equals or exceeds WACC.
+- Reusing demo-specific payer, tender, backlog, or cost narratives for an imported
+  issuer.
+
+### 6. Tests Required
+
+- Imported analysis tests prove neutral wording and explicit unknowns for every
+  absent profile, expectation, guidance, transcript, price, peer, and catalyst field.
+- Sparse/gap-only tests cover source-free profile data, period-label-only financials,
+  identity-only upstream evidence, conditional bear-case gating, and a completed
+  report whose skips contain none of the removed generic fallback prose.
+- Multi-source tests cover identity, profile, financial, price/valuation, earnings,
+  catalyst, thesis, bear case, and source verification; source-order permutations
+  must produce equivalent source sets.
+- Numerical tests cover non-finite contract inputs/outputs, zero or invalid
+  denominators, DCF guards, finite sensitivity cells, and no `NaN`/Infinity in any
+  persisted machine artifact.
+- Source-verification tests resolve facts, findings, and risks against the complete
+  registry and retain stale, low-quality, contradiction, and unresolved evidence,
+  including an old objective date mislabeled `current`.
+- Report tests cover issuer identity/question/as-of/provenance/limitations,
+  imported/non-guaranteed disclosure, no-new-claims, neutral research language,
+  Best Buy/Market Data false-positive regressions, and markup/unsafe-URI/action-
+  instruction rejection.
+- Real-issuer acceptance verifies supported Microsoft FY2025 formulas against the
+  pinned bundle, all intentionally absent evidence as unknown/skipped, all 13 stage
+  artifacts, source joins, completed resume immutability, and doctor.
+- Demo regression tests retain fictional disclosure and prior deterministic results.
+
+### 7. Wrong vs Correct
+
+#### Wrong
+
+```python
+# The first source wins and a missing expectation becomes a false comparison.
+source_id = earnings["source_ids"][0]
+expectation = earnings.get("expectation") or 0
+findings.append({
+    "statement": f"EPS surprise was {actual - expectation}",
+    "source_ids": [source_id],
+})
+```
+
+#### Correct
+
+```python
+sources = canonical_source_union(earnings["source_ids"])
+expectation = earnings.get("expectation")
+if expectation is None:
+    unknowns.append({
+        "question": "What market expectation applied to this period?",
+        "impact": "No earnings surprise comparison can be made.",
+    })
+else:
+    findings.append({
+        "statement": describe_finite_surprise(actual, expectation),
+        "source_ids": sources,
+    })
+```
+
+Missing evidence changes the conclusion boundary; it never changes the evidence into
+a convenient default.

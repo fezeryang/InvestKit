@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import html
 import json
 import re
 from typing import Any, Mapping, Sequence
@@ -23,9 +24,26 @@ CAPABILITY_ORDER = (
     "investment-report",
 )
 RESTRICTED_LANGUAGE_RE = re.compile(
-    r"(?i)\b(?:buy|sell|hold)\b|guaranteed (?:return|profit)|"
-    r"risk-free return|price will|position size|stop loss"
+    r"(?im)(?:^|[.!?;:]\s+)(?:please\s+)?(?:buy|sell|hold)\b|"
+    r"\b(?:recommend(?:ation|ed|s)?|should|must|rating(?:\s+is)?|"
+    r"we\s+(?:would\s+)?recommend)\s*(?::|that|to)?\s*"
+    r"(?:buy(?:ing)?|sell(?:ing)?|hold(?:ing)?)\b|"
+    r"\b(?:buy|sell|hold)\s+(?:now|the\s+(?:stock|security)|shares?|"
+    r"rating|recommendation)\b|guaranteed (?:return|profit)|"
+    r"risk-free return|price will|position size|stop loss|"
+    r"(?:建议|推荐|应当|应该|必须|务必|立即|马上|现在|可考虑|"
+    r"评级(?:为|是)?)"
+    r"[^。！？\n]{0,12}(?:买入|卖出|持有|建仓|加仓|减仓|增持|减持)|"
+    r"(?:买入|卖出|持有|建仓|加仓|减仓|增持|减持)"
+    r"[^。！？\n]{0,8}(?:该?(?:股票|证券|股份)|仓位|建议|推荐|评级)|"
+    r"(?:仓位|止损(?:位|价|线)?|"
+    r"(?:保证|确保|承诺)[^。！？\n]{0,8}(?:收益|回报|盈利))"
 )
+UNSAFE_URI_RE = re.compile(
+    r"(?i)\b(?:javascript|vbscript)\s*:|"
+    r"\bdata\s*:\s*(?:text|image|audio|video|application)/"
+)
+MARKDOWN_CONTROL_RE = re.compile(r"([\\`*_{}\[\]()#!|])")
 
 
 def render_report(
@@ -38,13 +56,31 @@ def render_report(
     installed_skills: Sequence[Mapping[str, Any]],
     loaded_specs: Sequence[Mapping[str, Any]],
     generation_time: str,
+    input_mode: str = "demo",
+    input_provenance: Mapping[str, Any] | None = None,
 ) -> str:
     """Render a report without inventing analysis outside persisted envelopes."""
 
     results = {
         name: _mapping(capability_results.get(name)) for name in CAPABILITY_ORDER
     }
-    lines = ["# Offline Company Research Report", ""]
+    if input_mode not in {"demo", "imported"}:
+        raise ValueError("report input mode is invalid")
+    provenance = input_provenance or {}
+    official_live = (
+        input_mode == "imported"
+        and provenance.get("acquisition_mode") == "official_live"
+    )
+    lines = [
+        (
+            "# Official-Source Company Research Report"
+            if official_live
+            else "# Imported Company Research Report"
+        )
+        if input_mode == "imported"
+        else "# Offline Company Research Report",
+        "",
+    ]
 
     _section(
         lines,
@@ -58,15 +94,40 @@ def render_report(
             f"- Market: {_safe_text(identity.get('market', 'unknown'))}",
         ],
     )
-    _section(
-        lines,
-        "Demo Data Declaration",
-        [
-            "All issuer, security, financial, event, price, and valuation material "
-            "in this report is wholly fictional demo data. It is not live or "
-            "real-time evidence and does not describe an actual issuer."
-        ],
-    )
+    if input_mode == "demo":
+        _section(
+            lines,
+            "Demo Data Declaration",
+            [
+                "All issuer, security, financial, event, price, and valuation material "
+                "in this report is wholly fictional demo data. It is not live or "
+                "real-time evidence and does not describe an actual issuer."
+            ],
+        )
+    elif official_live:
+        _section(
+            lines,
+            "Official Live Data Declaration",
+            [
+                "The research inputs were fetched by an approved InvestKit Provider from allowlisted official public sources. Source authority does not guarantee completeness or analytical sufficiency.",
+                f"- Persisted bundle version: {_safe_text(provenance.get('bundle_version', 'unknown'))}",
+                f"- Provider origin: {_code(provenance.get('origin', 'unknown'))}",
+                f"- Persisted snapshot SHA-256: {_code(provenance.get('sha256', 'unknown'))}",
+            ],
+        )
+    else:
+        _section(
+            lines,
+            "Imported Data Declaration",
+            [
+                "The research inputs are user-supplied imported data. InvestKit did "
+                "not independently fetch, verify, or guarantee their accuracy or "
+                "completeness.",
+                f"- Persisted bundle version: {_safe_text(provenance.get('bundle_version', 'unknown'))}",
+                f"- Original project-local origin: {_code(provenance.get('origin', 'unknown'))}",
+                f"- Persisted snapshot SHA-256: {_code(provenance.get('sha256', 'unknown'))}",
+            ],
+        )
     _section(
         lines,
         "Data Date",
@@ -158,6 +219,7 @@ def render_report(
     _section(lines, "Assumptions", _aggregate_bullets(results, "assumptions"))
     _section(lines, "Estimates", _aggregate_bullets(results, "estimates"))
     _section(lines, "Unknowns / To Verify", _aggregate_bullets(results, "unknowns"))
+    _section(lines, "Data Limitations", _warning_bullets(results))
     _section(lines, "Skipped Capabilities", _skipped_bullets(results))
     _section(lines, "Source Conflicts", _source_conflict_bullets(results))
     _section(lines, "Data Sources", _source_bullets(sources))
@@ -171,14 +233,27 @@ def render_report(
             "capability artifacts."
         ],
     )
+    if official_live:
+        boundary = (
+            "This research uses an immutable snapshot acquired from allowlisted official public sources. "
+            "It may still be incomplete, stale, or insufficient for a decision."
+        )
+    elif input_mode == "imported":
+        boundary = (
+            "This is offline research over user-supplied imported evidence. The inputs "
+            "were not independently guaranteed by InvestKit and may be stale, incomplete, "
+            "or incorrect."
+        )
+    else:
+        boundary = "This is an offline research-harness demonstration for a fictional issuer."
     _section(
         lines,
         "Research Boundary",
         [
-            "This is an offline research-harness demonstration for a fictional "
-            "issuer. It is not individualized financial advice and does not "
-            "authorize brokerage access, order placement, transactions, funds "
-            "transfer, or any real-money action. Outcomes and returns are not promised."
+            boundary
+            + " It is not individualized financial advice and does not authorize "
+            "brokerage access, order placement, transactions, funds transfer, or "
+            "any real-money action. Outcomes and returns are not promised."
         ],
     )
 
@@ -236,9 +311,18 @@ def _capability_bullets(
         bullets.extend(
             _record_bullets(result.get(field), capability=capability, field=field)
         )
-    for warning in _string_list(result.get("warnings")):
-        bullets.append(f"- Warning from {_code(capability)}: {_safe_text(warning)}")
     return bullets
+
+
+def _warning_bullets(results: Mapping[str, Mapping[str, Any]]) -> list[str]:
+    warnings: list[str] = []
+    for capability in CAPABILITY_ORDER:
+        for warning in _string_list(results[capability].get("warnings")):
+            if warning not in warnings:
+                warnings.append(warning)
+    return [f"- {_safe_text(warning)}" for warning in warnings] or [
+        "- No provider or capability limitation was recorded."
+    ]
 
 
 def _thesis_bullets(results: Mapping[str, Mapping[str, Any]]) -> list[str]:
@@ -419,9 +503,13 @@ def _source_bullets(sources: Mapping[str, Any]) -> list[str]:
             record.get("fixture_version", record.get("retrieved_at", "unknown"))
         )
         digest = _code(record.get("sha256", "unknown"))
+        quality = _safe_text(record.get("quality", "unknown"))
+        freshness = _safe_text(record.get("freshness", "unknown"))
+        locator = _safe_text(record.get("locator", "not supplied"))
         bullets.append(
             f"- {title} ({source_id}); as of {as_of_date}; version/retrieval "
-            f"{version}; SHA-256 {digest}."
+            f"{version}; quality {quality}; freshness {freshness}; locator {locator}; "
+            f"SHA-256 {digest}."
         )
         for warning in _string_list(record.get("warnings")):
             bullets.append(f"  - Source warning: {_safe_text(warning)}")
@@ -464,9 +552,10 @@ def _string_list(value: Any) -> list[str]:
 
 def _safe_text(value: Any) -> str:
     text = " ".join(str(value).split()).strip() or "unknown"
-    if RESTRICTED_LANGUAGE_RE.search(text):
-        return "[content omitted by the research-only language boundary]"
-    return text
+    if RESTRICTED_LANGUAGE_RE.search(text) or UNSAFE_URI_RE.search(text):
+        return "[content omitted by the research-only output boundary]"
+    escaped = html.escape(text, quote=False)
+    return MARKDOWN_CONTROL_RE.sub(r"\\\1", escaped)
 
 
 def _code(value: Any) -> str:

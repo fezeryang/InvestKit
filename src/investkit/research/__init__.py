@@ -6,7 +6,12 @@ from .tasks import (
     ResearchResult,
     ResearchTaskError,
 )
-from .workflow import resume_demo_research, run_demo_research
+from .workflow import (
+    resume_demo_research,
+    resume_research,
+    run_demo_research,
+    run_research,
+)
 
 __all__ = [
     "CorruptTaskError",
@@ -14,5 +19,7 @@ __all__ = [
     "ResearchResult",
     "ResearchTaskError",
     "resume_demo_research",
+    "resume_research",
     "run_demo_research",
+    "run_research",
 ]

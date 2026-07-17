@@ -1,10 +1,10 @@
 {
-  "description": "Deterministic first-party company deep dive over fictional offline demo data.",
+  "description": "Deterministic first-party company deep dive over a validated selected Provider.",
   "id": "company-deep-dive",
   "inputs": {
-    "provider": "demo",
-    "question": "Analyze the fictional Demo company using only the bundled fixture.",
-    "security_query": "demo"
+    "provider": "selected-at-runtime",
+    "question": "required-caller-supplied",
+    "security_query": "resolved-from-validated-input"
   },
   "output": "report.md",
   "skills": [
@@ -46,5 +46,5 @@
     {"id": "source-verification", "output": "capabilities/source-verification.json"},
     {"id": "investment-report", "output": "capabilities/investment-report.json"}
   ],
-  "version": "0.2.0"
+  "version": "0.3.0"
 }

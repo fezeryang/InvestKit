@@ -4,11 +4,27 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "investkit"
-version = "0.2.0"
+version = "0.3.0"
 description = "Offline-first investment research Agent Harness"
 readme = "README.md"
+license = {file = "LICENSE"}
 requires-python = ">=3.11"
 dependencies = []
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Office/Business :: Financial :: Investment",
+]
+
+[project.urls]
+Homepage = "https://github.com/fezeryang/InvestKit"
+Repository = "https://github.com/fezeryang/InvestKit.git"
+Issues = "https://github.com/fezeryang/InvestKit/issues"
+Changelog = "https://github.com/fezeryang/InvestKit/blob/main/CHANGELOG.md"
 
 [project.scripts]
 investkit = "investkit.cli:main"
@@ -23,6 +39,7 @@ where = ["src"]
 "share/investkit/agents" = ["agents/README.md"]
 "share/investkit/fixtures/demo" = ["fixtures/demo/aurora-lantern-works.json"]
 "share/investkit/packages" = ["packages/README.md"]
+"share/investkit/schemas" = ["schemas/research-bundle-v1.schema.json", "schemas/research-bundle-v1.template.json", "schemas/runtime-asset-catalog-v1.json"]
 "share/investkit/skills/security-identification" = ["skills/security-identification/SKILL.md"]
 "share/investkit/skills/security-identification/agents" = ["skills/security-identification/agents/*"]
 "share/investkit/skills/security-identification/references" = ["skills/security-identification/references/*"]

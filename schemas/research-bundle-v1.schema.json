@@ -1,0 +1,472 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:investkit:schema:research-bundle:v1",
+  "title": "InvestKit Provider-Neutral Research Bundle v1",
+  "description": "A bounded, offline research input for exactly one security. Dates, source-ID uniqueness and joins, future-date rejection, source-metadata equality, duplicate JSON keys, and credential screening are also enforced by the dependency-free InvestKit runtime.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "bundle_version",
+    "created_at",
+    "retrieved_at",
+    "as_of_date",
+    "currency",
+    "market",
+    "status",
+    "warnings",
+    "security",
+    "sources",
+    "operations"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0",
+      "description": "Version of this published bundle contract."
+    },
+    "bundle_version": {
+      "$ref": "#/$defs/nonEmptyString",
+      "description": "Immutable producer-selected version for this normalized snapshot."
+    },
+    "created_at": {
+      "$ref": "#/$defs/utcTimestamp"
+    },
+    "retrieved_at": {
+      "$ref": "#/$defs/utcTimestamp"
+    },
+    "as_of_date": {
+      "$ref": "#/$defs/calendarDate"
+    },
+    "currency": {
+      "$ref": "#/$defs/nonEmptyString",
+      "description": "Common currency label for monetary fields; operation data must disclose any exceptions."
+    },
+    "market": {
+      "$ref": "#/$defs/nonEmptyString",
+      "description": "Primary market or exchange context for the security."
+    },
+    "status": {
+      "const": "imported",
+      "description": "Imported bundles are user-supplied inputs, not independently fetched or guaranteed by InvestKit."
+    },
+    "warnings": {
+      "$ref": "#/$defs/warnings"
+    },
+    "security": {
+      "$ref": "#/$defs/security"
+    },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/source"
+      },
+      "description": "Source IDs must be unique. Every operation reference must resolve to this registry."
+    },
+    "operations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "identify_security",
+        "get_security_profile",
+        "get_financial_statements",
+        "get_price_history",
+        "get_valuation_inputs",
+        "get_source_metadata",
+        "get_peer_comparables",
+        "get_earnings_history",
+        "get_catalyst_events"
+      ],
+      "properties": {
+        "identify_security": {
+          "allOf": [
+            {"$ref": "#/$defs/operation"},
+            {"properties": {"data": {"$ref": "#/$defs/identityData"}}}
+          ]
+        },
+        "get_security_profile": {
+          "allOf": [
+            {"$ref": "#/$defs/operation"},
+            {"properties": {"data": {"$ref": "#/$defs/profileData"}}}
+          ]
+        },
+        "get_financial_statements": {
+          "allOf": [
+            {"$ref": "#/$defs/operation"},
+            {"properties": {"data": {"$ref": "#/$defs/financialData"}}}
+          ]
+        },
+        "get_price_history": {
+          "allOf": [
+            {"$ref": "#/$defs/operation"},
+            {"properties": {"data": {"$ref": "#/$defs/priceData"}}}
+          ]
+        },
+        "get_valuation_inputs": {
+          "allOf": [
+            {"$ref": "#/$defs/operation"},
+            {"properties": {"data": {"$ref": "#/$defs/valuationData"}}}
+          ]
+        },
+        "get_source_metadata": {
+          "allOf": [
+            {"$ref": "#/$defs/operation"},
+            {"properties": {"data": {"$ref": "#/$defs/sourceMetadataData"}}}
+          ]
+        },
+        "get_peer_comparables": {
+          "allOf": [
+            {"$ref": "#/$defs/operation"},
+            {"properties": {"data": {"$ref": "#/$defs/peerData"}}}
+          ]
+        },
+        "get_earnings_history": {
+          "allOf": [
+            {"$ref": "#/$defs/operation"},
+            {"properties": {"data": {"$ref": "#/$defs/earningsData"}}}
+          ]
+        },
+        "get_catalyst_events": {
+          "allOf": [
+            {"$ref": "#/$defs/operation"},
+            {"properties": {"data": {"$ref": "#/$defs/catalystData"}}}
+          ]
+        }
+      }
+    }
+  },
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "canonicalId": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S(?:.*\\S)?$",
+      "description": "A non-empty identifier with no leading or trailing whitespace."
+    },
+    "calendarDate": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "description": "The runtime additionally rejects impossible and future dates."
+    },
+    "utcTimestamp": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "Z$",
+      "description": "UTC ISO-8601 timestamp ending in Z. The runtime additionally rejects future timestamps."
+    },
+    "warnings": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/nonEmptyString"
+      }
+    },
+    "nullableNumber": {
+      "type": ["number", "null"]
+    },
+    "nullableText": {
+      "type": ["string", "null"]
+    },
+    "nullableObject": {
+      "type": ["object", "null"]
+    },
+    "nullableObjectArray": {
+      "type": ["array", "null"],
+      "items": {"type": "object"}
+    },
+    "nullableNumberArray": {
+      "type": ["array", "null"],
+      "items": {"type": "number"}
+    },
+    "nullableStringArray": {
+      "type": ["array", "null"],
+      "items": {"$ref": "#/$defs/nonEmptyString"}
+    },
+    "identityData": {
+      "type": "object",
+      "properties": {
+        "aliases": {"$ref": "#/$defs/nullableStringArray"}
+      }
+    },
+    "profileData": {
+      "type": "object",
+      "properties": {
+        "segments": {"$ref": "#/$defs/nullableStringArray"},
+        "products": {"$ref": "#/$defs/nullableStringArray"},
+        "geographies": {"$ref": "#/$defs/nullableStringArray"},
+        "business_risks": {"$ref": "#/$defs/nullableStringArray"},
+        "risks": {"$ref": "#/$defs/nullableStringArray"},
+        "research_drivers": {"$ref": "#/$defs/nullableStringArray"},
+        "management": {"$ref": "#/$defs/nullableObject"},
+        "capital_allocation": {"$ref": "#/$defs/nullableObject"},
+        "competitive_context": {"$ref": "#/$defs/nullableObject"},
+        "revenue_components": {"$ref": "#/$defs/nullableObject"},
+        "order_to_cash": {"$ref": "#/$defs/nullableObject"},
+        "employee_count": {"$ref": "#/$defs/nullableNumber"},
+        "employees": {"$ref": "#/$defs/nullableNumber"},
+        "customer_concentration_percent": {"$ref": "#/$defs/nullableNumber"}
+      }
+    },
+    "financialData": {
+      "type": "object",
+      "properties": {
+        "periods": {"$ref": "#/$defs/nullableObjectArray"}
+      }
+    },
+    "priceData": {
+      "type": "object",
+      "properties": {
+        "observations": {"$ref": "#/$defs/nullableObjectArray"},
+        "latest_price": {"$ref": "#/$defs/nullableNumber"}
+      }
+    },
+    "valuationData": {
+      "type": "object",
+      "properties": {
+        "forecast_unlevered_free_cash_flow": {"$ref": "#/$defs/nullableNumberArray"},
+        "forecast_metadata": {"$ref": "#/$defs/nullableObject"},
+        "consensus": {"$ref": "#/$defs/nullableObject"},
+        "industry_valuation_reference": {"$ref": "#/$defs/nullableObject"},
+        "wacc": {"$ref": "#/$defs/nullableNumber"},
+        "terminal_growth": {"$ref": "#/$defs/nullableNumber"},
+        "diluted_shares": {"$ref": "#/$defs/nullableNumber"},
+        "cash": {"$ref": "#/$defs/nullableNumber"},
+        "total_debt": {"$ref": "#/$defs/nullableNumber"},
+        "scenario_assumptions": {"$ref": "#/$defs/nullableObject"},
+        "sensitivity_wacc_values": {"$ref": "#/$defs/nullableNumberArray"},
+        "sensitivity_terminal_growth_values": {"$ref": "#/$defs/nullableNumberArray"}
+      }
+    },
+    "sourceMetadataData": {
+      "type": "object",
+      "properties": {
+        "sources": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/source"}
+        }
+      }
+    },
+    "peerData": {
+      "type": "object",
+      "properties": {
+        "peers": {"$ref": "#/$defs/nullableObjectArray"},
+        "selection_method": {"$ref": "#/$defs/nullableText"},
+        "industry_benchmark": {"$ref": "#/$defs/nullableObject"}
+      }
+    },
+    "earningsEvent": {
+      "type": "object",
+      "properties": {
+        "actual": {"$ref": "#/$defs/nullableObject"},
+        "expectation": {"$ref": "#/$defs/nullableObject"},
+        "guidance": {"$ref": "#/$defs/nullableObject"},
+        "transcript_available": {"type": ["boolean", "null"]}
+      }
+    },
+    "earningsData": {
+      "type": "object",
+      "properties": {
+        "events": {
+          "type": ["array", "null"],
+          "items": {"$ref": "#/$defs/earningsEvent"}
+        },
+        "transcript_available": {"type": ["boolean", "null"]}
+      }
+    },
+    "catalystData": {
+      "type": "object",
+      "properties": {
+        "events": {"$ref": "#/$defs/nullableObjectArray"}
+      }
+    },
+    "security": {
+      "type": "object",
+      "required": [
+        "security_id",
+        "ticker",
+        "legal_name",
+        "exchange"
+      ],
+      "properties": {
+        "security_id": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "ticker": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "legal_name": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "exchange": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "aliases": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        }
+      },
+      "additionalProperties": true,
+      "description": "The four required identity fields must exactly match identify_security.data."
+    },
+    "source": {
+      "type": "object",
+      "required": [
+        "source_id",
+        "publisher",
+        "title",
+        "source_type",
+        "locator",
+        "retrieved_at",
+        "quality",
+        "freshness",
+        "access_notes",
+        "license_notes"
+      ],
+      "properties": {
+        "source_id": {
+          "$ref": "#/$defs/canonicalId"
+        },
+        "publisher": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "title": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "source_type": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "locator": {
+          "$ref": "#/$defs/nonEmptyString",
+          "description": "A provenance locator only. The offline runtime never fetches it."
+        },
+        "publication_date": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/calendarDate"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "as_of_date": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/calendarDate"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "retrieved_at": {
+          "$ref": "#/$defs/utcTimestamp"
+        },
+        "quality": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "freshness": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "access_notes": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "license_notes": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      },
+      "additionalProperties": true
+    },
+    "explicitGapValue": {
+      "description": "A source-free value: null, an empty array, or a non-empty object recursively containing only source-free values.",
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "array",
+          "maxItems": 0
+        },
+        {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "$ref": "#/$defs/explicitGapValue"
+          }
+        }
+      ]
+    },
+    "sourceFreeData": {
+      "type": "object",
+      "minProperties": 1,
+      "properties": {
+        "limitations": {
+          "$ref": "#/$defs/warnings"
+        }
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/explicitGapValue"
+      },
+      "not": {
+        "required": [
+          "limitations"
+        ],
+        "maxProperties": 1
+      },
+      "description": "With no source IDs, operation data may contain only explicit null/empty-array gaps plus an optional non-empty limitations list. Limitations alone are insufficient."
+    },
+    "operation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "data",
+        "source_ids",
+        "warnings"
+      ],
+      "properties": {
+        "data": {
+          "type": "object",
+          "description": "Normalized operation payload. Missing optional inputs stay null or empty instead of becoming zero or invented evidence."
+        },
+        "source_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/canonicalId"
+          },
+          "description": "Stable IDs supporting this operation. An empty list is allowed only when data contains an explicit gap."
+        },
+        "warnings": {
+          "$ref": "#/$defs/warnings"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "source_ids": {
+                "maxItems": 0
+              }
+            },
+            "required": [
+              "source_ids"
+            ]
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/sourceFreeData"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

@@ -2,17 +2,7 @@
 
 from __future__ import annotations
 
-import re
-
-
-_SECRET_ASSIGNMENT_RE = re.compile(
-    r"(?i)\b(api[_-]?key|access[_-]?token|auth[_-]?token|secret|password|"
-    r"credential|private[_-]?key)\s*[:=]\s*[^\s,;]+"
-)
-_BARE_SECRET_RE = re.compile(
-    r"(?i)(?:\bsk-[A-Za-z0-9_-]{16,}|\bbearer\s+[A-Za-z0-9._-]{12,}|"
-    r"-----BEGIN [A-Z ]*PRIVATE KEY-----)"
-)
+from .security import SENSITIVE_VALUE_RE
 
 
 class InvestKitError(RuntimeError):
@@ -35,8 +25,7 @@ def safe_error_message(error: BaseException, *, limit: int = 500) -> str:
     """Return a bounded printable message with common credential values removed."""
 
     message = str(error).strip() or error.__class__.__name__
-    redacted = _SECRET_ASSIGNMENT_RE.sub(r"\1=[REDACTED]", message)
-    redacted = _BARE_SECRET_RE.sub("[REDACTED]", redacted)
+    redacted = SENSITIVE_VALUE_RE.sub("[REDACTED]", message)
     printable = "".join(
         character if character.isprintable() else " " for character in redacted
     )

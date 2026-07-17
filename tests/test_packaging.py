@@ -19,6 +19,7 @@ BUILD_INPUTS = (
     "agents",
     "fixtures",
     "packages",
+    "schemas",
     "skills",
     "specs",
     "src",
@@ -84,6 +85,7 @@ class WheelInstallContractTests(unittest.TestCase):
             self.assertEqual(build.returncode, 0, build.stderr)
             wheels = list(wheel_root.glob("investkit-*.whl"))
             self.assertEqual(len(wheels), 1)
+            self.assertTrue(wheels[0].name.startswith("investkit-0.3.0-"))
 
             environment_root = temporary_root / "environment"
             venv.EnvBuilder(with_pip=True).create(environment_root)
@@ -116,17 +118,39 @@ class WheelInstallContractTests(unittest.TestCase):
             config = json.loads(
                 (project_root / ".investkit/config.json").read_text(encoding="utf-8")
             )
+            self.assertEqual(config["investkit_version"], "0.3.0")
             delivered_source = Path(config["source_root"])
             self.assertTrue(delivered_source.is_dir())
             self.assertEqual(delivered_source.name, "investkit")
             self.assertEqual(delivered_source.parent.name, "share")
             self.assertFalse(str(delivered_source).startswith(str(build_root)))
+            for relative_asset in (
+                "schemas/research-bundle-v1.schema.json",
+                "schemas/research-bundle-v1.template.json",
+            ):
+                with self.subTest(asset=relative_asset):
+                    delivered_asset = delivered_source / relative_asset
+                    self.assertTrue(delivered_asset.is_file(), relative_asset)
+                    self.assertEqual(
+                        delivered_asset.read_bytes(),
+                        (build_root / relative_asset).read_bytes(),
+                    )
             installed = {
                 path.name
                 for path in (project_root / ".agents/skills").iterdir()
                 if path.is_dir()
             }
             self.assertEqual(installed, RUNTIME_SKILLS)
+
+            imported_input = project_root / "inputs/microsoft-fy2025.json"
+            imported_input.parent.mkdir()
+            shutil.copy2(
+                build_root / "fixtures/acceptance/microsoft-fy2025.json",
+                imported_input,
+            )
+            # From this point the installed wheel plus the analyst-supplied bundle
+            # are the only Runtime inputs.  No checkout asset may satisfy discovery.
+            shutil.rmtree(build_root)
 
             diagnosed = self._run((str(investkit), "doctor"), cwd=project_root)
             self.assertEqual(diagnosed.returncode, 0, diagnosed.stdout + diagnosed.stderr)
@@ -149,6 +173,62 @@ class WheelInstallContractTests(unittest.TestCase):
                 cwd=project_root,
             )
             self.assertEqual(resumed.returncode, 0, resumed.stdout + resumed.stderr)
+
+            imported = self._run(
+                (
+                    str(investkit),
+                    "research",
+                    "--input",
+                    "inputs/microsoft-fy2025.json",
+                    "--question",
+                    "What does the supplied FY2025 filing support about financial quality and risk?",
+                ),
+                cwd=project_root,
+            )
+            self.assertEqual(imported.returncode, 0, imported.stdout + imported.stderr)
+            imported_match = re.search(r"\bresearch-[A-Za-z0-9_-]+", imported.stdout)
+            self.assertIsNotNone(imported_match, imported.stdout)
+            assert imported_match is not None
+            imported_task_id = imported_match.group(0)
+            imported_task_root = (
+                project_root / "workspace/research" / imported_task_id
+            )
+            imported_report = (imported_task_root / "report.md").read_text(
+                encoding="utf-8"
+            )
+            self.assertIn("Microsoft Corporation", imported_report)
+            self.assertIn("user-supplied", imported_report.lower())
+            self.assertIn("not independently", imported_report.lower())
+            self.assertNotIn("fictional", imported_report.lower())
+
+            before_imported_resume = {
+                path.relative_to(imported_task_root).as_posix(): path.read_bytes()
+                for path in imported_task_root.rglob("*")
+                if path.is_file()
+            }
+
+            resumed_imported = self._run(
+                (str(investkit), "research", "--resume", imported_task_id),
+                cwd=project_root,
+            )
+            self.assertEqual(
+                resumed_imported.returncode,
+                0,
+                resumed_imported.stdout + resumed_imported.stderr,
+            )
+            after_imported_resume = {
+                path.relative_to(imported_task_root).as_posix(): path.read_bytes()
+                for path in imported_task_root.rglob("*")
+                if path.is_file()
+            }
+            self.assertEqual(set(after_imported_resume), set(before_imported_resume))
+            for relative, content in before_imported_resume.items():
+                if relative != "run-log.json":
+                    self.assertEqual(after_imported_resume[relative], content, relative)
+            self.assertNotEqual(
+                after_imported_resume["run-log.json"],
+                before_imported_resume["run-log.json"],
+            )
             diagnosed_after_resume = self._run(
                 (str(investkit), "doctor"), cwd=project_root
             )
@@ -156,6 +236,15 @@ class WheelInstallContractTests(unittest.TestCase):
                 diagnosed_after_resume.returncode,
                 0,
                 diagnosed_after_resume.stdout + diagnosed_after_resume.stderr,
+            )
+            dependency_check = self._run(
+                (str(python), "-m", "pip", "check"),
+                cwd=project_root,
+            )
+            self.assertEqual(
+                dependency_check.returncode,
+                0,
+                dependency_check.stdout + dependency_check.stderr,
             )
 
     @staticmethod

@@ -1,0 +1,14 @@
+# Copy these names into your secret manager or process environment.
+# Never commit real values to this file or any InvestKit workspace artifact.
+
+# Eastmoney MX API
+MX_APIKEY=REQUIRED_API_KEY_UNKNOWN
+
+# Guangfa Skills API
+GF_SKILLS_APIKEY=REQUIRED_API_KEY_UNKNOWN
+
+# CICCWM API (clean-room adapter pending)
+CICCWM_API_KEY=REQUIRED_API_KEY_UNKNOWN
+
+# Guosen API (source acquisition pending)
+GUOSEN_APIKEY=REQUIRED_API_KEY_UNKNOWN

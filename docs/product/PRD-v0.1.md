@@ -1,6 +1,6 @@
 # InvestKit Product Requirements
 
-Document status: v0.1 product baseline with the v0.2 Investment Core Pack amendment. The v0.1 offline Codex slice and v0.2 Investment Core Pack are implemented and verified locally. This is not a release or production-readiness claim.
+Document status: v0.1 product baseline with v0.2 Investment Core Pack, v0.3 Real-Company Research MVP, and an owner-authorized live A-share Harness amendment. The current working tree implements both the bounded imported-evidence path and an explicit-permission SSE + Guangfa + CICCWM research path. This is not a public-release, investment-suitability, or autonomous investment-decision claim.
 
 ## 1. Product Definition
 
@@ -68,6 +68,9 @@ The implemented offline command surface is:
 ```bash
 investkit init
 investkit doctor
+investkit research --input <project-local-bundle.json> --question <text>
+investkit research --symbol <exchange-qualified-symbol> --question <text> --allow-network
+investkit research --resume <task-id>
 investkit demo research
 investkit demo research --resume <task-id>
 ```
@@ -95,6 +98,7 @@ Authoritative first-party source lives under:
 - `agents/`
 - `workflows/`
 - `specs/`
+- `schemas/`
 - `fixtures/`
 - `packages/`
 - `workspace-template/`
@@ -117,9 +121,9 @@ The baseline owns create-once initialization, one Codex adapter, seven versioned
 
 v0.1 is the preserved Harness foundation for v0.2, not the immediate next product milestone.
 
-## 9. v0.2 Immediate Milestone: Investment Core Pack
+## 9. v0.2 Milestone: Investment Core Pack
 
-The immediate milestone is the Investment Core Pack, not a standalone real-data Provider.
+v0.2 established the Investment Core Pack before adding a real-company Provider path.
 
 The Runtime prerequisite is `security-identification`. The exact 12 Investment Core Skills are:
 
@@ -154,7 +158,7 @@ Detailed schemas and checklists may live one level below `references/`. No third
 
 ## 10. Company Deep Dive Workflow
 
-`investkit demo research` executes `company-deep-dive` in this exact order:
+Both `investkit demo research` and v0.3 `investkit research --input ... --question ...` execute `company-deep-dive` in this exact order:
 
 1. `security-identification`
 2. `company-deep-research`
@@ -203,11 +207,11 @@ The durable task root preserves:
 ```text
 task.json              question.md
 plan.json              loaded-specs.json
-installed-skills.json  data/*.json
+installed-skills.json  input/research-bundle.json  # imported mode only
+data/*.json            capabilities/*.json
 sources.json           assumptions.json
 findings.json          risks.json
 run-log.json           report.md
-capabilities/*.json
 ```
 
 Resume validates completed artifacts before skipping them. A completed-task resume preserves all capability/data/index/report bytes and appends only a run event. Corrupt state and path escapes fail closed.
@@ -225,28 +229,55 @@ first-party Skill method
 → optional approved Provider adapter
 ```
 
-The offline Demo Provider remains sufficient for v0.2. A future credentialed adapter must serve a named capability, preserve provenance and vendor constraints, remain opt-in, and pass license, security, authorization, secret, and owner-release gates. Provider approval never authorizes orders, transaction signing, funds transfer, or brokerage behavior.
+The offline Demo Provider remains the deterministic v0.2 evaluation path. v0.3 adds a read-only File Provider for a validated project-local bundle without granting network access. A future automatic or credentialed adapter must serve a named capability, preserve provenance and vendor constraints, remain opt-in, and pass license, security, authorization, secret, and owner-release gates. Provider approval never authorizes orders, transaction signing, funds transfer, or brokerage behavior.
 
-## 13. Capability Map And Future Order
+## 13. v0.3 Milestone: Real-Company Research MVP
 
-The durable item-level status source is [`investment-capability-map.md`](investment-capability-map.md). Status reflects actual local behavior rather than folder presence and does not imply live data or release readiness.
+v0.3 moves the product from a fictional-only evaluation path to reproducible research over a user-prepared real-issuer bundle. It does not automate acquisition.
 
-Future product order is:
+The provider-neutral input is a closed, versioned JSON contract. It identifies exactly one security and retains common dates, currency, market, warnings, a multi-source registry, and operation records for all nine Provider methods. Each operation names the source IDs supporting its data. Source-free records may contain only explicit `null`, empty-array, recursively gap-only values and limitations; missing price, forecast, peer, expectation, guidance, transcript, or catalyst evidence stays unknown or produces a contract-valid skip.
+
+The File Provider:
+
+- reads only bounded UTF-8 JSON regular files inside the initialized project;
+- rejects symlinks, root escapes, special files, duplicate keys, non-finite values, invalid chronology, unresolved sources, unsupported versions, and credential-like content;
+- performs no network or subprocess activity;
+- exposes the same nine normalized operations as the Demo Provider; and
+- marks every record as imported, non-demo, source-linked, and tied to an immutable bundle version and hash.
+
+Before analysis, the Runtime persists canonical input under the task root together with its SHA-256, dataset version, original project-relative provenance, question, and security query. Resume reconstructs the Provider from that snapshot rather than the original mutable input. Completed resume appends a run event without rewriting research artifacts. Doctor validates imported snapshot, schema, hash, source joins, Provider records, capability/report disclosures, freshness, and filesystem boundaries without network access or repair.
+
+Imported analysis uses source-led neutral wording and may not inherit issuer-specific demo assumptions. Reports name the issuer, security, question, as-of and retrieval context, provenance, limitations, and the fact that InvestKit did not independently fetch or guarantee the user-supplied data.
+
+The repository-pinned Microsoft FY2025 Form 10-K bundle is the acceptance example. It supports issuer identity, two-source lineage, two annual financial periods, and guarded financial calculations. Current price, forecasts, WACC, peers, consensus expectations, guidance comparison, transcript evidence, and future catalysts are intentionally absent. The resulting valuation, comps, and catalyst skips are evidence of correct missing-data behavior, not evidence that those capabilities are complete for current investment use.
+
+v0.3 also preserves the fictional demo path, packages the schema/template with wheel assets, and provides a conflict-preserving v0.2 initialization migration. It does not claim current market coverage, raw filing extraction, automatic SEC/vendor access, generalized cross-issuer normalization, additional platform adapters, or production release readiness.
+
+## 14. Capability Map And Future Order
+
+The durable item-level status source is [`investment-capability-map.md`](investment-capability-map.md); milestone sequencing and release gates live in [`roadmap.md`](roadmap.md). Status reflects actual local behavior rather than folder presence and does not imply live data or release readiness.
+
+After the v0.3 local interchange boundary, work proceeds on two governed tracks:
 
 ```text
+local imported-data MVP
+→ automatic SEC/approved data acquisition into the same bundle contract
+→ broader issuer and failure-mode evaluation
+→ release and cross-platform delivery gates
+
 Investment Core Pack
 → Advanced Research Pack
 → Quant Pack
 → Portfolio & Risk Pack
-→ capability-driven real-data Provider expansion
-→ broader platform delivery lifecycle
 ```
 
-## 14. Trellis Relationship
+Automatic acquisition remains a data-production layer, not permission for brokerage or trading actions.
+
+## 15. Trellis Relationship
 
 `.trellis/` manages InvestKit development tasks, specifications, and session records. It is not the InvestKit Runtime. Initialized projects use InvestKit-owned configuration, Workflows, tasks, and workspaces and do not depend on Trellis or hidden chat history.
 
-## 15. Safety And Investment Boundaries
+## 16. Safety And Investment Boundaries
 
 - No brokerage connection, order placement, transaction signing, or funds transfer.
 - No guaranteed-return claim or deterministic price prediction.
@@ -256,8 +287,27 @@ Investment Core Pack
 - No missing numeric input coerced to zero or neutral evidence.
 - Backtests and estimates must expose assumptions, costs, bias, and limitations when those future capabilities exist.
 
-## 16. Current Non-Claims And Success Standard
+## 17. Current Non-Claims And Success Standard
 
-The current working tree does not claim live/current market data, Claude/Cursor support, product Agents, package add/update/uninstall, Advanced Research, Quant, Portfolio & Risk, brokerage connectivity, or trading behavior. v0.2 verification is ongoing; documentation must not be read as a whole-suite green result.
+The current working tree includes a bounded, opt-in, acceptance-tested live A-share acquisition path, but does not claim full-market live coverage, independent verification of every acquired fact, institution-grade data reliability, Claude/Cursor support, product Agents, package add/update/uninstall, Advanced Research, Quant, Portfolio & Risk, brokerage connectivity, trading behavior, or production readiness.
 
-The Investment Core Pack succeeds when a fresh offline installation can initialize, diagnose, run the complete 13-stage fictional-company Workflow, inspect typed artifacts, resume without rewriting completed research, and diagnose persisted state—while preserving the v0.1 Harness guarantees and requiring no network, API key, third-party execution, or `.trellis/` dependency.
+The v0.3 milestone succeeds when a fresh offline wheel installation can initialize, diagnose, preserve the demo path, run the complete 13-stage Workflow against a validated real-issuer bundle, expose source-linked structured artifacts and honest skips, resume solely from its persisted snapshot, and diagnose the result—without a network, API key, third-party execution, brokerage behavior, or `.trellis/` dependency.
+
+Passing that milestone proves a usable local research function within the supplied evidence boundary. A separate completion audit is still required before calling the broader project released or production-ready.
+
+## 18. Decision Analytics Product Scope Amendment (2026-07-17)
+
+InvestKit's target is a research and decision-analytics harness, not a document-reading product. Complete annual-report text extraction is optional supporting evidence rather than a release gate. The Runtime should normally consume normalized, point-in-time financial, market, industry, expectation, and event records, escalating to original disclosures for footnotes, accounting changes, one-offs, related-party matters, conflicts, or other material verification needs.
+
+The target capability sequence is:
+
+1. industry-relative comparison, broker consensus and revisions, auditable earnings forecasts, and multi-model valuation with DCF and scenario target-value ranges;
+2. full-market industry rotation, macro-cycle and market-regime research;
+3. technical indicators, factor research, reproducible screening, and realistic bias-controlled backtesting;
+4. portfolio construction, asset allocation, research-only position weights, risk budgets, scenarios, and stress tests;
+5. explicitly declared Hong Kong, US equity, bond, futures, options, and FX coverage using asset-specific contracts;
+6. intraday monitoring, alerts, reconciliation, freshness, fallback, and operational reliability evidence.
+
+These are target capabilities, not claims about the current working tree. Each becomes usable only after its normalized data contract, analytical method, point-in-time controls, tests, provider/entitlement checks, and acceptance evidence pass independently.
+
+Trade execution is permanently outside scope: no brokerage connection, order staging or submission, transaction signing, funds transfer, or automatic management of user assets.

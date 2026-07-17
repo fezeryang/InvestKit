@@ -1,84 +1,113 @@
 # InvestKit Product Architecture
 
-Status: v0.1 offline Codex Harness baseline and v0.2 Investment Core Pack implemented and verified locally. This document does not assert release or production readiness.
+Status: v0.1 Harness foundation, v0.2 Investment Core Pack, and the v0.3 local real-company research path are represented in the working tree. This document describes the implemented boundary; it does not assert a public release, production readiness, current-data coverage, or investment suitability.
 
-## Product Contract
+## Product contract
 
-InvestKit is an installable investment-research AI Agent Harness. It combines governed investment methods with the framework that installs, orchestrates, persists, restores, and diagnoses them.
+InvestKit combines governed investment methods with the Harness that installs, orchestrates, persists, restores, and diagnoses them.
 
-| Layer | Responsibility | Current v0.2 surface |
+| Layer | Responsibility | Current v0.3 surface |
 |---|---|---|
-| Investment capability | Perform bounded professional research | 12 Investment Core Skills plus security identification |
-| Agent Harness | Install, select, orchestrate, persist, resume, and diagnose | Python CLI, Codex adapter, `company-deep-dive`, task workspace, doctor |
-| Foundation | Preserve safety, evidence, and reproducibility | standards, source IDs, checksums, structured artifacts, offline fixture |
+| Investment capability | Perform bounded, evidence-led company research | security identification plus 12 Investment Core Skills in one 13-stage Workflow |
+| Agent Harness | Install, select, orchestrate, persist, resume, and diagnose | Python CLI, Codex adapter, task workspace, immutable input snapshot, doctor |
+| Data boundary | Supply normalized evidence without defining analytical methods | fictional `DemoProvider` and project-local read-only `FileProvider` |
+| Foundation | Preserve safety, lineage, and reproducibility | standards, JSON bundle contract, source IDs, hashes, typed artifacts, offline operation |
 
-Neither top layer is optional. A prompt collection without the Harness is not InvestKit, and infrastructure without useful investment methods is not the product.
+A prompt collection without the Harness is not InvestKit, and infrastructure without useful investment methods is not the product.
 
-## Capability-First Dependency Direction
+## Capability-first dependency direction
 
 Research methods define data needs; Providers do not define the product roadmap.
 
 ```text
 User research question
-→ governed Workflow
+→ governed company-deep-dive Workflow
 → first-party Skill method and output contract
-→ named normalized data requirement
-→ optional InvestKit Provider operation
-→ approved source
+→ normalized Provider operation
+→ demo fixture or validated imported bundle
+→ persisted source-linked result
 ```
 
-A Skill must remain independent of vendor credentials, URLs, SDK response shapes, and brokerage behavior. The offline Demo Provider is sufficient for the v0.2 acceptance path. A future live adapter is justified only by a named capability gap.
+Skills remain independent of vendor credentials, SDK response shapes, brokerage behavior, and a specific issuer. Imported evidence changes the inputs and wording, not the capability contract. Missing evidence propagates as an unknown or a disclosed skip rather than becoming an assumption merely to complete the Workflow.
 
-## Authoritative Source And Installation
+## Authoritative source and installation
 
 Repository-root product directories are authoritative:
 
 ```text
 skills/              governed first-party Skill source
-agents/              first-party Agent source or package boundary
+agents/              first-party Agent/package boundary
 workflows/           deterministic research workflows
 specs/               versioned investment-research standards
-fixtures/            first-party offline Eval data
+schemas/             imported research-bundle schema and template
+fixtures/            fictional demo and pinned acceptance evidence
 packages/            future optional capability packages
 workspace-template/  initialized user workspace template
 ```
 
-Platform paths are generated targets, not source:
+Platform paths such as `.agents/skills/` are generated targets, not source. `.claude/skills/` and `.cursor/` in this repository are not evidence of shipping Claude or Cursor adapters.
+
+End-user-initiated initialization copies only explicitly allowlisted regular files. Source/target mappings carry checksums. Conflicting user files are preserved, symlinks and root escapes are rejected, and unallowlisted folders are never discovered as release assets. `third_party/raw/` is untrusted evidence and `adapted/skills/` is a draft boundary; neither is a Runtime dependency or installation source.
+
+Wheels carry the same governed Runtime assets under `share/investkit`, including the JSON Schema and template. Asset discovery validates a complete checkout or wheel delivery tree before use.
+
+## Public command surface
 
 ```text
-.agents/skills/       current Codex Skill target
-.claude/skills/       future adapter target
-.cursor/              future adapter target
+investkit init
+investkit doctor
+investkit research --input <project-local-bundle.json> --question <text>
+investkit research --resume <research-task-id>
+investkit demo research
+investkit demo research --resume <demo-task-id>
 ```
 
-End-user-initiated CLI operations copy only explicitly allowlisted regular files. Each source/target mapping records a checksum. Existing conflicting user files are preserved, symlinks and root escapes are rejected, and unallowlisted folders are not discovered as release assets.
+The generic `research` forms are mutually exclusive: a new imported run needs both `--input` and a non-empty `--question`; resume takes a task ID and no question. Mode-specific resume commands reject a task created by the other mode.
 
-`third_party/raw/` is untrusted research evidence and `adapted/skills/` is a draft boundary. Neither is a Runtime dependency or install source.
+The current host adapter is Codex. Package `add`, `update`, and `uninstall`, additional platform adapters, and a graphical interface remain future work rather than successful placeholders.
 
-## v0.2 Skill Catalog
+## Provider-neutral research bundle
 
-The Runtime prerequisite is `security-identification`. The 12 Investment Core Skills are:
+[`../../schemas/research-bundle-v1.schema.json`](../../schemas/research-bundle-v1.schema.json) publishes a closed JSON Schema Draft 2020-12 contract. [`../../schemas/research-bundle-v1.template.json`](../../schemas/research-bundle-v1.template.json) is a structurally valid, deliberately empty starting point.
+
+A bundle describes exactly one security and includes:
+
+- schema and dataset versions;
+- creation, retrieval, and common as-of times;
+- currency, market, imported status, and bundle-level warnings;
+- one exact security identity with stable ID, ticker, legal name, exchange, and aliases;
+- a source registry with stable IDs, provenance, timing, quality, freshness, access, and reuse notes; and
+- records for every normalized Provider operation.
+
+Each operation contains `data`, `source_ids`, and `warnings`. Source IDs must resolve to the top-level registry. An operation with no sources may contain only explicit gaps such as `null`, empty arrays, recursively gap-only objects, and non-empty limitations; it cannot smuggle unsupported positive facts into a source-free record.
+
+The Runtime implementation uses the standard library to enforce the governed acceptance contract and does not depend on a network JSON Schema validator. It rejects unsupported versions and fields, duplicate JSON keys, invalid or non-finite numbers, inconsistent identities, unresolved source IDs, unsafe date chronology, and credential-like keys or values.
+
+## FileProvider trust boundary
+
+`FileProvider` is a read-only adapter for a validated local bundle. It accepts a bounded UTF-8 JSON regular file inside the initialized project and rejects symlink components, traversal/root escapes, special files, oversized input, and malformed content. It performs no network or subprocess operation.
+
+Validation produces immutable canonical JSON bytes and a SHA-256 digest. The Provider serves defensive copies through the same nine operations as the demo:
 
 ```text
-company-deep-research
-business-model-analysis
-financial-statement-analysis
-earnings-quality-analysis
-valuation-analysis
-comps-analysis
-earnings-analysis
-investment-thesis
-bear-case-analysis
-catalyst-analysis
-source-verification
-investment-report
+identify_security
+get_security_profile
+get_financial_statements
+get_price_history
+get_valuation_inputs
+get_source_metadata
+get_peer_comparables
+get_earnings_history
+get_catalyst_events
 ```
 
-Each Skill publishes precise positive and near-miss triggers, required/optional inputs, missing-data behavior, used specs, ordered method, output contract, source requirements, risk boundaries, composition handoffs, and Evals. Direct `references/` and `agents/openai.yaml` files are governed nested assets and are installed with the Skill.
+Every imported record carries `input_mode: imported`, `is_demo: false`, bundle version/hash, as-of/retrieval metadata, operation-specific source IDs, and warnings. Empty price, peer, valuation, earnings-context, or catalyst evidence stays empty; a source locator is not fetched or independently verified by the Runtime.
+
+This is the key v0.3 product boundary: InvestKit can perform reproducible research on structured real-issuer evidence, but acquisition and normalization of that evidence are still user responsibilities.
 
 ## Company Deep Dive Workflow
 
-`investkit demo research` runs the 13-stage `company-deep-dive` Workflow against first-party fictional data:
+Both Provider modes run the versioned 13-stage `company-deep-dive` Workflow:
 
 ```text
 security-identification
@@ -96,17 +125,19 @@ security-identification
 → investment-report
 ```
 
-The order is part of the persisted contract. `bear-case-analysis` consumes a frozen thesis and produces an independent result. `source-verification` gates material claim/source relationships. `investment-report` assembles validated upstream material and may not introduce a new fact, estimate, source, risk, or conclusion.
+The order is persisted. `bear-case-analysis` consumes a frozen thesis and produces an independent result. `source-verification` checks material claim/source relationships. `investment-report` assembles validated upstream material and may not introduce a new fact, estimate, source, risk, or conclusion.
 
-## Structured Capability Handoffs
+Reusable analysis is mode-neutral. Fictional disclosures remain restricted to demo artifacts. Imported analyses build available drivers, falsifiers, KPIs, risks, and conclusions from the supplied operation records; company-specific demo assumptions are not injected into a real issuer.
 
-Each completed or validly skipped stage writes `capabilities/<stage-id>.json` with a shared envelope:
+## Structured capability handoffs
+
+Each completed or validly skipped stage writes `capabilities/<stage-id>.json` with the shared envelope:
 
 ```json
 {
   "schema_version": "1.0",
   "capability": "valuation-analysis",
-  "status": "completed",
+  "status": "skipped",
   "skill": {"name": "valuation-analysis", "version": "0.2.0"},
   "method": {},
   "facts": [],
@@ -116,116 +147,78 @@ Each completed or validly skipped stage writes `capabilities/<stage-id>.json` wi
   "findings": [],
   "risks": [],
   "warnings": [],
-  "source_ids": []
+  "source_ids": [],
+  "skip_reason": "required valuation evidence was not supplied",
+  "missing_inputs": ["current price", "forecast cash flows", "WACC"]
 }
 ```
 
-Allowed statuses are `completed`, `skipped`, and `failed`. A skipped result needs a non-empty reason and missing-input record. Facts require persisted source IDs; assumptions require rationale/materiality; estimates require method and material inputs; unknowns retain the gap and impact. Missing numeric data never becomes zero.
+Allowed statuses are `completed`, `skipped`, and `failed`. A skip needs a reason and missing-input record. Facts require persisted source IDs; assumptions require rationale and materiality; estimates identify the method and material inputs; unknowns retain the gap and its analytical impact. Calculations reject non-finite output.
 
-Downstream Skills consume upstream IDs rather than copying facts into an untraceable narrative. Warnings, risks, conflicts, and unknowns propagate by ID until explicitly resolved or reported.
+Downstream Skills consume upstream IDs rather than copying facts into an untraceable narrative. Warnings, risks, conflicts, and unknowns propagate by ID until explicitly resolved or reported. Operation-specific source sets are preserved so identity metadata can retain both filing-index and filing sources while financial facts retain the filing source alone.
 
-## Investment Standards
+## Durable task and input snapshot
 
-Seven versioned files under `specs/` govern research principles, evidence, sources, financial data, valuation, risk, and reports. A task records the exact versions and checksums it loaded. Standards are selected by the Harness; they are not repeatedly pasted by the user.
-
-## Provider Boundary
-
-The v0.2 Demo Provider exposes the operations needed by the bounded offline Workflow:
-
-```text
-identify_security
-get_security_profile
-get_financial_statements
-get_price_history
-get_valuation_inputs
-get_source_metadata
-get_peer_comparables
-get_earnings_history
-get_catalyst_events
-```
-
-Every operation retains source, as-of date, market, currency, fixture version or retrieval time, `is_demo: true`, and warnings. Peer records retain inclusion/exclusion reasons; earnings records separate actuals, expectations, guidance, and transcript availability; catalyst records retain timing, evidence, materiality, and uncertainty.
-
-Future adapters sit behind the same normalized interface:
-
-```text
-first-party Skill → unified interface → approved Provider adapter → authorized source
-```
-
-An adapter owns authentication, endpoints, pagination, rate limits, retries, error mapping, normalization, and provenance for one approved source. Credentials are opt-in and never enter Git, logs, reports, task artifacts, or unrelated Skills. Provider approval never grants order, transaction-signing, or funds-transfer authority.
-
-## Durable Task And Workspace State
-
-An initialized project stores configuration and installation ownership under `.investkit/` and user research under `workspace/research/<task-id>/`:
+An initialized project stores installation ownership under `.investkit/` and research under `workspace/research/<task-id>/`:
 
 ```text
 task.json              question.md
 plan.json              loaded-specs.json
-installed-skills.json  data/*.json
+installed-skills.json  input/research-bundle.json  # imported only
+data/*.json            capabilities/*.json
 sources.json           assumptions.json
-findings.json          risks.json
+findings.json           risks.json
 run-log.json           report.md
-capabilities/*.json
 ```
 
-`task.json` and `plan.json` own lifecycle and stage state. Capability artifacts are written before a stage is marked complete. `sources.json`, `assumptions.json`, `findings.json`, and `risks.json` are normalized cross-capability views, not alternative untyped analyses.
+For a new imported run, the validated canonical bundle is persisted before analytical execution. `task.json` records imported mode, original project-relative origin, snapshot path, dataset version, SHA-256, security query, and research question. The original input file is not consulted again during resume.
 
-Resume reconstructs work from durable files, not chat history. It validates task identity, workflow order, schemas, checksums, and source IDs before skipping a completed stage. A completed resume preserves all analytical and report bytes and appends only a run-log event. A corrupt or externally linked artifact fails closed.
+Resume reconstructs work from durable files, not chat history. It validates task identity, Workflow order/version, source and Skill/spec snapshots, bundle hash/schema/source joins, persisted Provider records, completed capability artifacts, and report boundaries before skipping work. A failed task resumes only incomplete stages after validating existing state. A completed resume preserves bundle, data, capability, index, and report bytes and appends one run-log event.
 
-## CLI, Adapter, And Diagnostics
+Corrupt files, unexpected data artifacts, source mismatches, unsafe links, and mode/version confusion fail closed.
 
-The current public CLI surface is:
+## Reports and evidence semantics
 
-```text
-investkit init
-investkit doctor
-investkit demo research
-investkit demo research --resume <task-id>
-```
+An imported report names the legal issuer, ticker, question, as-of/retrieval context, dataset version, and source provenance. It states that the data was user-supplied/imported and not independently guaranteed by InvestKit. Source locators and titles are rendered as untrusted text/metadata rather than executable markup.
 
-The current adapter target is Codex. `add`, `update`, `uninstall`, Claude, Cursor, and other adapters remain future work rather than successful placeholders.
+Report conclusions are bounded by supplied evidence. Missing price, forecasts, discount rates, peers, expectations, guidance, transcripts, or catalysts remain disclosed gaps. The report cannot turn a gap into neutral evidence, a deterministic price prediction, a buy/sell/hold instruction, a guaranteed return, a position-size directive, or an action on a brokerage account.
 
-`doctor` is read-only. Its contract covers configuration, the exact Skill set and nested hashes, standards, Workflow identity/order, fixture metadata, capability envelopes, source resolution, mandatory stages, task integrity, symlink boundaries, forbidden mappings, and secret-safe diagnostics.
+## Diagnostics
 
-## End-To-End Runtime Flow
+`investkit doctor` is read-only. It verifies configuration, the Codex adapter, installed Skill/spec/Workflow hashes, task and artifact boundaries, capability contracts, and source resolution without repairing state or requiring the network.
 
-```text
-explicit init
-→ governed assets and manifest
-→ user question and durable task
-→ relevant standards and company-deep-dive plan
-→ offline Provider records
-→ 13 typed capability results
-→ independent bear case
-→ source-verification gate
-→ report assembled from structured inputs
-→ persisted context
-→ later resume and doctor
-```
+For imported tasks it also checks the persisted snapshot's raw/canonical hash and schema, security query, bundle-to-source and bundle-to-Provider joins, persisted operation records, mode disclosures, report provenance, and stale or incomplete evidence. Historical evidence can produce a warning while remaining structurally healthy; corruption or unsafe state produces a failure. Doctor never needs the original mutable bundle.
 
-## Permissions And Safety
+## Safe v0.2-to-v0.3 migration
 
-The Runtime declares filesystem, network, credential, and installation boundaries. The default path is offline and constrained to the initialized project and governed first-party assets. There is no brokerage connection, order placement, transaction signing, funds transfer, hidden telemetry, guaranteed return, or automatic third-party execution.
+`investkit init` classifies an existing project before writing. A recognized v0.2 installation can migrate only InvestKit-owned files whose current bytes still match the old recorded manifest. Desired v0.3 bytes are also accepted for safe interrupted-migration recovery. User-modified conflicts, unsafe paths, unsupported mixed versions, and invalid ownership records stop the migration without overwriting the conflicting file.
 
-Installation permission and research permission are separate. Candidate presence, static study, or an adaptation draft never makes an asset installable.
+Writes are atomic and the new manifest is committed last. Workspace research is preserved. Completed v0.2 demo task artifacts remain immutable and diagnosable; legacy incomplete tasks are subject to their explicit version compatibility checks rather than silent rewriting.
 
-## Trellis Boundary
+## Pinned real-issuer acceptance
 
-`.trellis/` manages the development of InvestKit. It is not the InvestKit Runtime, is not copied into initialized projects, and is not required to run or resume research. Current `.claude/` or `.cursor/` Trellis integration is likewise not evidence of an InvestKit platform adapter.
+[`../../fixtures/acceptance/microsoft-fy2025.json`](../../fixtures/acceptance/microsoft-fy2025.json) pins Microsoft Corporation's FY2025 Form 10-K evidence. It exercises exact issuer identity, a two-source SEC registry, FY2024–FY2025 financial statements, supported calculations, operation-specific attribution, explicit gaps, report disclosures, resume immutability, and doctor.
 
-## Current State And Future Order
+It intentionally has no current price, peer set, forecast cash flows, WACC, consensus expectations, guidance comparison, transcript evidence, or future catalyst calendar. Valuation, comps, and catalyst stages therefore skip rather than fabricate inputs. The fixture proves deterministic behavior for one historical U.S. GAAP issuer; it does not prove current accuracy, cross-issuer normalization, automatic acquisition, investment merit, or production readiness.
 
-The working tree contains the v0.2 Skill catalog, deterministic capability modules, offline fixture/Provider surface, Workflow/persistence changes, and documentation. Verification is ongoing; this statement does not claim the whole suite is green or the package is released.
+## Permissions, safety, and non-claims
 
-The capability roadmap is:
+The supported Runtime paths are offline and constrained to governed first-party assets plus the initialized project. There is no brokerage connection, order placement, transaction signing, funds transfer, hidden telemetry, credential persistence, guaranteed return, or automatic third-party execution.
 
-```text
-Investment Core Pack
-→ Advanced Research Pack
-→ Quant Pack
-→ Portfolio & Risk Pack
-→ capability-driven real-data Provider expansion
-→ broader platform delivery lifecycle
-```
+Installation permission and research permission are separate. Candidate presence, static study, an adaptation draft, or a source URL never makes an asset installable or authorizes network access.
 
-See [`investment-capability-map.md`](investment-capability-map.md) for item-level status. Live or credentialed Providers, product Agents, additional adapters, package lifecycle, brokerage connectivity, and trading behavior are not v0.2 capabilities.
+Not implemented in v0.3:
+
+- automatic SEC/vendor/market/news acquisition or live refresh;
+- raw filing/PDF/HTML/OCR/LLM extraction;
+- generalized cross-issuer accounting normalization guarantees;
+- Claude/Cursor adapters and cross-platform synchronization;
+- package add/update/uninstall lifecycle;
+- Advanced Research, Quant, and Portfolio & Risk packs;
+- brokerage or trade execution behavior.
+
+## Trellis boundary
+
+`.trellis/` manages development tasks, specifications, and evidence. It is not the InvestKit Runtime, is not copied into initialized projects, and is not required to run or resume research.
+
+See [`investment-capability-map.md`](investment-capability-map.md) for item-level behavior and [`roadmap.md`](roadmap.md) for the next acquisition, platform, and release gates.

@@ -2,9 +2,26 @@
 
 ## 1. Scope / Trigger
 
-Use this contract when changing the InvestKit CLI, Codex adapter, first-party asset delivery, Demo Provider boundary, `company-deep-dive` orchestration, capability persistence, resume behavior, report assembly, doctor diagnostics, or wheel packaging.
+Use this contract when changing the InvestKit CLI, Codex adapter, first-party asset delivery, Demo or File Provider boundary, `company-deep-dive` orchestration, capability persistence, resume behavior, report assembly, doctor diagnostics, safe initialization migration, or wheel packaging.
 
-The v0.2 Runtime target is Python 3.11+, standard-library-only at runtime, Codex-only, and fully offline. This document owns the cross-layer delivery and execution contract. The [Investment Core Contract](./investment-core-contract.md) owns method-specific Skill, analysis, trigger-Eval, and report-evidence detail; do not duplicate those methods here.
+The v0.3 Runtime target is Python 3.11+, standard-library-only at runtime, Codex-first, and fully offline. It preserves the v0.2 fictional demo and adds research over a validated project-local bundle; it does not acquire live data or provide trading behavior. This document owns the cross-layer delivery and execution contract. The [Investment Core Contract](./investment-core-contract.md) owns method-specific Skill, analysis, trigger-Eval, and report-evidence detail; do not duplicate those methods here.
+
+### Owner-authorized live A-share amendment
+
+The live A-share path remains standard-library-only and explicit-permission. SSE
+owns security identity; Guangfa may add F10, relative valuation, and comparable
+indicators; CICCWM may add bounded daily history, current market context,
+vendor-defined statement fields, and target-linked news/Dragon-Tiger records.
+Every live response must pass its first-party clean-room adapter and then a second
+provider-neutral normalization boundary before the immutable bundle is persisted.
+Raw vendor packages are never imported or executed.
+
+Provider fusion rejects identity conflicts, duplicate dates, inconsistent row
+widths, non-finite values, nonzero vendor/business status, oversized lists, and
+unrelated event promotion. A hot-news or Dragon-Tiger item enters the event ledger
+only when its structured security code equals the exchange-resolved target. Recent
+return, realized volatility, and drawdown are descriptive context and must never be
+rendered as a deterministic forecast or trading instruction.
 
 Repository-root `skills/`, `specs/`, `workflows/`, `fixtures/`, `agents/`, `packages/`, and `workspace-template/` are the authoritative first-party source. A wheel carries a read-only delivery copy below `share/investkit`. `.agents/skills/` is an installation target. `.trellis/`, `third_party/raw/`, and `adapted/skills/` are never Runtime dependencies or install sources.
 
@@ -284,3 +301,276 @@ raise AssetValidationError("InvestKit first-party assets are unavailable")
 ```
 
 The same validator prevents checkout-only success from masking an incomplete wheel and keeps initialization, doctor, workflow execution, and packaging acceptance aligned.
+
+## v0.3 Imported Real-Company Runtime Amendment
+
+This amendment supersedes v0.2 wording where the selected Provider, schema assets,
+version migration, or imported-task lifecycle is concerned. The v0.2 demo remains a
+supported compatibility path.
+
+### 1. Scope / Trigger
+
+Apply this amendment when changing any of the following:
+
+- `investkit research`, `run_research`, or `resume_research`;
+- the versioned research-bundle schema/template or `FileProvider`;
+- imported task snapshots, source joins, neutral reports, or imported doctor checks;
+- checkout/wheel delivery of bundle assets;
+- v0.2-to-v0.3 initialization migration.
+
+Imported mode means that the user supplied a local, already-structured evidence
+bundle. It does not mean that InvestKit fetched, verified, refreshed, licensed, or
+guaranteed the underlying information. No imported-mode path may place trades,
+connect to a brokerage, transfer funds, promise returns, or turn the report into a
+buy/sell/hold instruction.
+
+### 2. Signatures
+
+```text
+investkit research --input <project-local-path> --question <non-empty-text>
+investkit research --resume <task-id>
+investkit demo research [--resume <task-id>]
+```
+
+`--input` and `--resume` are mutually exclusive. `--question` is required with
+`--input` and forbidden with `--resume`.
+
+```python
+load_research_bundle(
+    project_root: str | Path,
+    input_path: str | Path,
+) -> ValidatedBundle
+
+FileProvider(project_root: str | Path, input_path: str | Path)
+
+run_research(
+    project_root: str | Path,
+    source_root: str | Path,
+    *,
+    input_path: str | Path,
+    question: str,
+) -> ResearchResult
+
+resume_research(
+    project_root: str | Path,
+    task_id: str,
+    source_root: str | Path,
+) -> ResearchResult
+
+initialize_project(
+    project_root: str | Path,
+    *,
+    source_root: str | Path | None = None,
+) -> InitializationResult
+
+run_doctor(
+    project_root: str | Path,
+    *,
+    source_root: str | Path | None = None,
+) -> DoctorReport
+```
+
+### 3. Contracts
+
+#### Bundle and File Provider
+
+The governed assets are:
+
+```text
+schemas/research-bundle-v1.schema.json
+schemas/research-bundle-v1.template.json
+```
+
+Both must exist in checkout and wheel source roots. The schema is Draft 2020-12.
+Runtime validation is standard-library-only but must accept and reject the same
+governed acceptance cases as the published schema.
+
+A valid bundle describes exactly one security, contains exactly the nine Provider
+operations, and has a non-empty source registry. Operation `source_ids` resolve to
+that registry. Registry and operation source IDs are canonical non-empty strings
+with no leading or trailing whitespace. Source metadata records publication/as-of/retrieval chronology,
+quality, freshness, access notes, and license notes or explicit unknowns. Every
+numeric JSON value is finite. Missing optional evidence is represented only by
+explicit null/empty gaps and limitations; a source-free record cannot mix gaps with
+positive assertions.
+
+`load_research_bundle` accepts at most 2 MiB of strict UTF-8 JSON from a regular
+file below the selected project root. It rejects absolute paths outside the root,
+traversal, symlink components, special files, duplicate keys, non-finite values,
+unsupported versions, unresolved/duplicate source IDs, inconsistent dates, and
+credential-like keys or values. Error messages never echo suspected secrets.
+Credential detection is shared across bundle loading, initialization, and Doctor;
+it covers contextual secret assignments and common OpenAI, GitHub, GitLab, Slack,
+Stripe, npm, Google, SendGrid, AWS, JWT, Basic/Bearer, and private-key forms without
+mistaking ordinary task SHA-256 values for credentials.
+
+`FileProvider` validates and reads the file once, retains canonical JSON bytes and
+their SHA-256, serves defensive copies without later filesystem reads, performs no
+network/subprocess activity, implements all nine Provider methods, and emits
+`input_mode: imported`, `is_demo: false`, bundle version/hash, source IDs, and
+non-empty warnings/limitations.
+
+#### Imported task persistence and resume
+
+Before analytical execution, imported mode persists canonical validated input at:
+
+```text
+workspace/research/<task-id>/input/research-bundle.json
+```
+
+`task.json` records `input_mode`, security query, original project-relative origin,
+bundle version, canonical SHA-256, and snapshot path. The question remains exact in
+machine state; `question.md` is a reversible escaped display that cannot inject raw
+HTML, links, or images.
+
+All data records, `sources.json`, capabilities, aggregates, logs, and the report
+declare or preserve imported mode. On resume, the persisted snapshot is validated
+and used to reconstruct `FileProvider`; the original input is neither required nor
+reread. Before any resume event is appended, every existing provider-derived data
+record and source registry must equal the snapshot-derived record. A completed
+resume changes only `run-log.json`. A failed/incomplete resume reuses only validated
+durable artifacts and never overwrites corruption. Before it appends a resume event,
+it also deterministically recomputes each completed imported capability in plan
+order from the immutable snapshot and verified predecessors; any byte-semantic
+result mismatch is corruption.
+
+#### Doctor
+
+Doctor is read-only for healthy, stale, incomplete, corrupt, and read-only task
+trees. For an imported task it validates mode/version, question display, lifecycle,
+snapshot regularity/schema/hash, provider-derived data equality, source joins,
+capabilities, aggregates, report disclosures, and artifact freshness. It recursively
+`lstat`s the task tree without following entries and fails every symlink or special
+file, including unexpected paths. Its bounded JSON reader rejects duplicate keys,
+non-finite values, oversized input, and non-regular files. Freshness labels are
+commentary: evidence older than the documented 180-day window relative to the
+current Doctor date is warned from objective as-of/publication dates. Missing
+price/peer/expectation/guidance/transcript/catalyst evidence is a disclosed
+`WARN` when the persisted contract remains valid; unsafe paths, corruption,
+advisory/trading language, or injected markup are `FAIL`. Diagnostics identify the
+owned artifact/check without replaying untrusted content.
+
+#### Safe v0.2-to-v0.3 initialization migration
+
+Initialization classifies the complete project state before writing: fresh, current
+v0.3, exact supported v0.2, recoverable interrupted migration, or rejectable mixed
+state. Only InvestKit-owned v0.2 files whose bytes still match the exact legacy
+ledger may be replaced. The exact v0.2 mapping and spec ledgers are authenticated by
+release-pinned aggregate SHA-256 values rather than trusted from the mutable project
+manifest. Every replacement and create is preflighted; a user-modified,
+missing, symlinked, special, forged, secret-bearing, non-finite, or unknown mapping
+aborts before mutation. Durable `workspace/research/` content is never migrated.
+Writes are atomic and the v0.3 manifest is committed last. A recoverable interrupted
+migration accepts only the exact old-or-new digest for each allowlisted owned path.
+
+#### Packaging
+
+The v0.3 wheel carries both bundle schema assets in addition to all v0.2 governed
+assets. Acceptance runs outside the checkout and covers fresh init, doctor, demo,
+imported real-issuer research, imported completed resume, and final doctor. The
+acceptance bundle may be copied into the fresh project by the test; it is test
+evidence rather than an implicit live data feed.
+
+### 4. Validation & Error Matrix
+
+| Condition | Required behavior |
+|---|---|
+| Input path escapes the project, traverses, crosses a symlink, or is non-regular | Reject before decoding; create no task |
+| Input exceeds 2 MiB, is not strict UTF-8/JSON, has duplicate keys, or has NaN/Infinity | Reject deterministically; create no task |
+| Bundle version/shape/identity/source registry is invalid | Reject with a bounded non-secret error |
+| Operation references an unknown source or positive evidence has no source | Reject the entire bundle |
+| Source-free operation mixes an asserted value with gaps | Reject; do not treat it as an evidenced record |
+| Bundle/source dates run backward or into the future relative to bundle chronology | Reject |
+| Credential-like key or value appears anywhere | Reject without echoing it |
+| Source ID contains leading/trailing whitespace | Reject at the Provider boundary; never persist an unjoinable ID |
+| Original input changes or is deleted after task creation | Resume from the canonical snapshot unchanged |
+| Snapshot hash/schema/version differs from `task.json` | Resume/doctor fail before modifying the run log |
+| Persisted data/source record differs from the snapshot-derived Provider record | Resume/doctor fail without overwrite |
+| Imported evidence omits an optional analytical input | Emit explicit unknown/skip/warning; never infer zero or consensus |
+| Failed resume contains a schema-valid rewritten completed capability | Reject before appending a resume event |
+| Task tree contains any symlink/special file or strict JSON violation | Doctor/Runtime fail without following or mutating it |
+| Imported report calls data independently verified or emits advice/trading/injected markup | Doctor/report validation fail |
+| Exact supported v0.2 initialized state is unmodified | Atomically migrate owned metadata/assets; preserve workspace |
+| Any legacy owned path is modified, unsafe, forged, or unmapped | Abort migration before all writes and report only safe path context |
+| Migration is interrupted before manifest commit | Next init recovers only from exact old/new allowlisted digests |
+| Wheel lacks either schema asset or another governed asset | Source discovery and wheel acceptance fail |
+
+### 5. Good / Base / Bad Cases
+
+#### Good
+
+- A project-local Microsoft FY2025 bundle with SEC source records completes all 13
+  workflow stages, calculates only supported metrics, identifies unavailable market
+  and expectation evidence, and produces a source-joined imported-data report.
+- Deleting the original bundle after completion does not affect resume; only the
+  append-only run log changes.
+- An untouched v0.2 project migrates, preserves its completed demo task byte-for-byte,
+  and passes v0.3 doctor.
+
+#### Base
+
+- Price, peers, consensus, transcript, or catalysts are absent. Their operation
+  records contain explicit gaps and limitations; affected methods skip or report
+  unknowns while source verification and the report retain the limitation.
+- A valid imported task is old relative to its as-of date. Doctor returns a stale
+  warning and remains read-only.
+- An incomplete task has valid prior artifacts. Resume reconstructs the Provider from
+  its snapshot and continues at the first incomplete step.
+
+#### Bad
+
+- Reading the original input again during resume.
+- Coercing absent consensus or price to zero, or inventing management commentary.
+- Trusting a failed task's tampered `data/*.json` because no final hash manifest exists.
+- Partially rewriting a v0.2 project before discovering a user-modified conflict.
+- Describing the local-bundle path as live, current, independently verified, or
+  production-ready.
+
+### 6. Tests Required
+
+- CLI tests cover both generic invocation shapes, ambiguous/empty arguments, demo
+  compatibility, uninitialized projects, and safe errors.
+- Bundle tests compare runtime and Draft 2020-12 schema outcomes for the template,
+  real-issuer fixture, malformed types, duplicate/unresolved sources, chronological
+  violations, source-free assertions, non-finite numbers, credentials, size, UTF-8,
+  traversal, outside-root, symlink-parent/leaf, and special-file cases.
+- FileProvider tests invoke all nine methods with network/subprocess entry points
+  unavailable and verify immutable hash/version/source metadata and defensive copies.
+- Workflow tests cover exact snapshot persistence, imported mode propagation,
+  per-operation multi-source joins, neutral wording, report escaping/disclosures,
+  deterministic completed-capability recomputation on failed resume, original-input
+  mutation/deletion, and completed
+  byte immutability except the run log.
+- Doctor tests cover healthy/incomplete/stale/read-only imported tasks and mutations
+  of snapshot, hash, schema, registry, data, capability, report, symlink, markup,
+  action language, and secret-like state while proving no bytes or mtimes change.
+- Migration tests cover fresh/current/exact-v0.2/interrupted/mixed classification,
+  full conflict preflight, atomic manifest-last behavior, workspace immutability,
+  forged mappings, non-finite/duplicate-key state, credentials, symlinks, and FIFO.
+- Wheel-only acceptance covers both demo and imported real-issuer lifecycles with the
+  checkout inaccessible.
+- The full suite has no skips, Pyright has zero errors, Runtime statement coverage is
+  at least 80%, and static network/subprocess/secret checks pass.
+
+### 7. Wrong vs Correct
+
+#### Wrong
+
+```python
+# Resume silently trusts mutable external input and already-persisted derived state.
+provider = FileProvider(project_root, task["input"]["origin"])
+context["financials"] = store.read_json(task_path, "data/financials.json")
+```
+
+#### Correct
+
+```python
+# Resume reconstructs from the immutable validated snapshot, then proves every
+# present derived record still matches that Provider before appending a run event.
+provider = FileProvider(project_root, task["input"]["snapshot"])
+validate_snapshot_hash(provider.bundle_sha256, task["input"]["sha256"])
+validate_persisted_provider_state(store, task_path, provider)
+```
+
+The snapshot is the durable trust root for imported execution; all downstream state
+must remain reproducible from it and the governed analysis contract.
