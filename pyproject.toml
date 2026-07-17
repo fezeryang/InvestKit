@@ -32,6 +32,10 @@ investkit = "investkit.cli:main"
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
 # Repository-root assets remain the authoritative first-party source.  Wheels
 # carry a delivery copy below the platform data prefix so installed CLI commands
 # can run without a source checkout.
