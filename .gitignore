@@ -6,6 +6,8 @@ Desktop.ini
 # Editor and IDE files
 .idea/
 .vscode/
+.claude/
+.cursor/
 *.swp
 *.swo
 *~
@@ -65,3 +67,12 @@ third_party/raw/**/*.zip
 third_party/raw/**/*.tar
 third_party/raw/**/*.tar.gz
 third_party/raw/**/*.tgz
+
+# Generated market-report intermediates
+# Keep the public showcase PDF and compact build-metadata.json eligible for
+# selective publication; raw responses, normalized datasets, charts and the
+# rendered HTML remain reproducible local build products.
+reports/market/**/raw/
+reports/market/**/data/
+reports/market/**/charts/
+reports/market/**/report.html

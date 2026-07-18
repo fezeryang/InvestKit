@@ -1,0 +1,150 @@
+{
+  "acceptance": {
+    "chart_count": 20,
+    "minimum_charts": 10,
+    "minimum_pdf_pages": 15,
+    "pdf_page_count": 29
+  },
+  "artifacts": {
+    "charts": [
+      "charts/01-board-count.svg",
+      "charts/02-market-cap-total.svg",
+      "charts/03-market-cap-median.svg",
+      "charts/04-amount-total.svg",
+      "charts/05-turnover-median.svg",
+      "charts/06-return-median.svg",
+      "charts/07-market-breadth.svg",
+      "charts/08-pe-positive-median.svg",
+      "charts/09-pb-positive-median.svg",
+      "charts/10-top10-cap-share.svg",
+      "charts/11-return-distribution.svg",
+      "charts/12-pe-distribution.svg",
+      "charts/13-market-cap-log-distribution.svg",
+      "charts/14-liquidity-return.svg",
+      "charts/15-cap-turnover.svg",
+      "charts/16-valuation-map.svg",
+      "charts/17-index-20d-return.svg",
+      "charts/18-index-ytd-return.svg",
+      "charts/19-index-volatility.svg",
+      "charts/20-index-drawdown.svg"
+    ],
+    "html": "report.html",
+    "normalized_csv": "data/universe-normalized.csv",
+    "pdf": {
+      "bytes": 5920494,
+      "pages": 29,
+      "path": "report.pdf",
+      "sha256": "acd9f4a2e6e6d54187ff171ceb329b987e5afe9073d2b781c8bda22b70cf4e35"
+    },
+    "statistics_json": "data/cross-sectional-statistics.json"
+  },
+  "as_of_declared": "2026-07-17",
+  "generated_at_utc": "2026-07-18T03:33:10+00:00",
+  "mode": "offline",
+  "pipeline": "scripts/build_a_share_innovation_report.py",
+  "provider_pagination_complete": true,
+  "schema_version": "1.0.0",
+  "source_manifest": {
+    "boards": {
+      "cyb": {
+        "name": "创业板",
+        "nonempty_pages": 14,
+        "pagination_complete": true,
+        "record_count": 1399
+      },
+      "hs_bjs": {
+        "name": "北交所",
+        "nonempty_pages": 4,
+        "pagination_complete": true,
+        "record_count": 328
+      },
+      "kcb": {
+        "name": "科创板",
+        "nonempty_pages": 7,
+        "pagination_complete": true,
+        "record_count": 610
+      }
+    },
+    "endpoint": "https://vip.stock.finance.sina.com.cn/quotes_service/api/json_v2.php/Market_Center.getHQNodeData",
+    "index_kline": {
+      "endpoint": "https://quotes.sina.cn/cn/api/jsonp_v2.php/var%20data=/CN_MarketDataService.getKLineData",
+      "limitations": [
+        "日线仅用于研究上下文，非交易执行行情。",
+        "250 条记录不足以支持完整市场周期或无偏策略回测。"
+      ],
+      "schema_version": "1.0.0",
+      "source_id": "sina-cn-market-data-service-kline",
+      "source_title": "新浪行情指数日线公开接口",
+      "symbols": {
+        "bj899050": {
+          "first_date": "2025-07-08",
+          "last_date": "2026-07-17",
+          "name": "北证50",
+          "record_count": 250,
+          "request_url": "https://quotes.sina.cn/cn/api/jsonp_v2.php/var%20data=/CN_MarketDataService.getKLineData?symbol=bj899050&scale=240&ma=no&datalen=250",
+          "retrieved_at_utc": "2026-07-18T03:07:28+00:00",
+          "role": "北交所代表指数；代码有效性以响应校验",
+          "sha256": "9c97716971570640a846257a46d175a06eac1e60745b3b619bfd71882ddb0ef0",
+          "symbol": "bj899050"
+        },
+        "sh000300": {
+          "first_date": "2025-07-08",
+          "last_date": "2026-07-17",
+          "name": "沪深300",
+          "record_count": 250,
+          "request_url": "https://quotes.sina.cn/cn/api/jsonp_v2.php/var%20data=/CN_MarketDataService.getKLineData?symbol=sh000300&scale=240&ma=no&datalen=250",
+          "retrieved_at_utc": "2026-07-18T03:07:28+00:00",
+          "role": "大盘风格参照",
+          "sha256": "512b4a71854c41cc8a6b2c04b794f989e40e54424e25fa98ebc285068ab28b7b",
+          "symbol": "sh000300"
+        },
+        "sh000688": {
+          "first_date": "2025-07-08",
+          "last_date": "2026-07-17",
+          "name": "科创50",
+          "record_count": 250,
+          "request_url": "https://quotes.sina.cn/cn/api/jsonp_v2.php/var%20data=/CN_MarketDataService.getKLineData?symbol=sh000688&scale=240&ma=no&datalen=250",
+          "retrieved_at_utc": "2026-07-18T03:07:27+00:00",
+          "role": "科创板代表指数",
+          "sha256": "02dd50a585e29b23f90d8b5e0f1674dcbe8cfbe7d3862f14e910e051afe38ab4",
+          "symbol": "sh000688"
+        },
+        "sh000852": {
+          "first_date": "2025-07-08",
+          "last_date": "2026-07-17",
+          "name": "中证1000",
+          "record_count": 250,
+          "request_url": "https://quotes.sina.cn/cn/api/jsonp_v2.php/var%20data=/CN_MarketDataService.getKLineData?symbol=sh000852&scale=240&ma=no&datalen=250",
+          "retrieved_at_utc": "2026-07-18T03:07:28+00:00",
+          "role": "小盘风格参照",
+          "sha256": "983714e36737e8a9ee95b42939db24510dbd70a85ca80fb97b878355b44ce256",
+          "symbol": "sh000852"
+        },
+        "sz399006": {
+          "first_date": "2025-07-08",
+          "last_date": "2026-07-17",
+          "name": "创业板指",
+          "record_count": 250,
+          "request_url": "https://quotes.sina.cn/cn/api/jsonp_v2.php/var%20data=/CN_MarketDataService.getKLineData?symbol=sz399006&scale=240&ma=no&datalen=250",
+          "retrieved_at_utc": "2026-07-18T03:07:27+00:00",
+          "role": "创业板代表指数",
+          "sha256": "a82c254bf4f11cd76a630d255b0d9a57d789fc83da5ddb209b4dac96dd191a2c",
+          "symbol": "sz399006"
+        }
+      }
+    },
+    "limitations": [
+      "响应未提供可机器验证的交易日期；as-of 为调用方声明的研究截止日。",
+      "响应未提供行业、研发、财务质量、历史收益或停牌状态字段。",
+      "公开接口可能调整字段、覆盖范围或访问策略。"
+    ],
+    "mode": "fetch",
+    "page_size": 100,
+    "retrieved_at_utc": "2026-07-18T03:07:12+00:00",
+    "schema_version": "1.0.0",
+    "source_id": "sina-market-center-hq-node-data",
+    "source_title": "新浪财经行情中心板块行情公开接口"
+  },
+  "universe_complete": false,
+  "universe_count": 2337
+}

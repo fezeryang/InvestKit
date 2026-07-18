@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{{ content.title }}</title>
+  <style>
+    @page { size: A4; margin: 0; }
+    * { box-sizing: border-box; }
+    html { background: #dfe6ee; }
+    body { margin: 0; color: #132238; background: #dfe6ee; font-family: "Noto Sans CJK SC", "Source Han Sans SC", "Microsoft YaHei", "PingFang SC", sans-serif; counter-reset: page; }
+    .report-page { position: relative; width: 210mm; height: 297mm; padding: 15mm 16mm 14mm; margin: 0 auto 8mm; overflow: hidden; background: #fff; break-after: page; page-break-after: always; counter-increment: page; }
+    .report-page:last-child { break-after: auto; page-break-after: auto; }
+    .page-number { position: absolute; right: 16mm; bottom: 7mm; color: #8290a4; font-size: 9pt; }
+    .page-number::after { content: counter(page); }
+    .running-title { position: absolute; left: 16mm; bottom: 7mm; color: #8290a4; font-size: 8.5pt; letter-spacing: .04em; }
+    h1, h2, h3 { margin: 0; break-after: avoid; page-break-after: avoid; }
+    h1 { font-size: 30pt; line-height: 1.18; letter-spacing: -.02em; }
+    h2 { font-size: 20pt; line-height: 1.25; margin-bottom: 5mm; }
+    h3 { font-size: 12.5pt; margin: 4mm 0 2mm; color: #1f4f87; }
+    p, li { font-size: 10pt; line-height: 1.65; }
+    p { margin: 0 0 3mm; }
+    ul, ol { margin: 2mm 0 0; padding-left: 5.5mm; }
+    li { margin-bottom: 2.2mm; }
+    a { color: #1e64b7; text-decoration: none; overflow-wrap: anywhere; }
+    .eyebrow { color: #3478f6; font-size: 9pt; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
+    .lede { color: #53657c; font-size: 12pt; line-height: 1.65; }
+    .muted { color: #6f7f93; }
+    .small { font-size: 8.5pt; line-height: 1.5; }
+    .rule { width: 28mm; height: 1.2mm; margin: 5mm 0; background: linear-gradient(90deg,#3478f6,#13a37a); border-radius: 2mm; }
+    .cover { color: #fff; background: radial-gradient(circle at 86% 12%,rgba(52,120,246,.42),transparent 28%), radial-gradient(circle at 10% 80%,rgba(19,163,122,.3),transparent 30%), #081729; }
+    .cover h1 { margin-top: 45mm; max-width: 150mm; font-size: 38pt; }
+    .cover .lede { max-width: 150mm; color: #c8d5e6; }
+    .cover-meta { position: absolute; left: 16mm; right: 16mm; bottom: 24mm; display: grid; grid-template-columns: repeat(3,1fr); gap: 4mm; }
+    .cover-meta div { padding: 4mm; border: 1px solid rgba(255,255,255,.16); border-radius: 3mm; background: rgba(255,255,255,.05); }
+    .cover-meta span { display: block; color: #93a7bf; font-size: 8pt; margin-bottom: 1mm; }
+    .cover-meta strong { font-size: 11pt; }
+    .status { display: inline-flex; align-items: center; padding: 1.5mm 3mm; margin-top: 4mm; border-radius: 8mm; font-size: 8.5pt; font-weight: 700; }
+    .status.ok { color: #08775a; background: #dcf8ef; }
+    .status.warning { color: #9a5a00; background: #fff1cf; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 5mm; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 4mm; }
+    .metric { min-height: 31mm; padding: 4mm; border: 1px solid #dbe5f0; border-radius: 3mm; background: #f8fbfe; }
+    .metric span { display: block; color: #6f7f93; font-size: 8pt; }
+    .metric strong { display: block; margin-top: 2mm; font-size: 17pt; color: #10243e; }
+    .metric em { display: block; margin-top: 1mm; color: #607086; font-size: 8pt; font-style: normal; }
+    .callout { margin: 4mm 0; padding: 4mm 5mm; border-left: 1.3mm solid #3478f6; background: #f0f6ff; border-radius: 0 2mm 2mm 0; }
+    .callout.warning { border-color: #f59e0b; background: #fff8e8; }
+    .callout.risk { border-color: #e55353; background: #fff1f1; }
+    .chart { width: 100%; max-height: 106mm; object-fit: contain; display: block; margin: 2mm auto 4mm; }
+    .chart.half { max-height: 73mm; }
+    .caption { color: #6c7b8f; font-size: 8pt; line-height: 1.45; margin-top: -2mm; }
+    table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 8.2pt; }
+    th { padding: 2.1mm 1.5mm; color: #526277; text-align: left; background: #edf3f9; border-bottom: 1px solid #cbd8e6; }
+    td { padding: 1.9mm 1.5mm; border-bottom: 1px solid #e5ebf2; vertical-align: top; overflow-wrap: anywhere; }
+    tr { break-inside: avoid; page-break-inside: avoid; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .tag { display: inline-block; padding: .7mm 1.8mm; border-radius: 4mm; background: #e9f1fd; color: #2b64a5; font-size: 7.5pt; font-weight: 700; }
+    .label-fact { color: #08775a; }
+    .label-inference { color: #7c3aed; }
+    .label-limit { color: #a45b00; }
+    .funnel { display: grid; grid-template-columns: repeat(6,1fr); gap: 2mm; margin: 8mm 0; }
+    .funnel div { padding: 5mm 2mm; text-align: center; color: #fff; border-radius: 2mm; font-size: 9pt; font-weight: 700; }
+    .funnel div:nth-child(1) { background:#294f86 }.funnel div:nth-child(2) { background:#2c659c }.funnel div:nth-child(3) { background:#2e7aa4 }.funnel div:nth-child(4) { background:#218d98 }.funnel div:nth-child(5) { background:#159b83 }.funnel div:nth-child(6) { background:#10a36e }
+    .matrix { display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; height:120mm; border:1px solid #cad7e6; margin-top:6mm; }
+    .matrix > div { padding:5mm; border-right:1px solid #dbe4ee; border-bottom:1px solid #dbe4ee; }
+    .matrix strong { display:block; margin-bottom:2mm; color:#1a4c82; }
+    .source-list { margin: 0; padding: 0; list-style: none; }
+    .source-list li { padding: 2.5mm 0; border-bottom: 1px solid #e5ebf2; font-size: 8.6pt; line-height: 1.45; }
+    .source-list b { color: #1a4c82; }
+  </style>
+</head>
+<body>
+  <section class="report-page cover">
+    <div class="eyebrow">InvestKit · Market Panorama</div>
+    <h1>{{ content.title }}</h1>
+    <div class="rule"></div>
+    <p class="lede">{{ content.subtitle }}<br>以创新转化、现金流时钟与市场定价错配为主线的有效行情截面研究</p>
+    <div class="status {{ status_class }}">{{ status_label }}</div>
+    <div class="cover-meta">
+      <div><span>声明截止日</span><strong>{{ as_of }}</strong></div>
+      <div><span>有效行情观测数</span><strong>{{ stats.universe_count }}</strong></div>
+      <div><span>生成时间 UTC</span><strong>{{ generated_at[:10] }}</strong></div>
+    </div>
+  </section>
+
+  <section class="report-page">
+    <div class="eyebrow">Disclosure</div><h2>先读边界：这是一份研究，不是指令</h2>
+    <div class="callout risk"><strong>非投资建议。</strong>本报告不提供个性化买卖建议，不承诺收益，不连接券商、不下单、不管理资金。公开网页行情适合研究截面，不适合交易执行。</div>
+    <h3>事实、计算、推断与未知</h3>
+    <ul>
+      <li><span class="label-fact">【事实】</span>直接来自所列来源或保存的原始数据快照。</li>
+      <li>【计算】由报告脚本按公开定义对标准化字段计算，可由离线模式复现。</li>
+      <li><span class="label-inference">【研究推断】</span>证据约束下的解释，不是已验证因果。</li>
+      <li><span class="label-limit">【限制 / 未知】</span>当前证据无法回答，禁止用零或叙事补齐。</li>
+    </ul>
+    <h3>本次数据的关键限制</h3>
+    <ul>{% for warning in stats.warnings %}<li>{{ warning }}</li>{% endfor %}</ul>
+    <div class="running-title">InvestKit · 研究边界</div><div class="page-number"></div>
+  </section>
+
+  <section class="report-page">
+    <div class="eyebrow">Executive Summary</div><h2>执行摘要</h2>
+    <ul>{% for item in content.executive_summary %}<li>{{ item }}</li>{% endfor %}</ul>
+    <div class="callout warning">单日极端行情不能代表常态流动性；板块归属也不能替代逐公司创新质量判断。</div>
+    <div class="running-title">InvestKit · 执行摘要</div><div class="page-number"></div>
+  </section>
+
+  <section class="report-page">
+    <div class="eyebrow">Method</div><h2>研究对象与可复现方法</h2>
+    <div class="grid-3">
+      {% for key, board in boards.items() %}<div class="metric"><span>{{ board.name }}</span><strong>{{ board.count }}</strong><em>节点分页完成：{{ '是' if board.pagination_complete else '否' }}</em></div>{% endfor %}
+    </div>
+    <h3>数据路径</h3>
+    <ol><li>按 kcb、cyb、hs_bjs 节点以 100 条/页抓取，直到短页或空页。</li><li>原始响应、请求 URL、抓取时间和 SHA-256 在标准化前持久化。</li><li>代码按板块规则验证，全局去重；数值缺失保留为 null。</li><li>统计只使用非缺失观测；负 PE 不与正 PE 混合求均值。</li><li>离线模式仅从保存快照重建 CSV、统计、SVG、HTML 与 PDF。</li></ol>
+    <div class="callout">市值换算口径：保存原始 mktcap（万元），展示值为 mktcap × 10,000 元。所有精度在数据层保留，展示层才四舍五入。</div>
+    <div class="running-title">InvestKit · 方法</div><div class="page-number"></div>
+  </section>
+
+  <section class="report-page">
+    <div class="eyebrow">Universe</div><h2>三板样本规模</h2><img class="chart" src="{{ charts.count }}">
+    <p class="caption">来源：新浪财经公开行情 API 本地快照；证券代码全局去重。分页完成仅证明行情节点取尽，不等同于交易所正式名录全量覆盖。</p>
+    <div class="grid-3">{% for key, board in boards.items() %}<div class="metric"><span>{{ board.name }}市值合计</span><strong>{{ fmt_cny_yi(board.market_cap_total_cny) }}</strong><em>计算值</em></div>{% endfor %}</div>
+    <div class="running-title">InvestKit · 全样本结构</div><div class="page-number"></div>
+  </section>
+
+  <section class="report-page">
+    <div class="eyebrow">Scale</div><h2>规模不是创新质量，但决定定价容错</h2><img class="chart half" src="{{ charts.cap_total }}"><img class="chart half" src="{{ charts.cap_median }}">
+    <p class="caption">总量受头部公司影响；中位数更接近典型公司的融资与流动性环境。两者必须同时阅读。</p>
+    <div class="running-title">InvestKit · 市值结构</div><div class="page-number"></div>
+  </section>
+
+  <section class="report-page">
+    <div class="eyebrow">Concentration</div><h2>市值集中度与尾部脆弱性</h2><img class="chart" src="{{ charts.concentration }}">
+    <div class="callout">【计算】前十大市值集中度 = 板块内总市值最高的 10 家合计 / 板块总市值。集中度描述结构，不直接代表风险高低。</div>
+    <img class="chart half" src="{{ charts.cap_hist }}"><div class="running-title">InvestKit · 集中度</div><div class="page-number"></div>
+  </section>
+
+  <section class="report-page">
+    <div class="eyebrow">Liquidity</div><h2>极端交易日下的流动性剖面</h2><img class="chart half" src="{{ charts.amount_total }}"><img class="chart half" src="{{ charts.turnover }}">
+    <p class="caption">成交额是当日总量，换手率中位数描述典型证券。2026-07-17 的风险释放可能放大二者，不能外推为常态。</p>
+    <div class="running-title">InvestKit · 流动性</div><div class="page-number"></div>
+  </section>
+
+  <section class="report-page">
+    <div class="eyebrow">Breadth</div><h2>市场宽度：下跌是否集中于少数权重</h2><img class="chart" src="{{ charts.breadth }}"><img class="chart half" src="{{ charts.return_median }}">
+    <p class="caption">上涨/平盘/下跌按非缺失涨跌幅观测统计；中位数不受少数极端权重直接支配。</p>
+    <div class="running-title">InvestKit · 市场宽度</div><div class="page-number"></div>
+  </section>
+
+  <section class="report-page">
+    <div class="eyebrow">Distribution</div><h2>收益分布：尾部与中枢应分开</h2><img class="chart" src="{{ charts.return_hist }}">
+    <div class="callout warning">图形仅为可读性截取 2%—98% 分位；统计数据未删除尾部。单日截面不构成趋势或因子有效性证明。</div>
+    <img class="chart half" src="{{ charts.liquidity_return }}"><div class="running-title">InvestKit · 收益分布</div><div class="page-number"></div>
+  </section>
+
+  <section class="report-page">
+    <div class="eyebrow">Market Regime</div><h2>代表指数：把单日冲击放回 250 日窗口</h2>
+    {% if charts.index_20d is defined %}<img class="chart half" src="{{ charts.index_20d }}"><img class="chart half" src="{{ charts.index_ytd }}">{% else %}<div class="callout warning">指数日线快照缺失；本页不展示历史收益。</div>{% endif %}
+    <p class="caption">20 日和年初至今收益按保存日线收盘价计算；不是含分红总收益，也不是策略回测。</p>
+    <div class="running-title">InvestKit · 市场状态</div><div class="page-number"></div>
+  </section>
+
+  <section class="report-page">
+    <div class="eyebrow">Risk Regime</div><h2>波动与回撤：创新资产的分母敏感度</h2>
+    {% if charts.index_vol is defined %}<img class="chart half" src="{{ charts.index_vol }}"><img class="chart half" src="{{ charts.index_drawdown }}">{% else %}<div class="callout warning">指数日线快照缺失；波动和最大回撤为未知。</div>{% endif %}
+    <p class="caption">波动率为日对数收益标准差 × √242；最大回撤仅覆盖保存的约 250 个交易日窗口。</p>
+    <div class="running-title">InvestKit · 风险状态</div><div class="page-number"></div>
+  </section>
+
+  <section class="report-page">
+    <div class="eyebrow">Valuation</div><h2>PE：先问盈利样本占比，再谈高低</h2><img class="chart half" src="{{ charts.pe_median }}"><img class="chart half" src="{{ charts.pe_hist }}">
+    <div class="grid-3">{% for key, board in boards.items() %}<div class="metric"><span>{{ board.name }}正 PE 覆盖</span><strong>{{ fmt_pct(board.pe_positive_coverage) }}</strong><em>亏损与缺失不进入中位数</em></div>{% endfor %}</div>
+    <div class="running-title">InvestKit · 估值</div><div class="page-number"></div>
+  </section>
+
+  <section class="report-page">
+    <div class="eyebrow">Valuation</div><h2>PB 与 PE 联合：避免单一倍数误读</h2><img class="chart half" src="{{ charts.pb_median }}"><img class="chart half" src="{{ charts.valuation_map }}">
+    <p class="caption">散点仅含 PE、PB 均为正的样本并使用对数坐标；未包含盈利增长、ROE、会计调整或行业差异。</p>
+    <div class="running-title">InvestKit · 估值截面</div><div class="page-number"></div>
+  </section>
+
+  <section class="report-page">
+    <div class="eyebrow">Innovation Effectiveness</div><h2>创新转化漏斗：从投入到可持续定价</h2>
+    <div class="funnel"><div>工程投入</div><div>技术里程碑</div><div>商业化速度</div><div>盈利质量</div><div>融资韧性</div><div>市场定价</div></div>
+    <ul>{% for item in content.innovation_framework %}<li>{{ item }}</li>{% endfor %}</ul>
+    <div class="callout">当前有效行情样本直接覆盖第 6 层及部分规模代理；前五层需要财报、公告、客户/产品验证和融资证据。禁止把板块标签转化为“创新分数”。</div>
+    <div class="running-title">InvestKit · 创新有效性</div><div class="page-number"></div>
+  </section>
+
+  <section class="report-page">
+    <div class="eyebrow">Non-consensus Lens</div><h2>区别于静态 PE 排名的六条主线</h2>
+    <ul>{% for item in content.regime_observations %}<li>{{ item }}</li>{% endfor %}</ul>
+    <div class="matrix"><div><strong>经营证据改善 / 定价收缩</strong><p>需要验证增长、现金流和技术里程碑是否同向。</p></div><div><strong>经营证据改善 / 定价扩张</strong><p>关注预期透支与拥挤度。</p></div><div><strong>经营证据转弱 / 定价收缩</strong><p>区分周期调整与商业化失败。</p></div><div><strong>经营证据滞后 / 叙事升温</strong><p>重点管理融资期限与事件风险。</p></div></div>
+    <div class="running-title">InvestKit · 定价错配</div><div class="page-number"></div>
+  </section>
+
+  <section class="report-page">
+    <div class="eyebrow">Macro Context</div><h2>宏观高技术产出与资本市场定价并不同步</h2>
+    <ul>{% for item in content.executive_summary[:5] %}<li>{{ item }}</li>{% endfor %}</ul>
+    <div class="callout warning">【研究推断】若实体高技术产出保持增长而估值收缩，短期更接近风险溢价/拥挤再定价；但这不能排除盈利预期随后下修，需持续验证订单与现金流。</div>
+    <div class="running-title">InvestKit · 宏观背景</div><div class="page-number"></div>
+  </section>
+
+  <section class="report-page">
+    <div class="eyebrow">Industry Clusters</div><h2>产业簇分析：当前证据覆盖与空白</h2>
+    <div class="callout warning">Sina 截面未提供行业字段。本报告不依据公司名称猜测半导体、创新药、机器人或新能源归属。</div>
+    {% if content.industry_clusters %}<ul>{% for item in content.industry_clusters %}<li>{{ item }}</li>{% endfor %}</ul>{% endif %}
+    <h3>下一层证据合同</h3><table><thead><tr><th>产业簇</th><th>必须补充的经营证据</th><th>不应共用的单一倍数</th></tr></thead><tbody><tr><td>芯片设备 / 算力硬件</td><td>订单、客户验证、良率、国产化环节、库存</td><td>未验证订单前的远期 PE</td></tr><tr><td>创新药 / 医疗技术</td><td>临床里程碑、授权、现金消耗、适应症空间</td><td>收入前阶段的静态 PE</td></tr><tr><td>机器人 / 低空经济</td><td>量产、单位经济性、客户集中度、监管节点</td><td>主题热度替代现金流</td></tr><tr><td>新能源制造</td><td>价格、产能利用率、技术迭代、资本开支</td><td>景气高点利润简单外推</td></tr></tbody></table>
+    <div class="running-title">InvestKit · 产业簇</div><div class="page-number"></div>
+  </section>
+
+  <section class="report-page">
+    <div class="eyebrow">Research Tiers</div><h2>观察池分层，不是买卖评级</h2>
+    <ul>{% for item in content.watchlist_method %}<li>{{ item }}</li>{% endfor %}</ul>
+    <div class="callout">只有当研发/里程碑、商业化、盈利质量、融资韧性和定价证据均可用时，才可进入 A—D 分层；否则必须标记 X（数据不足）。</div>
+    <img class="chart half" src="{{ charts.cap_turnover }}"><div class="running-title">InvestKit · 研究分层</div><div class="page-number"></div>
+  </section>
+
+  <section class="report-page">
+    <div class="eyebrow">Scenarios</div><h2>情景分析：条件路径，不是点位预测</h2>
+    <table><thead><tr><th>情景</th><th>可验证条件</th><th>可能相对占优</th><th>主要反证</th></tr></thead><tbody><tr><td>风险溢价修复</td><td>波动回落、宽度修复、盈利预期稳定</td><td>经营验证强、估值已收缩的成长资产</td><td>盈利预期继续下修</td></tr><tr><td>高技术景气延续</td><td>产出、订单、现金流同向改善</td><td>商业化兑现且融资韧性高的产业链环节</td><td>价格竞争吞噬利润</td></tr><tr><td>流动性继续收缩</td><td>成交与宽度恶化、波动高企</td><td>现金流和资产负债表更稳健的公司</td><td>政策/盈利超预期扭转风险偏好</td></tr><tr><td>主题扩散</td><td>上涨家数扩大而非仅权重推动</td><td>有增量经营证据的中小市值</td><td>叙事扩张快于商业化</td></tr></tbody></table>
+    {% if content.scenario_analysis %}<ul>{% for item in content.scenario_analysis %}<li>{{ item }}</li>{% endfor %}</ul>{% endif %}
+    <div class="running-title">InvestKit · 情景</div><div class="page-number"></div>
+  </section>
+
+  <section class="report-page">
+    <div class="eyebrow">Counter-case</div><h2>反方证据与失效条件</h2>
+    <ul>{% for item in content.counter_evidence %}<li>{{ item }}</li>{% endfor %}</ul>
+    <div class="callout risk">“国家支持”“高研发”“创新板块”都不是收益保证。供给扩张、同质化竞争、产能过剩、融资稀释和估值透支可能同时存在。</div>
+    <div class="running-title">InvestKit · 反方证据</div><div class="page-number"></div>
+  </section>
+
+  <section class="report-page">
+    <div class="eyebrow">Risk Map</div><h2>风险地图</h2>
+    <table><thead><tr><th>风险</th><th>传导机制</th><th>需要监测的证据</th></tr></thead><tbody><tr><td>估值 / 久期</td><td>折现率或风险溢价抬升压缩远期价值</td><td>指数波动、估值分位、盈利修正</td></tr><tr><td>商业化</td><td>里程碑延迟，收入与现金回收错位</td><td>订单、量产、客户验证、经营现金流</td></tr><tr><td>融资</td><td>现金消耗叠加再融资约束</td><td>现金跑道、负债期限、股权稀释</td></tr><tr><td>拥挤 / 流动性</td><td>集中减仓放大价格冲击</td><td>宽度、换手、成交集中、融资余额</td></tr><tr><td>治理 / 会计</td><td>资本化、一次性项目或关联交易扭曲利润</td><td>扣非、现金含量、审计与监管问询</td></tr><tr><td>数据</td><td>网页接口字段或覆盖变化导致样本偏差</td><td>分页完整性、缺失率、交叉验证</td></tr></tbody></table>
+    <ul>{% for item in content.risks %}<li>{{ item }}</li>{% endfor %}</ul>
+    <div class="running-title">InvestKit · 风险</div><div class="page-number"></div>
+  </section>
+
+  <section class="report-page">
+    <div class="eyebrow">Leaders</div><h2>市值前列：规模观察表</h2>
+    <table><thead><tr><th>代码</th><th>名称</th><th>板块</th><th class="num">总市值</th><th class="num">涨跌幅</th><th class="num">PE</th><th class="num">PB</th></tr></thead><tbody>{% for row in top_cap %}<tr><td>{{ row.code }}</td><td>{{ row.name }}</td><td>{{ row.board }}</td><td class="num">{{ fmt_cny_yi(row.market_cap_cny) }}</td><td class="num">{{ fmt_number(row.change_pct,2) }}%</td><td class="num">{{ fmt_number(row.pe_reported,1) }}</td><td class="num">{{ fmt_number(row.pb_reported,1) }}</td></tr>{% endfor %}</tbody></table>
+    <p class="caption">纯截面排序，不代表推荐；市值字段为提供方口径换算。</p><div class="running-title">InvestKit · 有效行情样本</div><div class="page-number"></div>
+  </section>
+
+  <section class="report-page">
+    <div class="eyebrow">Liquidity Leaders</div><h2>成交额与换手率前列</h2>
+    <div class="grid-2"><div><h3>成交额</h3><table><thead><tr><th>代码 / 名称</th><th class="num">成交额</th></tr></thead><tbody>{% for row in top_amount[:10] %}<tr><td>{{ row.code }} {{ row.name }}</td><td class="num">{{ fmt_cny_yi(row.amount_cny) }}</td></tr>{% endfor %}</tbody></table></div><div><h3>换手率</h3><table><thead><tr><th>代码 / 名称</th><th class="num">换手</th></tr></thead><tbody>{% for row in top_turnover[:10] %}<tr><td>{{ row.code }} {{ row.name }}</td><td class="num">{{ fmt_number(row.turnover_pct,2) }}%</td></tr>{% endfor %}</tbody></table></div></div>
+    <p class="caption">极端日排序噪声较高，需与常态窗口、自由流通市值和事件信息交叉验证。</p><div class="running-title">InvestKit · 流动性表</div><div class="page-number"></div>
+  </section>
+
+  <section class="report-page">
+    <div class="eyebrow">Tail Observations</div><h2>涨跌尾部：事件核验清单</h2>
+    <div class="grid-2"><div><h3>涨幅前列</h3><table><thead><tr><th>代码 / 名称</th><th class="num">涨跌</th></tr></thead><tbody>{% for row in top_gainers[:10] %}<tr><td>{{ row.code }} {{ row.name }}</td><td class="num">{{ fmt_number(row.change_pct,2) }}%</td></tr>{% endfor %}</tbody></table></div><div><h3>跌幅前列</h3><table><thead><tr><th>代码 / 名称</th><th class="num">涨跌</th></tr></thead><tbody>{% for row in top_decliners[:10] %}<tr><td>{{ row.code }} {{ row.name }}</td><td class="num">{{ fmt_number(row.change_pct,2) }}%</td></tr>{% endfor %}</tbody></table></div></div>
+    <div class="callout warning">尾部名单只用于公告、停复牌、业绩与事件核验，不将单日涨跌解释为创新有效性。</div><div class="running-title">InvestKit · 尾部核验</div><div class="page-number"></div>
+  </section>
+
+  <section class="report-page">
+    <div class="eyebrow">Data Quality</div><h2>缺失率与审计痕迹</h2>
+    <table><thead><tr><th>字段</th><th class="num">缺失数</th><th class="num">缺失率</th><th>处理</th></tr></thead><tbody>{% for field, item in stats.missingness.items() %}<tr><td>{{ field }}</td><td class="num">{{ item.count }}</td><td class="num">{{ fmt_pct(item.ratio) }}</td><td>保留 null；统计时仅使用非缺失观测</td></tr>{% endfor %}</tbody></table>
+    <h3>可审计工件</h3><ul><li>raw/sina-market-center：逐页响应与 meta.json。</li><li>raw/sina-index-kline：指数日线 JSONP 与请求元数据。</li><li>data/universe-normalized.csv：提供方有效行情标准化截面。</li><li>data/cross-sectional-statistics.json：定义明确的派生统计。</li><li>build-metadata.json：图表数、PDF 页数、哈希与分页状态。</li></ul>
+    <div class="running-title">InvestKit · 数据质量</div><div class="page-number"></div>
+  </section>
+
+  <section class="report-page">
+    <div class="eyebrow">Sources I</div><h2>来源清单（1/2）</h2>
+    <ol class="source-list">{% for source in source_rows[:9] %}<li><b>{{ source.index }}. {{ source.organization }}｜{{ source.title }}</b><br>{{ source.date }} · {{ source.use }}{% if source.url %}<br><a href="{{ source.url }}">{{ source.url }}</a>{% endif %}</li>{% endfor %}</ol>
+    <div class="running-title">InvestKit · 来源</div><div class="page-number"></div>
+  </section>
+
+  <section class="report-page">
+    <div class="eyebrow">Sources II</div><h2>来源清单（2/2）</h2>
+    <ol class="source-list" start="10">{% for source in source_rows[9:] %}<li><b>{{ source.index }}. {{ source.organization }}｜{{ source.title }}</b><br>{{ source.date }} · {{ source.use }}{% if source.url %}<br><a href="{{ source.url }}">{{ source.url }}</a>{% endif %}</li>{% endfor %}</ol>
+    <div class="callout warning">来源条目证明信息出处，不等同于独立确认因果。媒体对单日行情的解释仅作为候选解释，并必须与价格、政策和经营证据区分。</div>
+    <div class="running-title">InvestKit · 来源</div><div class="page-number"></div>
+  </section>
+
+  <section class="report-page">
+    <div class="eyebrow">Reproduction</div><h2>复现与后续跟踪</h2>
+    <h3>网络抓取（显式联网）</h3><p><code>python3 scripts/build_a_share_innovation_report.py --mode fetch --as-of {{ as_of }} --brief &lt;brief.md&gt;</code></p>
+    <h3>离线重建（不联网）</h3><p><code>python3 scripts/build_a_share_innovation_report.py --mode offline --as-of {{ as_of }} --brief &lt;brief.md&gt;</code></p>
+    <h3>持续跟踪面板</h3><ul><li>每次保存不可变原始快照和抓取元数据。</li><li>跟踪宽度、波动、回撤、正 PE 覆盖、集中度与流动性。</li><li>产业层必须补充研发转化、订单、利润质量、现金消耗与融资期限。</li><li>任何观察池变化都记录证据日期和失效条件。</li></ul>
+    <div class="callout"><strong>结论边界：</strong>本报告是研究底稿和筛查系统，不替代逐公司尽调，也不产生交易指令。</div>
+    <div class="running-title">InvestKit · 复现</div><div class="page-number"></div>
+  </section>
+</body>
+</html>
