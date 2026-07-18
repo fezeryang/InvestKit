@@ -8,9 +8,16 @@ Desktop.ini
 .vscode/
 .claude/
 .cursor/
+.agents/
+.codex/
 *.swp
 *.swo
 *~
+
+# Local development harness and verification sources
+.trellis/
+AGENTS.md
+tests/
 
 # Python
 __pycache__/
@@ -58,15 +65,28 @@ downloads/
 *.bak
 *.orig
 
-# Large raw third-party repository caches
-third_party/raw/**/.git/
-third_party/raw/**/node_modules/
-third_party/raw/**/.venv/
-third_party/raw/**/venv/
-third_party/raw/**/*.zip
-third_party/raw/**/*.tar
-third_party/raw/**/*.tar.gz
-third_party/raw/**/*.tgz
+# Non-runtime third-party intake and adaptation work
+third_party/
+adapted/
+
+# Local intake, review, audit, and task records
+registry/
+tasks/
+plans/
+reports/batches/
+reports/capabilities/
+reports/project/
+reports/skills/
+docs/governance/
+docs/skill-research/
+templates/batch-summary.md
+templates/skill-analysis.md
+templates/source-record.yaml
+
+# Locally generated company research is private by default. A report selected
+# for publication must be explicitly force-added and reviewed first.
+reports/company/
+scripts/build_*_professional_report.py
 
 # Generated market-report intermediates
 # Keep the public showcase PDF and compact build-metadata.json eligible for

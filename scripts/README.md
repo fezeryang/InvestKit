@@ -7,7 +7,7 @@ Current stage rules:
 - Do not add scripts that execute third-party assets.
 - Do not add scripts that connect to brokerages or real-money services.
 - Do not hardcode API keys.
-- Prefer read-only validation scripts for Schema, registry, and report consistency.
+- Prefer read-only validation scripts for Schema, Runtime assets, and report consistency.
 
 Validate the complete governed Runtime Skill set with:
 

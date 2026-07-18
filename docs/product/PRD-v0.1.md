@@ -105,7 +105,7 @@ Authoritative first-party source lives under:
 
 Host locations such as `.agents/skills/`, `.claude/skills/`, and `.cursor/` are installation targets, not source. The project owner controls first-party promotion/release; the end user authorizes local installation through an explicit CLI action.
 
-The installer copies only allowlisted regular files, preserves nested relative paths, protects conflicting user files, rejects symlinks/escapes, and records source/target checksums. `third_party/raw/` and `adapted/skills/` are never Runtime install sources.
+The installer copies only allowlisted regular files, preserves nested relative paths, protects conflicting user files, rejects symlinks/escapes, and records source/target checksums. Locally quarantined third-party packages and draft adaptations are never Runtime install sources or public release assets.
 
 ## 8. v0.1 Offline Harness Baseline
 
@@ -273,9 +273,9 @@ Investment Core Pack
 
 Automatic acquisition remains a data-production layer, not permission for brokerage or trading actions.
 
-## 15. Trellis Relationship
+## 15. Contributor Tooling Boundary
 
-`.trellis/` manages InvestKit development tasks, specifications, and session records. It is not the InvestKit Runtime. Initialized projects use InvestKit-owned configuration, Workflows, tasks, and workspaces and do not depend on Trellis or hidden chat history.
+Internal development tooling is not part of the InvestKit Runtime or public release. Initialized projects use InvestKit-owned configuration, Workflows, tasks, and workspaces and do not depend on any contributor harness or hidden chat history.
 
 ## 16. Safety And Investment Boundaries
 
@@ -291,7 +291,7 @@ Automatic acquisition remains a data-production layer, not permission for broker
 
 The current working tree includes a bounded, opt-in, acceptance-tested live A-share acquisition path, but does not claim full-market live coverage, independent verification of every acquired fact, institution-grade data reliability, Claude/Cursor support, product Agents, package add/update/uninstall, Advanced Research, Quant, Portfolio & Risk, brokerage connectivity, trading behavior, or production readiness.
 
-The v0.3 milestone succeeds when a fresh offline wheel installation can initialize, diagnose, preserve the demo path, run the complete 13-stage Workflow against a validated real-issuer bundle, expose source-linked structured artifacts and honest skips, resume solely from its persisted snapshot, and diagnose the result—without a network, API key, third-party execution, brokerage behavior, or `.trellis/` dependency.
+The v0.3 milestone succeeds when a fresh offline wheel installation can initialize, diagnose, preserve the demo path, run the complete 13-stage Workflow against a validated real-issuer bundle, expose source-linked structured artifacts and honest skips, resume solely from its persisted snapshot, and diagnose the result—without a network, API key, third-party execution, brokerage behavior, or contributor-tooling dependency.
 
 Passing that milestone proves a usable local research function within the supplied evidence boundary. A separate completion audit is still required before calling the broader project released or production-ready.
 

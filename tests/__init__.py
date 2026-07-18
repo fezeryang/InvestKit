@@ -1,1 +1,0 @@
-"""InvestKit runtime contract tests."""

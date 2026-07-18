@@ -316,7 +316,7 @@
       "name": "Shanghai Stock Exchange Announcement Provider",
       "capabilities": ["security_identification", "source_verification", "earnings_announcements", "data_acquisition"],
       "source": "https://query.sse.com.cn/security/stock/queryCompanyBulletin.do",
-      "evidence": ["src/investkit/providers/sse.py", "tests/test_sse_provider.py"]
+      "evidence": ["src/investkit/providers/sse.py"]
     },
 
     {
@@ -333,7 +333,7 @@
       "allowed_hosts": ["mkapi2.dfcfs.com"],
       "adapter_id": "provider:eastmoney",
       "dependencies": [],
-      "evidence": ["reports/project/repository-inventory.md", "tests/test_eastmoney_adapter.py", "src/investkit/providers/eastmoney.py"]
+      "evidence": ["src/investkit/providers/eastmoney.py", "docs/integrations/skill-and-provider-registry.md"]
     },
     {
       "profile": "approved_ciccwm_readonly",
@@ -343,7 +343,7 @@
       "capabilities": ["market_data", "data_acquisition"],
       "source": "https://cdnweb.ciccwm.com/zzt/static/skills/ciccwm-market-analysis.zip",
       "reason": "Adapted through the first-party no-telemetry client; the original archive remains quarantined and unexecutable.",
-      "evidence": ["reports/project/ciccwm-wrapper-review.md", "tests/test_ciccwm_adapter.py", "src/investkit/providers/ciccwm.py"]
+      "evidence": ["src/investkit/providers/ciccwm.py", "docs/integrations/skill-and-provider-registry.md"]
     },
     {
       "profile": "approved_ciccwm_readonly",
@@ -353,7 +353,7 @@
       "capabilities": ["financial_statements", "data_acquisition"],
       "source": "https://cdnweb.ciccwm.com/zzt/static/skills/ciccwm-stock-finance-analysis.zip",
       "reason": "Adapted through the first-party no-telemetry client; the original archive remains quarantined and unexecutable.",
-      "evidence": ["reports/project/ciccwm-wrapper-review.md", "tests/test_ciccwm_adapter.py", "src/investkit/providers/ciccwm.py"]
+      "evidence": ["src/investkit/providers/ciccwm.py", "docs/integrations/skill-and-provider-registry.md"]
     },
     {
       "profile": "approved_ciccwm_readonly",
@@ -363,7 +363,7 @@
       "capabilities": ["news_events", "data_acquisition"],
       "source": "https://cdnweb.ciccwm.com/zzt/static/skills/ciccwm-hot-news-analysis.zip",
       "reason": "Adapted through the first-party no-telemetry client; the original archive remains quarantined and unexecutable.",
-      "evidence": ["reports/project/ciccwm-wrapper-review.md", "tests/test_ciccwm_adapter.py", "src/investkit/providers/ciccwm.py"]
+      "evidence": ["src/investkit/providers/ciccwm.py", "docs/integrations/skill-and-provider-registry.md"]
     },
     {
       "profile": "approved_ciccwm_readonly",
@@ -373,7 +373,7 @@
       "capabilities": ["etf_research", "data_acquisition"],
       "source": "https://cdnweb.ciccwm.com/zzt/static/skills/ciccwm-etf-ranking-analysis.zip",
       "reason": "Adapted through the first-party no-telemetry client; the original archive remains quarantined and unexecutable.",
-      "evidence": ["reports/project/ciccwm-wrapper-review.md", "tests/test_ciccwm_adapter.py", "src/investkit/providers/ciccwm.py"]
+      "evidence": ["src/investkit/providers/ciccwm.py", "docs/integrations/skill-and-provider-registry.md"]
     },
     {
       "profile": "approved_ciccwm_readonly",
@@ -383,7 +383,7 @@
       "capabilities": ["abnormal_trading", "data_acquisition"],
       "source": "https://cdnweb.ciccwm.com/zzt/static/skills/ciccwm-tiger-list-analysis.zip",
       "reason": "Adapted through the first-party no-telemetry client; the original archive remains quarantined and unexecutable.",
-      "evidence": ["reports/project/ciccwm-wrapper-review.md", "tests/test_ciccwm_adapter.py", "src/investkit/providers/ciccwm.py"]
+      "evidence": ["src/investkit/providers/ciccwm.py", "docs/integrations/skill-and-provider-registry.md"]
     },
     {
       "profile": "approved_ciccwm_readonly",
@@ -393,7 +393,7 @@
       "capabilities": ["fund_research", "data_acquisition"],
       "source": "https://cdnweb.ciccwm.com/zzt/static/skills/ciccwm-fund-product-info.zip",
       "reason": "Adapted through the first-party no-telemetry client; the original archive remains quarantined and unexecutable.",
-      "evidence": ["reports/project/ciccwm-wrapper-review.md", "tests/test_ciccwm_adapter.py", "src/investkit/providers/ciccwm.py"]
+      "evidence": ["src/investkit/providers/ciccwm.py", "docs/integrations/skill-and-provider-registry.md"]
     },
     {
       "profile": "rejected_candidate",
@@ -403,7 +403,7 @@
       "review_status": "reference_snapshot",
       "source": "https://skillhub.cn/install/skillhub.md",
       "reason": "User removed Lingxi from InvestKit scope; the unlicensed executable package is not installed or adapted.",
-      "evidence": ["reports/project/repository-inventory.md"]
+      "evidence": ["docs/integrations/skill-and-provider-registry.md"]
     },
 
     {
@@ -413,7 +413,7 @@
       "capabilities": ["market_data", "data_acquisition"],
       "source": "https://www.guosen.com.cn/gs/xxskills/gs-stock-market-query.zip",
       "reason": "No valid package was acquired.",
-      "evidence": ["reports/project/repository-inventory.md"]
+      "evidence": ["docs/integrations/skill-and-provider-registry.md"]
     },
     {
       "profile": "unavailable_candidate",
@@ -422,7 +422,7 @@
       "capabilities": ["financial_statements", "data_acquisition"],
       "source": "https://www.guosen.com.cn/gs/xxskills/gs-stock-financial-query.zip",
       "reason": "No valid package was acquired.",
-      "evidence": ["reports/project/repository-inventory.md"]
+      "evidence": ["docs/integrations/skill-and-provider-registry.md"]
     },
     {
       "profile": "unavailable_candidate",
@@ -431,7 +431,7 @@
       "capabilities": ["macro_research", "data_acquisition"],
       "source": "https://www.guosen.com.cn/gs/xxskills/gs-economy-query.zip",
       "reason": "No package was acquired.",
-      "evidence": ["reports/project/repository-inventory.md"]
+      "evidence": ["docs/integrations/skill-and-provider-registry.md"]
     },
     {
       "profile": "unavailable_candidate",
@@ -440,7 +440,7 @@
       "capabilities": ["stock_screening"],
       "source": "https://www.guosen.com.cn/gs/xxskills/gs-smart-stock-picking.zip",
       "reason": "No package was acquired.",
-      "evidence": ["reports/project/repository-inventory.md"]
+      "evidence": ["docs/integrations/skill-and-provider-registry.md"]
     },
     {
       "profile": "unavailable_candidate",
@@ -449,7 +449,7 @@
       "capabilities": ["fund_research", "peer_comparison"],
       "source": "https://www.guosen.com.cn/gs/xxskills/gs-fund-compare.zip",
       "reason": "No package was acquired.",
-      "evidence": ["reports/project/repository-inventory.md"]
+      "evidence": ["docs/integrations/skill-and-provider-registry.md"]
     },
     {
       "profile": "unavailable_candidate",
@@ -458,7 +458,7 @@
       "capabilities": ["etf_research", "stock_screening"],
       "source": "https://www.guosen.com.cn/gs/xxskills/gs-etf-filter.zip",
       "reason": "No package was acquired.",
-      "evidence": ["reports/project/repository-inventory.md"]
+      "evidence": ["docs/integrations/skill-and-provider-registry.md"]
     },
 
     {
@@ -469,7 +469,7 @@
       "dependencies": [],
       "source": "https://mcp-api.gf.com.cn/gf-skills/skills/mcp/call",
       "reason": "Draft wrapper is not approved and requires a credential plus explicit network permission.",
-      "evidence": ["reports/project/guangfa-wrapper-review.md", "adapted/skills/gf_lhb_list/SKILL.md"]
+      "evidence": ["src/investkit/providers/guangfa.py", "docs/integrations/skill-and-provider-registry.md"]
     },
     {
       "profile": "approved_guangfa_equity",
@@ -479,7 +479,7 @@
       "dependencies": [],
       "source": "https://mcp-api.gf.com.cn/gf-skills/skills/mcp/call",
       "reason": "Draft wrapper aligns with equity research but is not approved and requires gated live access.",
-      "evidence": ["reports/project/guangfa-wrapper-review.md", "adapted/skills/gf_stock_f10/SKILL.md"]
+      "evidence": ["src/investkit/providers/guangfa.py", "docs/integrations/skill-and-provider-registry.md"]
     },
     {
       "profile": "approved_guangfa_equity",
@@ -489,7 +489,7 @@
       "dependencies": ["GF-002"],
       "source": "https://mcp-api.gf.com.cn/gf-skills/skills/mcp/call",
       "reason": "Draft wrapper aligns with equity research but is not approved and requires gated live access.",
-      "evidence": ["reports/project/guangfa-wrapper-review.md", "adapted/skills/gf_stock_valuation/SKILL.md"]
+      "evidence": ["src/investkit/providers/guangfa.py", "docs/integrations/skill-and-provider-registry.md"]
     },
     {
       "profile": "approved_guangfa_equity",
@@ -499,7 +499,7 @@
       "dependencies": [],
       "source": "https://mcp-api.gf.com.cn/gf-skills/skills/mcp/call",
       "reason": "Draft wrapper is outside the first equity slice and is not approved for execution.",
-      "evidence": ["reports/project/guangfa-wrapper-review.md", "adapted/skills/gf_etf_rank/SKILL.md"]
+      "evidence": ["src/investkit/providers/guangfa.py", "docs/integrations/skill-and-provider-registry.md"]
     },
     {
       "profile": "approved_guangfa_equity",
@@ -509,7 +509,7 @@
       "dependencies": [],
       "source": "https://mcp-api.gf.com.cn/gf-skills/skills/mcp/call",
       "reason": "Draft wrapper is outside the first equity slice and is not approved for execution.",
-      "evidence": ["reports/project/guangfa-wrapper-review.md", "adapted/skills/gf_etf_search/SKILL.md"]
+      "evidence": ["src/investkit/providers/guangfa.py", "docs/integrations/skill-and-provider-registry.md"]
     },
     {
       "profile": "approved_guangfa_equity",
@@ -519,7 +519,7 @@
       "dependencies": [],
       "source": "https://mcp-api.gf.com.cn/gf-skills/skills/mcp/call",
       "reason": "Draft wrapper is outside the first equity slice and is not approved for execution.",
-      "evidence": ["reports/project/guangfa-wrapper-review.md", "adapted/skills/gf_etf_super_fund/SKILL.md"]
+      "evidence": ["src/investkit/providers/guangfa.py", "docs/integrations/skill-and-provider-registry.md"]
     },
     {
       "profile": "approved_guangfa_equity",
@@ -529,7 +529,7 @@
       "dependencies": [],
       "source": "https://mcp-api.gf.com.cn/gf-skills/skills/mcp/call",
       "reason": "Draft wrapper is outside the first equity slice and is not approved for execution.",
-      "evidence": ["reports/project/guangfa-wrapper-review.md", "adapted/skills/gf_fund_detail/SKILL.md"]
+      "evidence": ["src/investkit/providers/guangfa.py", "docs/integrations/skill-and-provider-registry.md"]
     },
     {
       "profile": "approved_guangfa_equity",
@@ -539,7 +539,7 @@
       "dependencies": [],
       "source": "https://mcp-api.gf.com.cn/gf-skills/skills/mcp/call",
       "reason": "Draft wrapper is outside the first equity slice and is not approved for execution.",
-      "evidence": ["reports/project/guangfa-wrapper-review.md", "adapted/skills/gf_fund_invest/SKILL.md"]
+      "evidence": ["src/investkit/providers/guangfa.py", "docs/integrations/skill-and-provider-registry.md"]
     },
 
     {
@@ -550,7 +550,7 @@
       "capabilities": ["financial_services"],
       "source": "https://github.com/anthropics/financial-services",
       "reason": "Broad financial-services repository needs static classification.",
-      "evidence": ["registry/inbox/sources.csv"]
+      "evidence": ["docs/integrations/skill-and-provider-registry.md"]
     },
     {
       "profile": "review_candidate",
@@ -559,7 +559,7 @@
       "capabilities": ["investment_research"],
       "source": "https://github.com/himself65/finance-skills",
       "reason": "Broad finance Skills repository has insufficient review evidence.",
-      "evidence": ["registry/inbox/sources.csv"]
+      "evidence": ["docs/integrations/skill-and-provider-registry.md"]
     },
     {
       "profile": "review_candidate",
@@ -569,7 +569,7 @@
       "capabilities": ["investment_research", "agent_orchestration"],
       "source": "https://github.com/ginlix-ai/LangAlpha",
       "reason": "Broad agent repository has insufficient current evidence.",
-      "evidence": ["registry/inbox/sources.csv"]
+      "evidence": ["docs/integrations/skill-and-provider-registry.md"]
     },
     {
       "profile": "blocked_candidate",
@@ -580,7 +580,7 @@
       "review_status": "not_started",
       "source": "https://github.com/tradermonty/claude-trading-skills",
       "reason": "Trading execution scope is outside InvestKit product boundaries.",
-      "evidence": ["registry/governance/batch-001-candidate-governance.csv"]
+      "evidence": ["docs/integrations/skill-and-provider-registry.md"]
     },
     {
       "profile": "review_candidate",
@@ -589,7 +589,7 @@
       "capabilities": ["investment_research"],
       "source": "https://github.com/OctagonAI/skills",
       "reason": "Broad Skills repository has insufficient review evidence.",
-      "evidence": ["registry/inbox/sources.csv"]
+      "evidence": ["docs/integrations/skill-and-provider-registry.md"]
     },
     {
       "profile": "review_candidate",
@@ -599,7 +599,7 @@
       "capabilities": ["agent_orchestration", "investment_research"],
       "source": "https://github.com/joansongjr/investor-harness",
       "reason": "Comparable Harness candidate requires later static review.",
-      "evidence": ["registry/inbox/sources.csv"]
+      "evidence": ["docs/integrations/skill-and-provider-registry.md"]
     },
     {
       "profile": "review_candidate",
@@ -608,7 +608,7 @@
       "capabilities": ["investment_research"],
       "source": "https://github.com/yennanliu/InvestSkill",
       "reason": "Repository capability is insufficiently known.",
-      "evidence": ["registry/inbox/sources.csv"]
+      "evidence": ["docs/integrations/skill-and-provider-registry.md"]
     },
     {
       "profile": "review_candidate",
@@ -617,7 +617,7 @@
       "capabilities": ["china_equity_research"],
       "source": "https://github.com/spikeHongg/china-stock-research-skills",
       "reason": "China-stock research repository needs static review before inclusion.",
-      "evidence": ["registry/inbox/sources.csv"]
+      "evidence": ["docs/integrations/skill-and-provider-registry.md"]
     },
     {
       "profile": "review_candidate",
@@ -626,7 +626,7 @@
       "capabilities": ["company_fundamentals", "financial_statements", "valuation"],
       "source": "https://github.com/HHFinAi/claude-equity-research-skills",
       "reason": "Equity research focus aligns preliminarily but formal review has not started.",
-      "evidence": ["registry/governance/batch-001-candidate-governance.csv"]
+      "evidence": ["docs/integrations/skill-and-provider-registry.md"]
     },
     {
       "profile": "review_candidate",
@@ -636,7 +636,7 @@
       "capabilities": ["market_data", "data_acquisition"],
       "source": "https://github.com/longbridge/skills",
       "reason": "Broker-associated Skills require safety and scope classification.",
-      "evidence": ["registry/inbox/sources.csv"]
+      "evidence": ["docs/integrations/skill-and-provider-registry.md"]
     },
     {
       "profile": "reference_candidate",
@@ -645,7 +645,7 @@
       "capabilities": ["financial_modeling", "reference_material"],
       "source": "https://github.com/anthropics/claude-cookbooks/tree/main/creating-financial-models",
       "reason": "Cookbook is reference material rather than an executable Skill.",
-      "evidence": ["registry/governance/batch-001-candidate-governance.csv"]
+      "evidence": ["docs/integrations/skill-and-provider-registry.md"]
     },
     {
       "profile": "review_candidate",
@@ -654,7 +654,7 @@
       "capabilities": ["valuation", "peer_comparison"],
       "source": "https://github.com/NousResearch/hermes-agent/tree/main/comps-analysis",
       "reason": "Comparable-company analysis aligns preliminarily but formal review has not started.",
-      "evidence": ["registry/governance/batch-001-candidate-governance.csv"]
+      "evidence": ["docs/integrations/skill-and-provider-registry.md"]
     },
     {
       "profile": "reference_candidate",
@@ -663,7 +663,7 @@
       "capabilities": ["deep_research", "reference_material"],
       "source": "https://github.com/Weizhena/Deep-Research-skills",
       "reason": "Generic deep-research material is reference-only for this batch.",
-      "evidence": ["registry/governance/batch-001-candidate-governance.csv"]
+      "evidence": ["docs/integrations/skill-and-provider-registry.md"]
     },
     {
       "profile": "blocked_candidate",
@@ -674,7 +674,7 @@
       "review_status": "not_started",
       "source": "https://github.com/HKUDS/Vibe-Trading",
       "reason": "Trading-agent scope conflicts with InvestKit boundaries.",
-      "evidence": ["registry/governance/batch-001-candidate-governance.csv"]
+      "evidence": ["docs/integrations/skill-and-provider-registry.md"]
     }
   ]
 }

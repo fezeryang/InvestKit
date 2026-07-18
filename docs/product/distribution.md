@@ -20,7 +20,7 @@ Codex native Skills or any shell-capable AI platform
 ```
 
 This provides one version, one security boundary, one persisted research format,
-and one test suite. Native platform adapters are additive projections and cannot
+and one release-validation contract. Native platform adapters are additive projections and cannot
 change investment methods, data-provider permissions, or trading prohibitions.
 
 ## Install from GitHub
@@ -81,7 +81,7 @@ place orders, transfer funds, or manage assets.
 
 A GitHub release requires:
 
-1. full tests and packaging tests passing from a clean checkout;
+1. internal verification plus public build, installation, and offline product smoke checks passing from a clean checkout;
 2. wheel build and clean virtual-environment installation passing;
 3. secret and generated-artifact review;
 4. version, changelog, documentation, and supported-platform claims aligned;

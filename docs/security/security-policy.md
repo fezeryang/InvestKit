@@ -2,7 +2,7 @@
 
 ## Third-Party Code Isolation
 
-Everything in `third_party/raw/` is untrusted. Preserve it for research, but do not modify it in place or install it directly into production Skill directories.
+Raw third-party packages are untrusted and remain in a local quarantine outside the public release. Do not modify them in place or install them directly into production Skill directories.
 
 ## Static Analysis First
 

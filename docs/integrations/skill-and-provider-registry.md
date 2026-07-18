@@ -23,7 +23,7 @@
 | 国信证券 | `guosen.com.cn/gs/xxskills/*.zip` | 行情、财务、宏观、选股、基金、ETF | review | 原始压缩包未安装；需逐包静态审查与条款确认 |
 | 广发证券 | `mcp-api.gf.com.cn/gf-skills/skills/mcp/call` | 龙虎榜、F10、估值财务、ETF、基金 | adapt | 八项受控能力已批准，并已完成真实只读 API 验证 |
 
-本次授权后的取证记录：中金六个 ZIP 已进入隔离原始区并完成初审，详见 [ciccwm-wrapper-review.md](../../reports/project/ciccwm-wrapper-review.md)。国信六个 ZIP 因官网 TLS 旧式重协商导致安全下载失败，未使用 `-k` 绕过，状态保持 `unknown`/不可用。
+中金六个数据包已完成隔离初审并通过项目内的受控 Provider 调用；原始包、审查记录和未脱敏响应仅保留在本地，不作为公开发行物。国信数据包因官网 TLS 旧式重协商导致安全下载失败，未使用 `-k` 绕过，状态保持 `unknown`/不可用。
 
 ## 广发证券 Skill 清单
 
@@ -40,21 +40,7 @@
 
 ## 安装与审查规则
 
-1. 原始第三方压缩包只进入 `third_party/raw/`，不直接复制到生产 Skill 目录，不执行其中脚本。
+1. 原始第三方压缩包只进入本地隔离区，不随公开仓库分发，不直接复制到生产 Skill 目录，也不执行其中脚本。
 2. 每个候选必须在运行目录中有唯一决定：`adopt`、`adapt`、`extract`、`reference`、`duplicate`、`unsafe`、`reject` 或 `unknown`。
 3. 网络调用必须使用环境变量凭据、精确 HTTPS 主机白名单、超时、响应大小限制、拒绝重定向和严格 JSON 校验。
 4. 只有完成 API 授权、数据使用条款和离线/在线测试后，才可将 `review_required` 提升为 `approved`。
-
-## 本次动作记录
-
-- 已读取并遵循 SkillHub 官方安装说明：安装到当前 Agent 的 `.agents/skills` 或 `~/.codex/skills`，不使用默认 `./skills/`。
-- 已确认当前环境没有 `skillhub` CLI，因此未执行未知安装脚本。
-- 未保存任何 API key；用户应先轮换消息中暴露的凭据。
-
-## 灵犀包审查记录
-
-- SkillHub 搜索元数据显示版本 `1.0.4`，发布者为已认证的国泰海通证券股份有限公司。
-- 2026-07-17 下载包 SHA-256：`7a4e6322cb9aa4d27091ad32284865a9aa936bc511f24ca57806128efd718640`。
-- 包内只有 `SKILL.md`、`skill-entry.js`、`gateway-config.json`，没有 LICENSE。
-- Skill 文档内部版本写为 `1.10.1`，与 SkillHub 元数据 `1.0.4` 不一致。
-- 当前决定为 `unsafe`（直接安装/执行）；后续可在取得明确许可条款和独立灵犀 API key 后做 clean-room provider，不能把原脚本复制进生产 Skill 目录。

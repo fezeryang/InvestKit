@@ -47,7 +47,7 @@ workspace-template/  initialized user workspace template
 
 Platform paths such as `.agents/skills/` are generated targets, not source. `.claude/skills/` and `.cursor/` in this repository are not evidence of shipping Claude or Cursor adapters.
 
-End-user-initiated initialization copies only explicitly allowlisted regular files. Source/target mappings carry checksums. Conflicting user files are preserved, symlinks and root escapes are rejected, and unallowlisted folders are never discovered as release assets. `third_party/raw/` is untrusted evidence and `adapted/skills/` is a draft boundary; neither is a Runtime dependency or installation source.
+End-user-initiated initialization copies only explicitly allowlisted regular files. Source/target mappings carry checksums. Conflicting user files are preserved, symlinks and root escapes are rejected, and unallowlisted folders are never discovered as release assets. Locally quarantined third-party packages and draft adaptations are not Runtime dependencies, installation sources, or public release assets.
 
 Wheels carry the same governed Runtime assets under `share/investkit`, including the JSON Schema and template. Asset discovery validates a complete checkout or wheel delivery tree before use.
 
@@ -217,8 +217,8 @@ Not implemented in v0.3:
 - Advanced Research, Quant, and Portfolio & Risk packs;
 - brokerage or trade execution behavior.
 
-## Trellis boundary
+## Contributor tooling boundary
 
-`.trellis/` manages development tasks, specifications, and evidence. It is not the InvestKit Runtime, is not copied into initialized projects, and is not required to run or resume research.
+Contributor development tooling is separate from the InvestKit Runtime, is not distributed to initialized projects, and is not required to run or resume research.
 
 See [`investment-capability-map.md`](investment-capability-map.md) for item-level behavior and [`roadmap.md`](roadmap.md) for the next acquisition, platform, and release gates.

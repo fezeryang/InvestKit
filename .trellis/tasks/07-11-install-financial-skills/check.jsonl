@@ -1,3 +1,0 @@
-{"file":"docs/security/security-policy.md","reason":"Verify no secrets are committed and unreviewed third-party code was not integrated unsafely."}
-{"file":"docs/skill-research/acceptance-criteria.md","reason":"Use project acceptance criteria when checking source intake and review readiness."}
-{"file":"README.md","reason":"Confirm changes align with the repository's stated current workflow and paths."}

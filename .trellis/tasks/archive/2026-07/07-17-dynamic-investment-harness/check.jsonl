@@ -1,7 +1,0 @@
-{"file":".trellis/spec/backend/index.md","reason":"Backend verification entry point."}
-{"file":".trellis/spec/backend/investkit-runtime-contract.md","reason":"Verify compatibility with existing runtime, safety, persistence, Doctor, and packaging behavior."}
-{"file":".trellis/spec/backend/investment-core-contract.md","reason":"Verify evidence, source, capability, report, and non-advisory boundaries."}
-{"file":"docs/security/security-policy.md","reason":"Verify secrets, network, permissions, and untrusted asset boundaries."}
-{"file":"docs/skill-research/acceptance-criteria.md","reason":"Verify candidate decisions and executable promotion are evidence-backed."}
-{"file":".trellis/tasks/07-17-dynamic-investment-harness/research/current-baseline-and-inventory.md","reason":"Verify all 49 assets remain represented with honest states."}
-{"file":".trellis/tasks/07-17-dynamic-investment-harness/research/manifest-driven-harness-design.md","reason":"Verify implementation follows the selected control-plane and adapter boundaries."}

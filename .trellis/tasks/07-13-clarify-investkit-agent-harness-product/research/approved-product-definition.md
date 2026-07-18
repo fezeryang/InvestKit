@@ -1,5 +1,0 @@
-# Approved product definition
-
-The project owner clarified that InvestKit is not merely a Skill collection or report generator. Its final form is a cross-platform investment-research AI Agent Harness. The investment-capability layer and Harness framework layer are both product scope. Trellis is the current development tool and a product-form reference, not the InvestKit runtime implementation. This task changes documentation only and stops after consistency validation.
-
-The owner also clarified the long-term third-party boundary. Raw third-party assets may not be installed or executed without review, but authoritative official APIs and interface specifications, professional analysis methods, and clearly licensed code are not permanently excluded. They may be statically researched and, after applicable authorization, license, security, attribution, testing, and owner-release approval, become part of an InvestKit-owned Provider, Skill, Workflow, or Reference. Credentialed integrations use opt-in Provider Adapters behind a unified data interface; this requirement does not expand the first offline Runtime slice.

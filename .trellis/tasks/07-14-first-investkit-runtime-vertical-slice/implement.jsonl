@@ -1,8 +1,0 @@
-{"file":".trellis/spec/backend/index.md","reason":"Apply the repository backend pre-development and documentation conventions."}
-{"file":".trellis/spec/backend/directory-structure.md","reason":"Keep the new independent Runtime package layout explicit and maintainable."}
-{"file":".trellis/spec/backend/error-handling.md","reason":"Define predictable CLI, workflow, and diagnostics failure behavior."}
-{"file":".trellis/spec/backend/quality-guidelines.md","reason":"Apply backend quality and testing review to the new Runtime."}
-{"file":".trellis/spec/backend/logging-guidelines.md","reason":"Ensure run logs are structured and never retain secrets."}
-{"file":".trellis/spec/guides/code-reuse-thinking-guide.md","reason":"Avoid divergent validation, checksum, and persistence implementations."}
-{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"Trace data contracts from Provider through workflow, persistence, report, resume, and doctor."}
-{"file":".trellis/tasks/07-14-first-investkit-runtime-vertical-slice/research/repository-and-scope.md","reason":"Use the recorded language, packaging, scope, roadmap, and supply-chain decisions."}
