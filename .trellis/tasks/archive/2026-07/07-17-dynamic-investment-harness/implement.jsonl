@@ -1,0 +1,8 @@
+{"file":".trellis/spec/backend/index.md","reason":"Backend spec entry point and active contract routing."}
+{"file":".trellis/spec/backend/investkit-runtime-contract.md","reason":"Existing CLI, asset delivery, provider, persistence, resume, doctor, and packaging contracts to preserve or deliberately amend."}
+{"file":".trellis/spec/backend/investment-core-contract.md","reason":"Existing Skill, capability-result, workflow, source, report, and analysis safeguards to preserve behind dynamic routing."}
+{"file":"docs/security/security-policy.md","reason":"Project security boundary for credentials, network services, and untrusted third-party assets."}
+{"file":"docs/skill-research/taxonomy.md","reason":"Canonical asset taxonomy required by the runtime catalog."}
+{"file":"docs/skill-research/acceptance-criteria.md","reason":"Review and promotion evidence requirements for external assets."}
+{"file":".trellis/tasks/07-17-dynamic-investment-harness/research/current-baseline-and-inventory.md","reason":"Verified baseline and exact 49-asset scope."}
+{"file":".trellis/tasks/07-17-dynamic-investment-harness/research/manifest-driven-harness-design.md","reason":"Chosen control-plane, state, planner, adapter, and Guangfa security design."}
